@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "DeepClean Admin",
+    "slug": "deepclean-admin",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/appstore.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/appstore.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.deepclean.admin"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/appstore.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.deepclean.admin"
+    },
+    "web": {
+      "favicon": "./assets/appstore.png"
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}

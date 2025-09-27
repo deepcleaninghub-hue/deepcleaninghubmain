@@ -1,0 +1,50 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark forest green background -->
+  <rect width="1024" height="1024" fill="#2d5016" rx="180"/>
+  
+  <!-- Semi-circular arc at top (dark blue) -->
+  <path d="M 200 200 Q 512 100 824 200" stroke="#1e3a0f" stroke-width="12" fill="none"/>
+  
+  <!-- Three four-pointed stars in the arc (dark blue) -->
+  <g fill="#1e3a0f">
+    <path d="M 300 180 L 310 200 L 330 200 L 315 210 L 320 230 L 300 220 L 280 230 L 285 210 L 270 200 L 290 200 Z"/>
+    <path d="M 512 160 L 522 180 L 542 180 L 527 190 L 532 210 L 512 200 L 492 210 L 497 190 L 482 180 L 502 180 Z"/>
+    <path d="M 724 180 L 734 200 L 754 200 L 739 210 L 744 230 L 724 220 L 704 230 L 709 210 L 694 200 L 714 200 Z"/>
+  </g>
+  
+  <!-- Cleaning tools (dark blue silhouettes) -->
+  <g fill="#1e3a0f">
+    <!-- Left spray bottle with spray dots -->
+    <rect x="250" y="280" width="50" height="100" rx="8"/>
+    <rect x="260" y="270" width="30" height="25" rx="4"/>
+    <!-- Spray dots -->
+    <circle cx="270" cy="300" r="2" fill="#2d5016"/>
+    <circle cx="280" cy="310" r="1.5" fill="#2d5016"/>
+    <circle cx="275" cy="320" r="1.5" fill="#2d5016"/>
+    <circle cx="285" cy="315" r="1" fill="#2d5016"/>
+    
+    <!-- Central squeegee (taller, behind others) -->
+    <rect x="420" y="250" width="12" height="120" rx="6"/>
+    <rect x="380" y="250" width="80" height="15" rx="7"/>
+    
+    <!-- Broom (wide fanned head) -->
+    <rect x="580" y="280" width="12" height="100" rx="6"/>
+    <rect x="540" y="280" width="80" height="25" rx="12"/>
+    
+    <!-- Right spray bottle with spray dots -->
+    <rect x="724" y="280" width="50" height="100" rx="8"/>
+    <rect x="734" y="270" width="30" height="25" rx="4"/>
+    <!-- Spray dots -->
+    <circle cx="744" cy="300" r="2" fill="#2d5016"/>
+    <circle cx="754" cy="310" r="1.5" fill="#2d5016"/>
+    <circle cx="749" cy="320" r="1.5" fill="#2d5016"/>
+    <circle cx="759" cy="315" r="1" fill="#2d5016"/>
+  </g>
+  
+  <!-- Bright green curved line (base) -->
+  <path d="M 200 420 Q 512 520 824 420" stroke="#4a7c59" stroke-width="8" fill="none"/>
+  
+  <!-- DEEP CLEAN text -->
+  <text x="512" y="520" font-family="Arial, sans-serif" font-size="80" font-weight="bold" text-anchor="middle" fill="#1e3a0f">DEEP</text>
+  <text x="512" y="580" font-family="Arial, sans-serif" font-size="56" font-weight="normal" text-anchor="middle" fill="#4a7c59">CLEAN</text>
+</svg>

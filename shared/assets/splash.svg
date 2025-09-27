@@ -1,0 +1,52 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark forest green background -->
+  <rect width="1284" height="2778" fill="#2d5016"/>
+  
+  <!-- Central logo area -->
+  <g transform="translate(642, 1000)">
+    <!-- Semi-circular arc -->
+    <path d="M -300 -200 Q 0 -300 300 -200" stroke="#1e3a0f" stroke-width="12" fill="none"/>
+    
+    <!-- Stars -->
+    <g fill="#1e3a0f">
+      <path d="M -200 -220 L -190 -200 L -170 -200 L -185 -190 L -180 -170 L -200 -180 L -220 -170 L -215 -190 L -230 -200 L -210 -200 Z"/>
+      <path d="M 0 -240 L 10 -220 L 30 -220 L 15 -210 L 20 -190 L 0 -200 L -20 -190 L -15 -210 L -30 -220 L -10 -220 Z"/>
+      <path d="M 200 -220 L 210 -200 L 230 -200 L 215 -190 L 220 -170 L 200 -180 L 180 -170 L 185 -190 L 170 -200 L 190 -200 Z"/>
+    </g>
+    
+    <!-- Cleaning tools -->
+    <g fill="#1e3a0f">
+      <!-- Left spray bottle -->
+      <rect x="-200" y="-100" width="50" height="100" rx="10"/>
+      <rect x="-185" y="-120" width="20" height="25" rx="5"/>
+      <circle cx="-175" cy="-80" r="4" fill="#2d5016"/>
+      <circle cx="-165" cy="-60" r="3" fill="#2d5016"/>
+      <circle cx="-170" cy="-40" r="3" fill="#2d5016"/>
+      
+      <!-- Squeegee -->
+      <rect x="-50" y="-120" width="10" height="120" rx="5"/>
+      <rect x="-80" y="-120" width="80" height="15" rx="7"/>
+      
+      <!-- Broom -->
+      <rect x="100" y="-100" width="10" height="100" rx="5"/>
+      <rect x="70" y="-100" width="80" height="20" rx="10"/>
+      
+      <!-- Right spray bottle -->
+      <rect x="150" y="-100" width="50" height="100" rx="10"/>
+      <rect x="165" y="-120" width="20" height="25" rx="5"/>
+      <circle cx="175" cy="-80" r="4" fill="#2d5016"/>
+      <circle cx="185" cy="-60" r="3" fill="#2d5016"/>
+      <circle cx="180" cy="-40" r="3" fill="#2d5016"/>
+    </g>
+    
+    <!-- Bright green curved line -->
+    <path d="M -300 50 Q 0 150 300 50" stroke="#4a7c59" stroke-width="8" fill="none"/>
+    
+    <!-- DEEP CLEAN text -->
+    <text x="0" y="150" font-family="Arial, sans-serif" font-size="96" font-weight="bold" text-anchor="middle" fill="#1e3a0f">DEEP</text>
+    <text x="0" y="200" font-family="Arial, sans-serif" font-size="64" font-weight="normal" text-anchor="middle" fill="#4a7c59">CLEAN</text>
+    
+    <!-- Subtitle -->
+    <text x="0" y="280" font-family="Arial, sans-serif" font-size="32" font-weight="normal" text-anchor="middle" fill="#ffffff">Professional Cleaning Services</text>
+  </g>
+</svg>
