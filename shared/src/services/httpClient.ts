@@ -65,12 +65,7 @@ class SimpleHttpClient {
       ...options.headers,
     };
 
-    console.log('=== HTTP CLIENT DEBUG ===');
-    console.log('Making request to:', url);
-    console.log('Method:', options.method || 'GET');
-    console.log('Token from storage:', token ? `Token found: ${token.substring(0, 20)}...` : 'No token found');
-    console.log('Headers:', headers);
-    console.log('Body:', options.body);
+    // HTTP request debug - silent in production
 
     const config: RequestInit = {
       method: options.method || 'GET',
@@ -84,8 +79,7 @@ class SimpleHttpClient {
     try {
       const response = await fetch(url, config);
       
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
+      // Response debug - silent
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -101,12 +95,12 @@ class SimpleHttpClient {
       }
 
       if (response.status === 204) {
-        console.log('No content response');
+        // No content response - silent
         return {} as T; // No content
       }
 
       const responseData = await response.json();
-      console.log('Response data:', responseData);
+      // Response data - silent
       return responseData;
     } catch (error) {
       console.error('HTTP request failed:', error);

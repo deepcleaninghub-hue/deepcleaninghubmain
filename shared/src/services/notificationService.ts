@@ -30,7 +30,7 @@ class NotificationService {
     try {
       // Check if device is physical (notifications don't work on simulators)
       if (!Device.isDevice) {
-        console.log('⚠️ Push notifications only work on physical devices');
+        // Push notifications only work on physical devices - silent
         return false;
       }
 
@@ -44,7 +44,7 @@ class NotificationService {
       }
 
       if (finalStatus !== 'granted') {
-        console.log('❌ Failed to get push token for push notification!');
+        // Failed to get push token - silent
         return false;
       }
 
@@ -53,14 +53,14 @@ class NotificationService {
       try {
         const token = await Notifications.getExpoPushTokenAsync();
         this.expoPushToken = token.data;
-        console.log('📱 Expo push token:', this.expoPushToken);
+        // Expo push token obtained - silent
         await AsyncStorage.setItem('expoPushToken', this.expoPushToken);
       } catch (tokenError) {
-        console.log('⚠️ Could not get push token, but local notifications will still work');
+        // Could not get push token - silent
         // Local notifications don't require a push token
       }
 
-      console.log('✅ Notifications initialized successfully');
+      // Notifications initialized - silent
       return true;
     } catch (error) {
       console.error('❌ Error initializing notifications:', error);
@@ -81,7 +81,7 @@ class NotificationService {
         return storedToken;
       }
     } catch (error) {
-      console.log('⚠️ Could not retrieve stored push token');
+      // Could not retrieve stored push token - silent
     }
 
     return null;
@@ -99,7 +99,7 @@ class NotificationService {
       // Check if we've already scheduled a reminder for this booking
       const notificationKey = `service_reminder_${bookingData.id}`;
       if (this.scheduledNotifications.has(notificationKey)) {
-        console.log('🚫 Service reminder already scheduled for:', bookingData.id);
+        // Service reminder already scheduled - silent
         return null;
       }
 
@@ -132,12 +132,7 @@ class NotificationService {
 
       // Mark this notification as scheduled
       this.scheduledNotifications.add(notificationKey);
-      console.log('📅 Service reminder scheduled:', {
-        notificationId,
-        reminderTime: reminderTime.toISOString(),
-        serviceDate: bookingData.serviceDate,
-        serviceTime: bookingData.serviceTime
-      });
+      // Service reminder scheduled - silent
 
       return notificationId;
     } catch (error) {
@@ -154,16 +149,16 @@ class NotificationService {
     customerName: string;
   }): Promise<string | null> {
     try {
-      console.log('🔔 scheduleBookingConfirmation called with:', bookingData);
+      // scheduleBookingConfirmation called - silent
       
       // Check if we've already scheduled a notification for this booking
       const notificationKey = `booking_confirmation_${bookingData.id}`;
       if (this.scheduledNotifications.has(notificationKey)) {
-        console.log('🚫 Booking confirmation notification already scheduled for:', bookingData.id);
+        // Booking confirmation already scheduled - silent
         return null;
       }
 
-      console.log('📤 Scheduling booking confirmation notification...');
+      // Scheduling booking confirmation - silent
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title: '✅ Booking Confirmed',
@@ -181,7 +176,7 @@ class NotificationService {
 
       // Mark this notification as scheduled
       this.scheduledNotifications.add(notificationKey);
-      console.log('✅ Booking confirmation notification sent:', notificationId);
+      // Booking confirmation notification sent - silent
       return notificationId;
     } catch (error) {
       console.error('❌ Error sending booking confirmation notification:', error);
@@ -192,7 +187,7 @@ class NotificationService {
   async cancelNotification(notificationId: string): Promise<boolean> {
     try {
       await Notifications.cancelScheduledNotificationAsync(notificationId);
-      console.log('🗑️ Notification cancelled:', notificationId);
+      // Notification cancelled - silent
       return true;
     } catch (error) {
       console.error('❌ Error cancelling notification:', error);
@@ -203,7 +198,7 @@ class NotificationService {
   async cancelAllNotifications(): Promise<boolean> {
     try {
       await Notifications.cancelAllScheduledNotificationsAsync();
-      console.log('🗑️ All notifications cancelled');
+      // All notifications cancelled - silent
       return true;
     } catch (error) {
       console.error('❌ Error cancelling all notifications:', error);
@@ -226,7 +221,7 @@ class NotificationService {
     try {
       // Check if device is physical (notifications don't work on simulators)
       if (!Device.isDevice) {
-        console.log('⚠️ Test notifications only work on physical devices, not simulators');
+        // Test notifications only work on physical devices - silent
         return null;
       }
 
@@ -240,7 +235,7 @@ class NotificationService {
         trigger: { seconds: 2 } as any, // Show after 2 seconds
       });
 
-      console.log('🧪 Test notification sent:', notificationId);
+      // Test notification sent - silent
       return notificationId;
     } catch (error) {
       console.error('❌ Error sending test notification:', error);

@@ -11,7 +11,7 @@ export interface AnalyticsEvent {
   name: string;
   properties?: Record<string, any>;
   timestamp?: number;
-  userId?: string;
+  userId?: string | undefined;
   sessionId?: string;
 }
 

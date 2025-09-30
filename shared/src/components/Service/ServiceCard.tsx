@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -13,6 +14,7 @@ import { Text, Card, Button, useTheme, Portal } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ServiceCardProps {
   id: string;
@@ -54,28 +56,66 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const theme = useTheme();
   const { isAuthenticated } = useAuth();
   const { addToCart, isServiceInCart, loading } = useCart();
+  const { t, translateDynamicText, currentLanguage } = useLanguage();
   const [showMeasurementModal, setShowMeasurementModal] = useState(false);
   const [measurement, setMeasurement] = useState('');
   const [distance, setDistance] = useState('');
   const [calculatedPrice, setCalculatedPrice] = useState(0);
+  const [translatedTitle, setTranslatedTitle] = useState(title);
+  const [translatedDescription, setTranslatedDescription] = useState(description);
+
+  // Translate content when language changes (optimized)
+  useEffect(() => {
+    const translateContent = async () => {
+      // Skip translation if already in English or if text is empty
+      if (currentLanguage === 'en' || !title.trim() || !description.trim()) {
+        setTranslatedTitle(title);
+        setTranslatedDescription(description);
+        return;
+      }
+
+      try {
+        // Only translate if we haven't already translated this content
+        const titleKey = `${title}-${currentLanguage}`;
+        const descKey = `${description}-${currentLanguage}`;
+        
+        // Check if we already have these translations cached
+        if (translatedTitle === title && translatedDescription === description) {
+          // This is the first time, proceed with translation
+          const [translatedTitleResult, translatedDescriptionResult] = await Promise.all([
+            translateDynamicText(title),
+            translateDynamicText(description)
+          ]);
+          setTranslatedTitle(translatedTitleResult);
+          setTranslatedDescription(translatedDescriptionResult);
+        }
+      } catch (error) {
+        console.error('Translation error:', error);
+        // Keep original text if translation fails
+        setTranslatedTitle(title);
+        setTranslatedDescription(description);
+      }
+    };
+
+    translateContent();
+  }, [currentLanguage]); // Removed title, description, translateDynamicText from dependencies
   
   // Determine if this is office moving (uses items) or house moving (uses area)
   const isOfficeMoving = service_id === 'office-moving';
-  const inputLabel = isOfficeMoving ? 'Number of Items' : 'Area (m²)';
-  const inputPlaceholder = isOfficeMoving ? 'Enter number of items' : 'Enter area in m²';
-  const modalTitle = isOfficeMoving ? 'Enter Item Details' : 'Enter Measurement';
+  const inputLabel = isOfficeMoving ? t('serviceCard.numberOfItems') : t('serviceCard.area') + ' (m²)';
+  const inputPlaceholder = isOfficeMoving ? t('serviceCard.enterNumberOfItems') : t('serviceCard.enterAreaInM2');
+  const modalTitle = isOfficeMoving ? t('serviceCard.enterItemDetails') : t('serviceCard.enterMeasurement');
   
-  // Debug logging
-  console.log('ServiceCard Debug:', { service_id, isOfficeMoving, inputLabel });
+  // Debug logging - silent
 
   const handleViewService = () => {
-    Alert.alert('Service Details', `Viewing details for ${title}`);
+    Alert.alert(t('services.serviceDetails'), `${t('services.viewingDetails')} ${title}`);
     // Here you would typically navigate to a service detail screen
   };
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
-      Alert.alert('Login Required', 'Please login to add items to your cart');
+      Alert.alert(t('auth.loginRequired'), t('cart.loginToAddItems'));
       return;
     }
 
@@ -120,15 +160,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     const numValue = parseFloat(value);
     const numDistance = parseFloat(dist);
     
-    console.log('Calculate Price Debug:', { 
-      value, 
-      dist, 
-      numValue, 
-      numDistance, 
-      unit_price, 
-      isOfficeMoving,
-      service_id 
-    });
+    // Calculate Price Debug - silent
     
     if (!isNaN(numValue) && !isNaN(numDistance) && unit_price) {
       // Both house moving and office moving use same calculation: (value * rate) + (distance * 0.5) + 19% VAT
@@ -138,7 +170,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       const tax = subtotal * 0.19;
       const total = subtotal + tax;
       
-      console.log('Price Calculation:', { labour, transport, subtotal, tax, total });
+      // Price Calculation - silent
       setCalculatedPrice(total);
     } else {
       setCalculatedPrice(0);
@@ -150,22 +182,22 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     const numDistance = parseFloat(distance);
     
     if (isNaN(numMeasurement) || numMeasurement <= 0) {
-      Alert.alert('Invalid Input', `Please enter a valid ${isOfficeMoving ? 'number of items' : 'area'}`);
+      Alert.alert(t('errors.invalidInput'), `${t('services.enterValid')} ${isOfficeMoving ? t('services.numberOfItems') : t('services.area')}`);
       return;
     }
 
     if (isNaN(numDistance) || numDistance <= 0) {
-      Alert.alert('Invalid Input', 'Please enter a valid distance');
+      Alert.alert(t('errors.invalidInput'), t('services.enterValidDistance'));
       return;
     }
 
     if (min_measurement && numMeasurement < min_measurement) {
-      Alert.alert('Invalid Input', `Minimum ${isOfficeMoving ? 'items' : 'area'} is ${min_measurement} ${unit_measure}`);
+      Alert.alert(t('errors.invalidInput'), `${t('services.minimum')} ${isOfficeMoving ? t('services.items') : t('services.area')} ${t('services.is')} ${min_measurement} ${unit_measure}`);
       return;
     }
 
     if (max_measurement && numMeasurement > max_measurement) {
-      Alert.alert('Invalid Input', `Maximum ${isOfficeMoving ? 'items' : 'area'} is ${max_measurement} ${unit_measure}`);
+      Alert.alert(t('errors.invalidInput'), `${t('services.maximum')} ${isOfficeMoving ? t('services.items') : t('services.area')} ${t('services.is')} ${max_measurement} ${unit_measure}`);
       return;
     }
 
@@ -219,10 +251,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         </View>
         <Card.Content style={[styles.content, compact ? styles.contentCompact : null]}>
           <Text variant={compact ? 'titleSmall' : 'titleMedium'} style={[styles.title, compact ? styles.titleCompact : null, { color: theme.colors.onSurface }]}>
-            {title || 'Service Title'}
+            {translatedTitle || t('serviceCard.serviceTitle')}
           </Text>
           <Text variant={compact ? 'bodySmall' : 'bodyMedium'} style={[styles.description, compact ? styles.descriptionCompact : null, { color: theme.colors.onSurfaceVariant }]}>
-            {description || 'Service Description'}
+            {translatedDescription || t('serviceCard.serviceDescription')}
           </Text>
           
           {(price !== undefined && price !== null) && (
@@ -259,7 +291,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                   />
                 )}
               >
-                {isServiceInCart(id) ? 'In Cart' : 'Add to Cart'}
+                {isServiceInCart(id) ? t('serviceCard.inCart') : t('serviceCard.addToCart')}
               </Button>
             )}
           </View>
@@ -316,7 +348,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                   backgroundColor: theme.colors.surface,
                   color: theme.colors.onSurface,
                 }]}
-                placeholder="Enter distance in km"
+                placeholder={t('services.enterDistance')}
                 placeholderTextColor={theme.colors.onSurfaceVariant}
                 value={distance}
                 onChangeText={handleDistanceChange}
@@ -328,7 +360,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             {calculatedPrice > 0 && (
               <View style={styles.priceCalculation}>
                 <Text variant="bodySmall" style={[styles.calculationText, { color: theme.colors.onSurface }]}>
-                  {isOfficeMoving ? 'Items' : 'Area'}: {measurement} {isOfficeMoving ? 'items' : 'm²'} × €{unit_price?.toFixed(2)} = €{(parseFloat(measurement) * (unit_price || 0)).toFixed(2)}
+                  {isOfficeMoving ? t('serviceCard.items') : t('serviceCard.area')}: {measurement} {isOfficeMoving ? t('serviceCard.items') : 'm²'} × €{unit_price?.toFixed(2)} = €{(parseFloat(measurement) * (unit_price || 0)).toFixed(2)}
                 </Text>
                 <Text variant="bodySmall" style={[styles.calculationText, { color: theme.colors.onSurface }]}>
                   Transport: {distance} km × €0.50 = €{(parseFloat(distance) * 0.5).toFixed(2)}
@@ -374,7 +406,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 12,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 2,

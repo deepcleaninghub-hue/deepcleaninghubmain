@@ -12,7 +12,6 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import AppHeader from '../../components/AppHeader';
 import { CartStackScreenProps } from '../../navigation/types';
-import whatsappAPI from '../../services/whatsappAPI';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../hooks/useNotifications';
 

@@ -1,6 +1,6 @@
-# DeepClean Mobile Hub - Shared Codebase
+# Deep Cleaning Hub - Shared Codebase
 
-A modern, well-architected React Native app for DeepClean cleaning services.
+A modern, well-architected React Native app for Deep Cleaning Hub cleaning services.
 
 ## 🏗️ Architecture
 

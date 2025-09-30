@@ -1,3 +1,4 @@
+// Enhanced with comprehensive color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React from 'react';
 import { View, ScrollView, StyleSheet, RefreshControl, Alert, Platform } from 'react-native';
 import { Text, Card, Button, Chip, Divider, useTheme, IconButton, ActivityIndicator } from 'react-native-paper';
@@ -6,6 +7,8 @@ import AppHeader from '../../components/AppHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import AutoTranslateText from '../../components/AutoTranslateText';
 import { CartStackScreenProps } from '../../navigation/types';
 
 type Props = CartStackScreenProps<'CartMain'>;
@@ -13,6 +16,7 @@ type Props = CartStackScreenProps<'CartMain'>;
 export const CartScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { user, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const { 
     cartItems, 
     cartSummary, 
@@ -25,7 +29,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
-      Alert.alert('Login Required', 'Please login to proceed to checkout');
+      Alert.alert(t('cart.loginRequired'), t('cart.loginToCheckout'));
       return;
     }
     navigation.navigate('Checkout');
@@ -38,14 +42,14 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
   if (!isAuthenticated) {
     return (
       <SafeAreaView style={styles.container}>
-        <AppHeader title="Cart" />
+        <AppHeader title={t('cart.title')} />
         <View style={styles.emptyContainer}>
           <Ionicons name="cart-outline" size={80} color={theme.colors.outline} />
           <Text variant="headlineSmall" style={styles.emptyTitle}>
-            Please Login
+            {t('cart.pleaseLogin')}
           </Text>
           <Text variant="bodyLarge" style={styles.emptyText}>
-            You need to be logged in to view your cart
+            {t('cart.loginToViewCart')}
           </Text>
         </View>
       </SafeAreaView>
@@ -55,14 +59,14 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
   if (cartItems.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
-        <AppHeader title="Cart" />
+        <AppHeader title={t('cart.title')} />
         <View style={styles.emptyContainer}>
           <Ionicons name="cart-outline" size={80} color={theme.colors.outline} />
           <Text variant="headlineSmall" style={styles.emptyTitle}>
-            Your Cart is Empty
+            {t('cart.emptyCart')}
           </Text>
           <Text variant="bodyLarge" style={styles.emptyText}>
-            Add some services to get started
+            {t('cart.addItems')}
           </Text>
         </View>
       </SafeAreaView>
@@ -71,7 +75,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="Cart" />
+        <AppHeader title={t('cart.title')} />
 
       {/* Manual Refresh Button */}
       <View style={styles.refreshButtonContainer}>
@@ -86,7 +90,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
           compact
           style={styles.refreshButton}
         >
-          {loading ? 'Refreshing...' : 'Refresh Cart'}
+          {loading ? t('cart.refreshing') : t('cart.refreshCart')}
         </Button>
       </View>
 
@@ -104,7 +108,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             colors={[theme.colors.primary]}
             tintColor={theme.colors.primary}
             progressBackgroundColor={theme.colors.surface}
-            title="Pull to refresh"
+            title={t('cart.pullToRefresh')}
             titleColor={theme.colors.onSurface}
           />
         }
@@ -115,13 +119,13 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             <Card.Content style={styles.cartItemContent}>
               <View style={styles.itemInfo}>
                 <Text variant="titleMedium" style={[styles.itemName, { color: theme.colors.onSurface }]}>
-                  {item.service_title || item.title || 'Service'}
+                  {item.service_title || item.title || t('cart.service')}
                 </Text>
                 <Text variant="bodyMedium" style={[styles.itemDuration, { color: theme.colors.onSurfaceVariant }]}>
-                  Description: {item.service_description || item.description || 'No description available'}
+                  {t('cart.description')} {item.service_description || item.description || t('cart.noDescriptionAvailable')}
                 </Text>
                 <Text variant="bodyMedium" style={[styles.itemCategory, { color: theme.colors.onSurfaceVariant }]}>
-                  Service ID: {item.service_id || item.serviceId || 'Unknown'}
+                  {t('cart.serviceId')} {item.service_id || item.serviceId || t('cart.unknown')}
                 </Text>
                 {item.user_inputs && item.user_inputs.measurement && (
                   <Text variant="bodySmall" style={[styles.measurementText, { color: theme.colors.primary }]}>
@@ -171,11 +175,11 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
         <Card style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.summaryTitle, { color: theme.colors.onSurface }]}>
-              Order Summary
+              {t('cart.orderSummary')}
             </Text>
             <View style={styles.summaryRow}>
               <Text variant="titleLarge" style={[styles.totalLabel, { color: theme.colors.onSurface }]}>
-                Total
+                {t('cart.total')}
               </Text>
               <Text variant="titleLarge" style={[styles.totalValue, { color: theme.colors.primary }]}>
                 €{(cartSummary?.totalPrice || 0).toFixed(2)}
@@ -193,7 +197,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             style={styles.clearButton}
             disabled={loading}
           >
-            Clear Cart
+            {t('cart.clearCart')}
           </Button>
           <Button 
             mode="contained" 
@@ -203,7 +207,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             contentStyle={styles.checkoutButtonContent}
             disabled={loading}
           >
-            {loading ? <ActivityIndicator size="small" color="white" /> : 'Proceed to Checkout'}
+            {loading ? <ActivityIndicator size="small" color="white" /> : t('cart.proceedToCheckout')}
           </Button>
         </View>
       </ScrollView>
@@ -214,7 +218,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F7F7',
   },
   header: {
     paddingHorizontal: 16,
@@ -222,7 +226,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     elevation: 2,
-    shadowColor: '#000000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 1,
@@ -247,7 +251,7 @@ const styles = StyleSheet.create({
   refreshButtonContainer: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F7F7',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
@@ -258,7 +262,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 12,
     elevation: 2,
-    shadowColor: '#000000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 1,
@@ -316,7 +320,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     borderRadius: 16,
     elevation: 4,
-    shadowColor: '#000000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 2,

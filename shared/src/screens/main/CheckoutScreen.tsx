@@ -1,3 +1,4 @@
+// Enhanced with comprehensive color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -15,6 +16,8 @@ import AppHeader from '../../components/AppHeader';
 import MultiDateSelector from '../../components/MultiDateSelector';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import AutoTranslateText from '../../components/AutoTranslateText';
 import { serviceBookingAPI, CreateServiceBookingData } from '../../services/serviceBookingAPI';
 import { profileAPI, UserProfile } from '../../services/profileAPI';
 import { CartStackScreenProps } from '../../navigation/types';
@@ -34,6 +37,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { cartItems, cartSummary, clearCart } = useCart();
   const { user } = useAuth();
+  const { t, tAuto } = useLanguage();
   
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -45,7 +49,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
     street_address: '',
     city: '',
     postal_code: '',
-    country: 'Germany',
+    country: t('common.germany'),
     additional_notes: '',
   });
   const [serviceDate, setServiceDate] = useState(new Date());
@@ -79,14 +83,14 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               street_address: userProfile.address || '',
               city: userProfile.city || '',
               postal_code: userProfile.postal_code || '',
-              country: userProfile.country || 'Germany',
+              country: userProfile.country || t('common.germany'),
               additional_notes: '', // Leave empty for user to fill
             }));
           } else {
             // Fallback to basic user info if profile not found
             setAddress(prevAddress => ({
               ...prevAddress,
-              country: 'Germany',
+              country: t('common.germany'),
               additional_notes: '', // Leave empty for user to fill
             }));
           }
@@ -95,7 +99,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
           // Fallback to basic user info on error
           setAddress(prevAddress => ({
             ...prevAddress,
-            country: 'Germany',
+            country: t('common.germany'),
             additional_notes: '', // Leave empty for user to fill
           }));
         }
@@ -134,23 +138,23 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
 
   const validateForm = () => {
     if (!address.street_address.trim()) {
-      Alert.alert('Error', 'Please enter your street address');
+      Alert.alert(t('errors.error'), t('checkout.enterStreetAddress'));
       return false;
     }
     if (!address.city.trim()) {
-      Alert.alert('Error', 'Please enter your city');
+      Alert.alert(t('errors.error'), t('checkout.enterCity'));
       return false;
     }
     if (!address.postal_code.trim()) {
-      Alert.alert('Error', 'Please enter your postal code');
+      Alert.alert(t('errors.error'), t('checkout.enterPostalCode'));
       return false;
     }
     if (isMultiDay && selectedDates.length === 0) {
-      Alert.alert('Error', 'Please select at least one service date');
+      Alert.alert(t('errors.error'), t('checkout.selectServiceDate'));
       return false;
     }
     if (!isMultiDay && !serviceDate) {
-      Alert.alert('Error', 'Please select a service date');
+      Alert.alert(t('errors.error'), t('checkout.selectServiceDate'));
       return false;
     }
     return true;
@@ -176,15 +180,11 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
         id: 'single_date'
       }];
 
-      console.log('Starting to create service bookings...');
-      console.log('Cart items:', cartItems);
-      console.log('User:', user);
-      console.log('Is multi-day:', isMultiDay);
-      console.log('Dates to book:', datesToBook);
+      // Creating service bookings - silent
       
       // Create service bookings for each cart item
       const bookingPromises = cartItems.map(async (item, index) => {
-        console.log(`Creating booking for item ${index + 1}:`, item);
+        // Creating booking for item - silent
         
         const serviceId = item.service_id || item.serviceId;
         if (!serviceId) {
@@ -211,11 +211,11 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
           payment_method: 'pending'
         };
 
-        console.log(`Booking data for item ${index + 1}:`, bookingData);
+        // Booking data for item - silent
         
         try {
           const result = await serviceBookingAPI.createBooking(bookingData);
-          console.log(`Successfully created booking for item ${index + 1}:`, result);
+          // Successfully created booking - silent
           return result;
         } catch (itemError) {
           console.error(`Error creating booking for item ${index + 1}:`, itemError);
@@ -224,14 +224,14 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
       });
 
       // Create all bookings
-      console.log('Creating all bookings...');
+      // Creating all bookings - silent
       const createdBookings = await Promise.all(bookingPromises);
-      console.log('All bookings created successfully:', createdBookings);
+      // All bookings created successfully - silent
       
       // Clear cart and navigate to confirmation
-      console.log('Clearing cart...');
+      // Clearing cart - silent
       await clearCart();
-      console.log('Navigating to confirmation...');
+      // Navigating to confirmation - silent
       
       // Generate unique order ID
       const uniqueOrderId = `ORDER_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -255,7 +255,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
       
     } catch (error) {
       console.error('Error creating service bookings:', error);
-      Alert.alert('Error', `Failed to create service bookings: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      Alert.alert(t('errors.error'), `${t('checkout.bookingFailed')}: ${error instanceof Error ? error.message : t('errors.unknownError')}`);
     } finally {
       setLoading(false);
     }
@@ -285,17 +285,17 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.emptyContainer}>
           <Ionicons name="cart-outline" size={80} color={theme.colors.outline} />
           <Text variant="headlineSmall" style={[styles.emptyTitle, { color: theme.colors.onSurface }]}>
-            Your cart is empty
+            {t('checkout.yourCartIsEmpty')}
           </Text>
           <Text variant="bodyLarge" style={[styles.emptySubtitle, { color: theme.colors.onSurfaceVariant }]}>
-            Add some services to get started
+            {t('checkout.addSomeServices')}
           </Text>
           <Button
             mode="contained"
             onPress={() => navigation.navigate('Services' as any)}
             style={styles.continueButton}
           >
-            Continue Shopping
+            {t('checkout.continueShopping')}
           </Button>
         </View>
       </SafeAreaView>
@@ -304,7 +304,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="Checkout" showBack />
+      <AppHeader title={t('checkout.title')} showBack />
       
       <ScrollView 
         style={styles.scrollView}
@@ -316,7 +316,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
-              Order Summary
+              {t('checkout.orderSummary')}
             </Text>
             <Divider style={styles.divider} />
             
@@ -324,10 +324,10 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               <View key={index} style={styles.itemRow}>
                 <View style={styles.itemInfo}>
                   <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-                    {item.service_title || item.title || 'Service'}
+                    {item.service_title || item.title || t('checkout.service')}
                   </Text>
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                    {item.service_duration || item.duration || '2 hours'} • Qty: {item.quantity}
+                    {item.service_duration || item.duration || t('checkout.twoHours')} • {t('checkout.qty')} {item.quantity}
                   </Text>
                 </View>
                 <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: 'bold' }}>
@@ -341,13 +341,13 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                 <Divider style={styles.divider} />
                 <View style={styles.pricingBreakdown}>
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
-                    Base Price (per day): €{(cartSummary?.totalPrice || 0).toFixed(2)}
+                    {t('checkout.basePricePerDay')} €{(cartSummary?.totalPrice || 0).toFixed(2)}
                   </Text>
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
-                    Number of Days: {selectedDates.length}
+                    {t('checkout.numberOfDays')} {selectedDates.length}
                   </Text>
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
-                    Total: €{(cartSummary?.totalPrice || 0).toFixed(2)} × {selectedDates.length} = €{totalPrice.toFixed(2)}
+                    {t('checkout.total')} €{(cartSummary?.totalPrice || 0).toFixed(2)} × {selectedDates.length} = €{totalPrice.toFixed(2)}
                   </Text>
                 </View>
               </>
@@ -356,7 +356,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
             <Divider style={styles.divider} />
             <View style={styles.totalRow}>
               <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>
-                Total
+                {t('checkout.total')}
               </Text>
               <Text variant="titleLarge" style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
                 €{totalPrice.toFixed(2)}
@@ -370,11 +370,11 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
           <Card.Content>
             <View style={styles.serviceDetailsHeader}>
               <Text variant="titleLarge" style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
-                Service Details
+                {t('checkout.serviceDetails')}
               </Text>
               <View style={styles.multiDayToggle}>
                 <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                  Multiple Days
+                  {t('checkout.multipleDays')}
                 </Text>
                 <Switch
                   value={isMultiDay}
@@ -397,7 +397,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               <View style={styles.dateTimeRow}>
                 <View style={styles.dateTimeItem}>
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                    Service Date
+                    {t('checkout.serviceDate')}
                   </Text>
                   <Button
                     mode="outlined"
@@ -410,7 +410,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                 
                 <View style={styles.dateTimeItem}>
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                    Service Time
+                    {t('checkout.serviceTime')}
                   </Text>
                   <Button
                     mode="outlined"
@@ -429,12 +429,12 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
-              Service Address
+              {t('checkout.serviceAddress')}
             </Text>
             <Divider style={styles.divider} />
             
             <TextInput
-              label="Street Address"
+              label={t('checkout.streetAddress')}
               value={address.street_address}
               onChangeText={(text) => setAddress({...address, street_address: text})}
               mode="outlined"
@@ -443,14 +443,14 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
             
             <View style={styles.addressRow}>
               <TextInput
-                label="City"
+                label={t('checkout.city')}
                 value={address.city}
                 onChangeText={(text) => setAddress({...address, city: text})}
                 mode="outlined"
                 style={[styles.input, styles.halfInput]}
               />
               <TextInput
-                label="Postal Code"
+                label={t('checkout.postalCode')}
                 value={address.postal_code}
                 onChangeText={(text) => setAddress({...address, postal_code: text})}
                 mode="outlined"
@@ -460,7 +460,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
             </View>
             
             <TextInput
-              label="Country"
+              label={t('checkout.country')}
               value={address.country}
               onChangeText={(text) => setAddress({...address, country: text})}
               mode="outlined"
@@ -468,7 +468,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
             />
             
             <TextInput
-              label="Additional Notes (Optional)"
+              label={t('checkout.additionalNotesOptional')}
               value={address.additional_notes}
               onChangeText={(text) => setAddress({...address, additional_notes: text})}
               mode="outlined"
@@ -483,12 +483,12 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
-              Special Instructions
+              {t('checkout.specialInstructions')}
             </Text>
             <Divider style={styles.divider} />
             
             <TextInput
-              label="Any special requests or instructions"
+              label={t('checkout.specialRequests')}
               value={specialInstructions}
               onChangeText={setSpecialInstructions}
               mode="outlined"
@@ -508,7 +508,11 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
           style={[styles.placeOrderButton, { backgroundColor: theme.colors.primary }]}
           contentStyle={styles.buttonContent}
         >
-          {loading ? 'Placing Order...' : `Place Order - €${totalPrice.toFixed(2)}`}
+          {loading ? (
+            t('checkout.placingOrder')
+          ) : (
+            `${t('checkout.placeOrder')}${totalPrice.toFixed(2)}`
+          )}
         </Button>
       </ScrollView>
 
@@ -529,14 +533,14 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                 onPress={() => setShowDatePicker(false)}
                 style={styles.pickerButton}
               >
-                Cancel
+                {t('checkout.cancel')}
               </Button>
               <Button
                 mode="contained"
                 onPress={handleDateConfirm}
                 style={styles.pickerButton}
               >
-                OK
+                {t('checkout.ok')}
               </Button>
             </View>
           )}
@@ -559,14 +563,14 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                 onPress={() => setShowTimePicker(false)}
                 style={styles.pickerButton}
               >
-                Cancel
+                {t('checkout.cancel')}
               </Button>
               <Button
                 mode="contained"
                 onPress={handleTimeConfirm}
                 style={styles.pickerButton}
               >
-                OK
+                {t('checkout.ok')}
               </Button>
             </View>
           )}
@@ -579,7 +583,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F7F7',
   },
   scrollView: {
     flex: 1,
@@ -679,7 +683,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    shadowColor: '#000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: -2,

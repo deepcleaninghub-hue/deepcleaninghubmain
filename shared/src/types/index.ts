@@ -297,7 +297,7 @@ export interface CartContextType {
 export interface BaseComponentProps {
   testID?: string;
   accessibilityLabel?: string;
-  accessibilityRole?: string;
+  accessibilityRole?: 'none' | 'button' | 'link' | 'image' | 'text' | 'keyboardkey' | 'search' | 'summary' | 'adjustable' | 'header' | 'alert' | 'checkbox' | 'combobox' | 'menu' | 'menubar' | 'menuitem' | 'progressbar' | 'radio' | 'radiogroup' | 'scrollbar' | 'spinbutton' | 'switch' | 'tab' | 'tablist' | 'timer' | 'toolbar' | 'tabbar' | 'tabpanel' | 'list' | 'listitem' | 'grid' | 'gridcell' | 'banner' | 'complementary' | 'contentinfo' | 'form' | 'main' | 'navigation' | 'region' | 'search' | 'article' | 'aside' | 'figure' | 'footer' | 'header' | 'section' | 'status' | 'alertdialog' | 'dialog' | 'log' | 'marquee' | 'note' | 'presentation' | 'separator' | 'tooltip' | 'tree' | 'treeitem';
   accessibilityHint?: string;
 }
 

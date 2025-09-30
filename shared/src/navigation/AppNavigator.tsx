@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MainTabParamList, ServicesStackParamList, CartStackParamList, OrdersStackParamList, ProfileStackParamList } from './types';
 import { theme } from '../utils/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Import screens (we'll create these next)
 import ServicesScreen from '../screens/main/ServicesScreen';
@@ -73,6 +74,7 @@ const ProfileStack = () => {
 
 export const AppNavigator: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -120,22 +122,22 @@ export const AppNavigator: React.FC = () => {
       <Tab.Screen 
         name="Services" 
         component={ServicesStack} 
-        options={{ title: 'Our Services' }}
+        options={{ title: t('services.title') }}
       />
       <Tab.Screen 
         name="Orders" 
         component={OrdersStack} 
-        options={{ title: 'My Orders' }}
+        options={{ title: t('orders.title') }}
       />
       <Tab.Screen 
         name="Cart" 
         component={CartStack} 
-        options={{ title: 'Cart' }}
+        options={{ title: t('cart.title') }}
       />
       <Tab.Screen 
         name="Profile" 
         component={ProfileStack} 
-        options={{ title: 'Profile' }}
+        options={{ title: t('profile.title') }}
       />
     </Tab.Navigator>
   );

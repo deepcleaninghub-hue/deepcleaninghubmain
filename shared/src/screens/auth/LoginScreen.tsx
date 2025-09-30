@@ -24,6 +24,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { validateEmail, validatePassword } from '../../utils/validation';
 import { AuthStackScreenProps } from '../../navigation/types';
 
@@ -32,6 +33,7 @@ type Props = AuthStackScreenProps<'Login'>;
 export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { signIn, loading } = useAuth();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -50,21 +52,21 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
     // Email validation
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('auth.emailRequired');
       isValid = false;
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = t('auth.enterValidEmail');
       isValid = false;
     }
 
     // Password validation
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('auth.passwordRequired');
       isValid = false;
     } else {
       const passwordValidation = validatePassword(formData.password);
       if (!passwordValidation.isValid) {
-        newErrors.password = passwordValidation.errors[0] || 'Invalid password';
+        newErrors.password = passwordValidation.errors[0] || t('auth.invalidPassword');
         isValid = false;
       }
     }
@@ -106,7 +108,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleForgotPassword = useCallback(() => {
     // TODO: Implement forgot password flow
-    Alert.alert('Forgot Password', 'Password reset functionality will be implemented soon.');
+    Alert.alert(t('auth.forgotPasswordTitle'), t('auth.passwordResetComingSoon'));
   }, []);
 
   return (
@@ -129,13 +131,13 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
               variant="headlineMedium" 
               style={[styles.title, { color: theme.colors.onSurface }]}
             >
-              Welcome Back
+              {t('auth.welcomeBack')}
             </Text>
             <Text 
               variant="bodyLarge" 
               style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
             >
-              Sign in to your Deep Cleaning Hub account
+              {t('auth.signInToAccount')}
             </Text>
           </View>
 
@@ -148,7 +150,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
               {/* Email Input */}
               <View style={styles.inputContainer}>
                 <TextInput
-                  label="Email"
+                  label={t('auth.email')}
                   value={formData.email}
                   onChangeText={(text) => handleInputChange('email', text)}
                   mode="outlined"
@@ -160,8 +162,8 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
                   left={<TextInput.Icon icon="email" />}
                   style={styles.input}
                   testID="email-input"
-                  accessibilityLabel="Email address"
-                  accessibilityHint="Enter your email address"
+                  accessibilityLabel={t('auth.email')}
+                  accessibilityHint={t('auth.enterEmail')}
                 />
                 {errors.email ? (
                   <Text 
@@ -176,7 +178,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
               {/* Password Input */}
               <View style={styles.inputContainer}>
                 <TextInput
-                  label="Password"
+                  label={t('auth.password')}
                   value={formData.password}
                   onChangeText={(text) => handleInputChange('password', text)}
                   mode="outlined"
@@ -193,8 +195,8 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
                   }
                   style={styles.input}
                   testID="password-input"
-                  accessibilityLabel="Password"
-                  accessibilityHint="Enter your password"
+                  accessibilityLabel={t('auth.password')}
+                  accessibilityHint={t('auth.enterPassword')}
                 />
                 {errors.password ? (
                   <Text 
@@ -214,7 +216,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
                 labelStyle={{ color: theme.colors.primary }}
                 testID="forgot-password-button"
               >
-                Forgot Password?
+                {t('auth.forgotPassword')}
               </Button>
 
               {/* Login Button */}
@@ -227,7 +229,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
                 contentStyle={styles.buttonContent}
                 testID="login-button"
               >
-                {loading ? 'Signing In...' : 'Sign In'}
+                {loading ? t('auth.signingIn') : t('auth.signIn')}
               </Button>
 
               {/* Login Failed Message */}
@@ -237,7 +239,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
                     variant="bodyMedium" 
                     style={[styles.errorText, { color: theme.colors.error }]}
                   >
-                    Wrong email or password. Please check your credentials and try again.
+                    {t('auth.wrongCredentials')}
                   </Text>
                 </View>
               )}
@@ -248,7 +250,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
                   variant="bodyMedium" 
                   style={{ color: theme.colors.onSurfaceVariant }}
                 >
-                  Don't have an account?{' '}
+                  {t('auth.noAccount')}{' '}
                 </Text>
                 <Button
                   mode="text"
@@ -257,29 +259,12 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
                   labelStyle={{ color: theme.colors.primary }}
                   testID="signup-button"
                 >
-                  Sign Up
+                  {t('auth.signUp')}
                 </Button>
               </View>
             </View>
           </Surface>
 
-          {/* Demo Credentials */}
-          <Card style={[styles.demoCard, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <Card.Content>
-              <Text 
-                variant="titleSmall" 
-                style={[styles.demoTitle, { color: theme.colors.onSurfaceVariant }]}
-              >
-                Demo Credentials
-              </Text>
-              <Text 
-                variant="bodySmall" 
-                style={[styles.demoText, { color: theme.colors.onSurfaceVariant }]}
-              >
-                For testing: Use any email and password (6+ chars)
-              </Text>
-            </Card.Content>
-          </Card>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -309,7 +294,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
-    shadowColor: '#000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -373,15 +358,5 @@ const styles = StyleSheet.create({
   },
   signUpButton: {
     marginLeft: -8,
-  },
-  demoCard: {
-    borderRadius: 8,
-  },
-  demoTitle: {
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  demoText: {
-    lineHeight: 16,
   },
 });

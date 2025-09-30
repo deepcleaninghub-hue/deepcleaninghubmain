@@ -68,7 +68,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
         style={styles.inlineContainer}
         testID={testID}
         accessibilityLabel={accessibilityLabel}
-        accessibilityRole={accessibilityRole}
+        accessibilityRole={accessibilityRole as any}
       >
         {content}
       </View>
@@ -80,7 +80,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
       style={[styles.card, { backgroundColor: theme.colors.surface }]}
       testID={testID}
       accessibilityLabel={accessibilityLabel}
-      accessibilityRole={accessibilityRole}
+      accessibilityRole={accessibilityRole as any}
     >
       <Card.Content style={styles.cardContent}>
         {content}

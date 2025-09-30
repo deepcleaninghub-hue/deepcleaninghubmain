@@ -1,3 +1,4 @@
+// Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -12,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { serviceBookingAPI, ServiceBooking, BookingGroup } from '../../services/serviceBookingAPI';
 import { OrdersStackScreenProps } from '../../navigation/types';
 
@@ -64,6 +66,7 @@ interface Order {
 export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
   const theme = useTheme();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { orderId } = route.params;
   const [order, setOrder] = useState<Order | ServiceBooking | BookingGroup | null>(null);
   const [loading, setLoading] = useState(true);
@@ -104,7 +107,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
       
     } catch (error) {
       console.error('Error loading order details:', error);
-      Alert.alert('Error', 'Failed to load order details');
+      Alert.alert(t('common.error'), t('orders.failedToLoadOrderDetails'));
     } finally {
       setLoading(false);
     }
@@ -174,12 +177,12 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
     
     const itemType = isBooking || isBookingGroup ? 'booking' : 'order';
     Alert.alert(
-      `Cancel ${itemType.charAt(0).toUpperCase() + itemType.slice(1)}`,
-      `Are you sure you want to cancel this ${itemType}? This action cannot be undone.`,
+      itemType === 'booking' ? t('orders.cancelBooking') : t('orders.cancelOrder'),
+      itemType === 'booking' ? t('orders.cancelBookingConfirm') : t('orders.cancelOrderConfirm'),
       [
-        { text: 'No', style: 'cancel' },
+        { text: t('common.no'), style: 'cancel' },
         {
-          text: 'Yes, Cancel',
+          text: t('orders.yesCancel'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -187,9 +190,9 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
                 await serviceBookingAPI.cancelBooking(order.id);
               }
               setOrder({ ...order, status: 'cancelled' } as any);
-              Alert.alert('Success', `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} cancelled successfully`);
+              Alert.alert(t('common.success'), itemType === 'booking' ? t('orders.bookingCancelledSuccess') : t('orders.orderCancelledSuccess'));
             } catch (error) {
-              Alert.alert('Error', `Failed to cancel ${itemType}`);
+              Alert.alert(t('common.error'), itemType === 'booking' ? t('orders.failedToCancelBooking') : t('orders.failedToCancelOrder'));
             }
           }
         }
@@ -198,7 +201,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
   };
 
   const handleRescheduleOrder = () => {
-    Alert.alert('Reschedule', 'Reschedule functionality coming soon!');
+    Alert.alert(t('orders.reschedule'), t('orders.rescheduleComingSoon'));
   };
 
   const handleContactProvider = () => {
@@ -216,7 +219,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
       <SafeAreaView style={styles.container}>
         <AppHeader />
         <View style={styles.loadingContainer}>
-          <Text>Loading order details...</Text>
+          <Text>{t('orders.loadingOrderDetails')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -227,7 +230,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader showBack title="Order Details" />
+      <AppHeader showBack title={t('orders.orderDetails')} />
       <ScrollView 
         style={styles.scrollView}
         refreshControl={
@@ -239,7 +242,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
           <Card.Content>
             <View style={styles.statusHeader}>
               <Text variant="titleLarge" style={[styles.statusTitle, { color: theme.colors.onSurface }]}>
-                Order Status
+                {t('orders.orderStatus')}
               </Text>
               <Chip
                 mode="outlined"
@@ -266,22 +269,22 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
             <View style={styles.statusSteps}>
               <View style={[styles.statusStep, order.status !== 'cancelled' && (order.status === 'scheduled' || order.status === 'pending' || order.status === 'confirmed' || order.status === 'in_progress' || order.status === 'completed') ? styles.activeStep : styles.inactiveStep]}>
                 <Ionicons name="checkmark-circle" size={20} color={order.status !== 'cancelled' && (order.status === 'scheduled' || order.status === 'pending' || order.status === 'confirmed' || order.status === 'in_progress' || order.status === 'completed') ? '#4CAF50' : '#E0E0E0'} />
-                <Text variant="bodySmall" style={styles.stepText}>{isBooking || isBookingGroup ? 'Booking Placed' : 'Order Placed'}</Text>
+                <Text variant="bodySmall" style={styles.stepText}>{isBooking || isBookingGroup ? t('orders.bookingPlaced') : t('orders.orderPlaced')}</Text>
               </View>
               
               <View style={[styles.statusStep, order.status !== 'cancelled' && (order.status === 'confirmed' || order.status === 'in_progress' || order.status === 'completed') ? styles.activeStep : styles.inactiveStep]}>
                 <Ionicons name="checkmark-circle" size={20} color={order.status !== 'cancelled' && (order.status === 'confirmed' || order.status === 'in_progress' || order.status === 'completed') ? '#4CAF50' : '#E0E0E0'} />
-                <Text variant="bodySmall" style={styles.stepText}>Confirmed</Text>
+                <Text variant="bodySmall" style={styles.stepText}>{t('orders.confirmed')}</Text>
               </View>
               
               <View style={[styles.statusStep, order.status !== 'cancelled' && (order.status === 'in_progress' || order.status === 'completed') ? styles.activeStep : styles.inactiveStep]}>
                 <Ionicons name="checkmark-circle" size={20} color={order.status !== 'cancelled' && (order.status === 'in_progress' || order.status === 'completed') ? '#4CAF50' : '#E0E0E0'} />
-                <Text variant="bodySmall" style={styles.stepText}>In Progress</Text>
+                <Text variant="bodySmall" style={styles.stepText}>{t('orders.inProgress')}</Text>
               </View>
               
               <View style={[styles.statusStep, order.status === 'completed' ? styles.activeStep : styles.inactiveStep]}>
                 <Ionicons name="checkmark-circle" size={20} color={order.status === 'completed' ? '#4CAF50' : '#E0E0E0'} />
-                <Text variant="bodySmall" style={styles.stepText}>Completed</Text>
+                <Text variant="bodySmall" style={styles.stepText}>{t('orders.completed')}</Text>
               </View>
             </View>
           </Card.Content>
@@ -292,7 +295,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
           <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
             <Card.Content>
               <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                Service Provider
+                {t('orders.serviceProvider')}
               </Text>
               <Divider style={styles.divider} />
               
@@ -311,7 +314,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
                   icon="phone"
                   compact
                 >
-                  Call
+                  {t('orders.call')}
                 </Button>
               </View>
             </Card.Content>
@@ -322,13 +325,13 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Order Information
+              {t('orders.orderInformation')}
             </Text>
             <Divider style={styles.divider} />
             
             <View style={styles.infoRow}>
               <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                {isBooking || isBookingGroup ? 'Booking Number' : 'Order Number'}
+                {isBooking || isBookingGroup ? t('orders.bookingNumber') : t('orders.orderNumber')}
               </Text>
               <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                 #{isBooking || isBookingGroup ? order.id.slice(-8) : (order as Order).orderNumber}
@@ -338,7 +341,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
             {/* Service Date and Time */}
             <View style={styles.infoRow}>
               <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                Service Date
+                {t('orders.serviceDate')}
               </Text>
               <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                 {formatDate(isBooking ? (order as ServiceBooking).booking_date : isBookingGroup ? (order as BookingGroup).created_at : (order as Order).serviceDate)}
@@ -347,7 +350,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
             
             <View style={styles.infoRow}>
               <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                Service Time
+                {t('orders.serviceTime')}
               </Text>
               <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                 {formatTime(isBooking ? (order as ServiceBooking).booking_time : isBookingGroup ? '00:00' : (order as Order).serviceTime)}
@@ -358,17 +361,17 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
             {((isBooking && (order as ServiceBooking).is_multi_day) || isBookingGroup) && (
               <View style={styles.infoRow}>
                 <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                  Booking Type
+                  {t('orders.bookingType')}
                 </Text>
                 <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.primary }]}>
-                  {isBookingGroup ? 'Multi-day Booking Group' : 'Multi-day Booking'}
+                  {isBookingGroup ? t('orders.multiDayBookingGroup') : t('orders.multiDayBooking')}
                 </Text>
               </View>
             )}
             
             <View style={styles.infoRow}>
               <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                Total Amount
+                {t('orders.totalAmount')}
               </Text>
               <Text variant="titleMedium" style={[styles.infoValue, { color: theme.colors.primary, fontWeight: 'bold' }]}>
                 €{(isBooking ? (order as ServiceBooking).total_amount : isBookingGroup ? (order as BookingGroup).total_amount : (order as Order).totalAmount || 0).toFixed(2)}
@@ -381,7 +384,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Service Address
+              {t('orders.serviceAddress')}
             </Text>
             <Divider style={styles.divider} />
             
@@ -405,7 +408,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
                     </Text>
                     {(order as Order).address.additional_notes && (
                       <Text variant="bodySmall" style={[styles.addressNotes, { color: theme.colors.onSurfaceVariant }]}>
-                        Note: {(order as Order).address.additional_notes}
+                        {t('orders.note')} {(order as Order).address.additional_notes}
                       </Text>
                     )}
                   </>
@@ -419,7 +422,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Services
+              {t('orders.services')}
             </Text>
             <Divider style={styles.divider} />
             
@@ -427,10 +430,10 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
               <View style={styles.serviceItem}>
                 <View style={styles.serviceInfo}>
                   <Text variant="bodyLarge" style={[styles.serviceTitle, { color: theme.colors.onSurface }]}>
-                    {(order as ServiceBooking).services?.title || 'Service'}
+                    {(order as ServiceBooking).services?.title || t('orders.service')}
                   </Text>
                   <Text variant="bodyMedium" style={[styles.serviceQuantity, { color: theme.colors.onSurfaceVariant }]}>
-                    Duration: {(order as ServiceBooking).duration_minutes} minutes
+                    {t('orders.duration')} {(order as ServiceBooking).duration_minutes} {t('orders.minutes')}
                   </Text>
                 </View>
                 <Text variant="titleMedium" style={[styles.servicePrice, { color: theme.colors.primary }]}>
@@ -441,16 +444,16 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
               <View style={styles.serviceItem}>
                 <View style={styles.serviceInfo}>
                   <Text variant="bodyLarge" style={[styles.serviceTitle, { color: theme.colors.onSurface }]}>
-                    {(order as BookingGroup).service_title || 'Service'}
+                    {(order as BookingGroup).service_title || t('orders.service')}
                   </Text>
                   <Text variant="bodyMedium" style={[styles.serviceQuantity, { color: theme.colors.onSurfaceVariant }]}>
-                    Variant: {(order as BookingGroup).service_variant_title || 'Standard'}
+                    {t('orders.variant')} {(order as BookingGroup).service_variant_title || t('orders.standard')}
                   </Text>
                   <Text variant="bodyMedium" style={[styles.serviceQuantity, { color: theme.colors.onSurfaceVariant }]}>
-                    Duration: {(order as BookingGroup).duration_minutes} minutes per day
+                    {t('orders.duration')} {(order as BookingGroup).duration_minutes} {t('orders.minutes')} {t('orders.perDay')}
                   </Text>
                   <Text variant="bodyMedium" style={[styles.serviceQuantity, { color: theme.colors.onSurfaceVariant }]}>
-                    Group: {(order as BookingGroup).group_name || 'Multi-day Booking'}
+                    {t('orders.group')} {(order as BookingGroup).group_name || t('orders.multiDayBooking')}
                   </Text>
                 </View>
                 <Text variant="titleMedium" style={[styles.servicePrice, { color: theme.colors.primary }]}>
@@ -465,7 +468,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
                       {item.service_title}
                     </Text>
                     <Text variant="bodyMedium" style={[styles.serviceQuantity, { color: theme.colors.onSurfaceVariant }]}>
-                      Quantity: {item.quantity}
+                      {t('orders.quantity')} {item.quantity}
                     </Text>
                   </View>
                   <Text variant="titleMedium" style={[styles.servicePrice, { color: theme.colors.primary }]}>
@@ -482,7 +485,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
           <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
             <Card.Content>
               <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                Special Instructions
+                {t('orders.specialInstructions')}
               </Text>
               <Divider style={styles.divider} />
               <Text variant="bodyMedium" style={[styles.instructionsText, { color: theme.colors.onSurface }]}>
@@ -501,7 +504,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
               style={[styles.actionButton, styles.cancelButton]}
               textColor={theme.colors.error}
             >
-              Cancel Order
+              {t('orders.cancelOrder')}
             </Button>
           )}
           
@@ -511,7 +514,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
             style={styles.actionButton}
             icon="phone"
           >
-            Contact Support
+            {t('orders.contactSupport')}
           </Button>
         </View>
       </ScrollView>
@@ -522,7 +525,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F7F7',
   },
   scrollView: {
     flex: 1,
@@ -617,7 +620,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F7F7',
     borderRadius: 8,
     marginBottom: 4,
   },

@@ -15,6 +15,7 @@ import AppHeader from '../../components/AppHeader';
 import MultiDateSelector from '../../components/MultiDateSelector';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../../../src/contexts/LanguageContext';
 import { serviceBookingAPI, CreateServiceBookingData } from '../../services/serviceBookingAPI';
 import { profileAPI, UserProfile } from '../../services/profileAPI';
 import { CartStackScreenProps } from '../../navigation/types';
@@ -32,6 +33,7 @@ interface OrderAddress {
 
 const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const { cartItems, cartSummary, clearCart } = useCart();
   const { user } = useAuth();
   
@@ -304,7 +306,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="Checkout" showBack />
+      <AppHeader title={t('checkout.title')} showBack />
       
       <ScrollView 
         style={styles.scrollView}
@@ -316,7 +318,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
-              Order Summary
+              {t('checkout.orderSummary')}
             </Text>
             <Divider style={styles.divider} />
             
@@ -324,10 +326,10 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               <View key={index} style={styles.itemRow}>
                 <View style={styles.itemInfo}>
                   <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-                    {item.service_title || item.title || 'Service'}
+                    {item.service_title || item.title || t('checkout.service')}
                   </Text>
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                    {item.service_duration || item.duration || '2 hours'} • Qty: {item.quantity}
+                    {item.service_duration || item.duration || t('checkout.twoHours')} • {t('checkout.qty')} {item.quantity}
                   </Text>
                 </View>
                 <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: 'bold' }}>
@@ -579,7 +581,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F7F7', // Light cream background
   },
   scrollView: {
     flex: 1,
@@ -675,18 +677,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   pickerContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#F9F7F7', // Light cream background
     padding: 16,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    shadowColor: '#000',
+    shadowColor: '#112D4E', // Dark navy shadow
     shadowOffset: {
       width: 0,
       height: -2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
   },
   pickerButtons: {
     flexDirection: 'row',

@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { serviceBookingAPI, ServiceBooking, BookingGroup } from '../../services/serviceBookingAPI';
 import { OrdersStackScreenProps } from '../../navigation/types';
 
@@ -19,6 +20,7 @@ type Props = OrdersStackScreenProps<'OrdersMain'>;
 export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [scheduledBookings, setScheduledBookings] = useState<ServiceBooking[]>([]);
   const [completedBookings, setCompletedBookings] = useState<ServiceBooking[]>([]);
   const [bookingGroups, setBookingGroups] = useState<BookingGroup[]>([]);
@@ -46,7 +48,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
       setBookingGroups(groups);
     } catch (error) {
       console.error('Error loading bookings:', error);
-      Alert.alert('Error', 'Failed to load bookings');
+      Alert.alert(t('common.error'), t('orders.failedToLoadBookings'));
     } finally {
       setLoading(false);
     }
@@ -102,12 +104,12 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
     const isGroupBooking = booking?.is_group_booking;
     
     Alert.alert(
-      'Cancel Booking',
-      `Are you sure you want to cancel this ${isGroupBooking ? 'multi-day booking' : 'booking'}?`,
+      t('orders.cancelBooking'),
+      `${t('orders.cancelBookingConfirm')} ${isGroupBooking ? t('orders.multiDayBooking') : t('orders.booking')}?`,
       [
-        { text: 'No', style: 'cancel' },
+        { text: t('common.no'), style: 'cancel' },
         {
-          text: 'Yes, Cancel',
+          text: t('orders.yesCancel'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -117,9 +119,9 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
                 await serviceBookingAPI.cancelBooking(bookingId);
               }
               await loadBookings();
-              Alert.alert('Success', 'Booking cancelled successfully');
+              Alert.alert(t('common.success'), t('orders.bookingCancelledSuccess'));
             } catch (error) {
-              Alert.alert('Error', 'Failed to cancel booking');
+              Alert.alert(t('common.error'), t('orders.failedToCancelBooking'));
             }
           }
         }
@@ -192,7 +194,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="My Orders" />
+      <AppHeader title={t('orders.title')} />
       
       <ScrollView 
         style={styles.scrollView}
@@ -211,12 +213,12 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
             buttons={[
               {
                 value: 'scheduled',
-                label: `Scheduled (${scheduledBookings.length + bookingGroups.filter(g => g.status === 'scheduled').length})`,
+                label: `${t('orders.scheduled')} (${scheduledBookings.length + bookingGroups.filter(g => g.status === 'scheduled').length})`,
                 icon: 'calendar-clock',
               },
               {
                 value: 'completed',
-                label: `Completed (${completedBookings.length + bookingGroups.filter(g => g.status === 'completed').length})`,
+                label: `${t('orders.completed')} (${completedBookings.length + bookingGroups.filter(g => g.status === 'completed').length})`,
                 icon: 'check-circle',
               },
             ]}
@@ -227,19 +229,19 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
         {/* Bookings List */}
         {loading ? (
           <View style={styles.loadingContainer}>
-            <Text>Loading bookings...</Text>
+            <Text>{t('orders.loadingBookings')}</Text>
           </View>
         ) : allBookings.length === 0 ? (
           <Card style={[styles.emptyCard, { backgroundColor: theme.colors.surface }]}>
             <Card.Content style={styles.emptyContent}>
               <Ionicons name="calendar-outline" size={64} color={theme.colors.onSurfaceVariant} />
               <Text variant="headlineSmall" style={[styles.emptyTitle, { color: theme.colors.onSurface }]}>
-                No {activeTab} bookings found
+                {activeTab === 'scheduled' ? t('orders.noScheduledBookings') : t('orders.noCompletedBookings')}
               </Text>
               <Text variant="bodyMedium" style={[styles.emptySubtitle, { color: theme.colors.onSurfaceVariant }]}>
                 {activeTab === 'scheduled' 
-                  ? "You don't have any scheduled bookings yet"
-                  : "You don't have any completed bookings yet"
+                  ? t('orders.noScheduledBookingsYet')
+                  : t('orders.noCompletedBookingsYet')
                 }
               </Text>
               <Button
@@ -247,7 +249,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
                 onPress={() => navigation.navigate('Services' as any)}
                 style={styles.browseButton}
               >
-                Browse Services
+                {t('orders.browseServices')}
               </Button>
             </Card.Content>
           </Card>
@@ -264,7 +266,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
                   <View style={styles.orderHeader}>
                     <View style={styles.orderInfo}>
                       <Text variant="titleMedium" style={[styles.orderNumber, { color: theme.colors.onSurface }]}>
-                        Booking #{booking.id.slice(-8)}
+                        {t('orders.bookingNumber')}{booking.id.slice(-8)}
                       </Text>
                       <Text variant="bodySmall" style={[styles.orderDate, { color: theme.colors.onSurfaceVariant }]}>
                         {formatDate(booking.created_at)}
@@ -291,10 +293,10 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
                   <View style={styles.orderDetails}>
                     <View style={styles.serviceInfo}>
                       <Text variant="bodyMedium" style={[styles.serviceTitle, { color: theme.colors.onSurface }]}>
-                        {booking.services?.title || 'Service'}
+                        {booking.services?.title || t('orders.service')}
                         {booking.is_multi_day && (
                           <Text variant="bodySmall" style={[styles.multiDayBadge, { color: theme.colors.primary }]}>
-                            {' '}(Multi-day)
+                            {' '}{t('orders.multiDay')}
                           </Text>
                         )}
                       </Text>
@@ -317,7 +319,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
                       style={styles.actionButton}
                       compact
                     >
-                      View Details
+                      {t('orders.viewDetails')}
                     </Button>
                     {booking.status === 'scheduled' && (
                       <Button
@@ -327,7 +329,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
                         textColor={theme.colors.error}
                         compact
                       >
-                        Cancel
+                        {t('orders.cancel')}
                       </Button>
                     )}
                   </View>

@@ -1,10 +1,13 @@
+// Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, Alert, TouchableOpacity, RefreshControl, Platform, Linking, Dimensions, Modal } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Card, Button, Avatar, Divider, useTheme, IconButton, Badge, ActivityIndicator, TextInput, Portal } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
+import { EnhancedLanguageSelector } from '../../components/EnhancedLanguageSelector';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { ProfileStackScreenProps } from '../../navigation/types';
 import { profileAPI, ChangePasswordData } from '../../services/profileAPI';
 
@@ -15,9 +18,11 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const { height: screenHeight } = Dimensions.get('window');
   const insets = useSafeAreaInsets();
   const { user, signOut, isAuthenticated, loading } = useAuth();
+  const { t } = useLanguage();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false);
+  const [languageSelectorVisible, setLanguageSelectorVisible] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -34,14 +39,14 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   // Helper function to get user display name safely (handles camelCase and snake_case)
   const getUserDisplayName = () => {
-    if (!user) return 'Guest User';
+    if (!user) return t('profile.guestUser');
     const first = (user as any).firstName || (user as any).first_name || '';
     const last = (user as any).lastName || (user as any).last_name || '';
     const full = `${first} ${last}`.trim();
     if (full.length > 0) return full;
     if (first) return first;
     if (last) return last;
-    return user.email || 'Guest User';
+    return user.email || t('profile.guestUser');
   };
 
   const handleEditProfile = () => {
@@ -51,16 +56,16 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleSettings = () => {
-    Alert.alert('Settings', 'Settings functionality coming soon!');
+    Alert.alert(t('profile.settings'), t('profile.settingsComingSoon'));
   };
 
   const handleLogout = () => {
     Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
+      t('common.logout'),
+      t('profile.logoutConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: () => signOut() },
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.logout'), style: 'destructive', onPress: () => signOut() },
       ]
     );
   };
@@ -80,19 +85,23 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     setChangePasswordModalVisible(true);
   };
 
+  const handleChangeLanguage = () => {
+    setLanguageSelectorVisible(true);
+  };
+
   const handleChangePasswordSubmit = async () => {
     if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert(t('common.error'), t('profile.fillAllFields'));
       return;
     }
 
     if (newPassword.length < 6) {
-      Alert.alert('Error', 'New password must be at least 6 characters long');
+      Alert.alert(t('common.error'), t('profile.passwordTooShort'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match');
+      Alert.alert(t('common.error'), t('profile.passwordsDoNotMatch'));
       return;
     }
 
@@ -107,9 +116,9 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       const result = await profileAPI.changePassword(passwordData);
 
       if (result.success) {
-        Alert.alert('Success', 'Password changed successfully', [
+        Alert.alert(t('common.success'), t('profile.passwordChangeSuccess'), [
           {
-            text: 'OK',
+            text: t('common.ok'),
             onPress: () => {
               setChangePasswordModalVisible(false);
               setCurrentPassword('');
@@ -119,11 +128,11 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           }
         ]);
       } else {
-        Alert.alert('Error', result.error || 'Failed to change password');
+        Alert.alert(t('common.error'), result.error || t('profile.passwordChangeError'));
       }
     } catch (error) {
       console.error('Error changing password:', error);
-      Alert.alert('Error', 'An unexpected error occurred');
+      Alert.alert(t('common.error'), t('profile.unexpectedError'));
     } finally {
       setChangingPassword(false);
     }
@@ -140,12 +149,12 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     if (deleteAccountStep === 0) {
       // First step: Initial warning
       Alert.alert(
-        '⚠️ Delete Account - Step 1 of 2',
-        'This action will permanently delete your account and ALL associated data including:\n\n• All your bookings and orders\n• Personal information\n• Payment history\n• Account settings\n\nThis action CANNOT be undone.\n\nAre you sure you want to continue?',
+        t('profile.deleteAccountStep1Title'),
+        t('profile.deleteAccountStep1Message'),
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: t('common.cancel'), style: 'cancel' },
           { 
-            text: 'I Understand, Continue', 
+            text: t('profile.iUnderstandContinue'), 
             style: 'destructive', 
             onPress: () => {
               setDeleteAccountStep(1);
@@ -162,12 +171,12 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleSecondDeleteConfirmation = () => {
     Alert.alert(
-      '🗑️ Delete Account - Step 2 of 2',
-      'FINAL WARNING: You are about to permanently delete your account.\n\nTo confirm, please type "DELETE" in the text field below and tap "Delete Forever".',
+      t('profile.deleteAccountStep2'),
+      t('profile.deleteAccountFinal'),
       [
-        { text: 'Cancel', style: 'cancel', onPress: () => setDeleteAccountStep(0) },
+        { text: t('common.cancel'), style: 'cancel', onPress: () => setDeleteAccountStep(0) },
         { 
-          text: 'Type DELETE to Confirm', 
+          text: t('profile.typeDeleteToConfirmButton'), 
           style: 'destructive', 
           onPress: () => {
             setDeleteAccountStep(2);
@@ -183,22 +192,22 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleDeleteConfirmationInput = () => {
     Alert.prompt(
-      'Final Confirmation',
-      'Type "DELETE" exactly as shown to permanently delete your account:',
+      t('profile.deleteAccountStep2'),
+      t('profile.typeDeleteToConfirm'),
       [
-        { text: 'Cancel', style: 'cancel', onPress: () => setDeleteAccountStep(0) },
+        { text: t('common.cancel'), style: 'cancel', onPress: () => setDeleteAccountStep(0) },
         { 
-          text: 'Delete Forever', 
+          text: t('profile.deleteForever'), 
           style: 'destructive', 
           onPress: (text: string | undefined) => {
-            if (text === 'DELETE') {
+            if (text === t('profile.deleteConfirmationText')) {
               // Proceed with actual deletion
               handleActualDeleteAccount();
             } else {
               Alert.alert(
-                'Invalid Confirmation',
-                'You must type "DELETE" exactly as shown. Account deletion cancelled.',
-                [{ text: 'OK', onPress: () => setDeleteAccountStep(0) }]
+                t('profile.invalidConfirmation'),
+                t('profile.invalidConfirmation'),
+                [{ text: t('common.ok'), onPress: () => setDeleteAccountStep(0) }]
               );
             }
           }
@@ -212,11 +221,11 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleActualDeleteAccount = () => {
     Alert.alert(
-      'Account Deleted',
-      'Your account has been permanently deleted. This feature will be implemented with the backend API.',
+      t('profile.accountDeletedTitle'),
+      t('profile.accountDeletedMessage'),
       [
         { 
-          text: 'OK', 
+          text: t('common.ok'), 
           onPress: () => {
             setDeleteAccountStep(0);
             // Here you would call the actual delete API
@@ -254,23 +263,23 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={{ marginTop: 16, color: theme.colors.onSurface }}>Loading profile...</Text>
+        <Text style={{ marginTop: 16, color: theme.colors.onSurface }}>{t('profile.loadingProfile')}</Text>
       </View>
     );
   }
 
   const handleMenuPress = (menuItem: string) => {
-    if (menuItem === 'My Orders') {
+    if (menuItem === t('profile.myOrders')) {
       // Navigate to Orders tab - this will be handled by the main tab navigator
-      Alert.alert('Orders', 'Navigate to Orders tab');
+      Alert.alert(t('profile.orders'), t('profile.navigateToOrders'));
     } else {
-      Alert.alert(menuItem, `${menuItem} functionality coming soon!`);
+      Alert.alert(menuItem, `${menuItem} ${t('profile.functionalityComingSoon')}`);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="Profile"/>
+      <AppHeader title={t('profile.title')}/>
       <ScrollView 
         style={styles.scrollContainer} 
         contentContainerStyle={[styles.scrollContent, { minHeight: screenHeight }]}
@@ -295,7 +304,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                   {getUserDisplayName()}
                 </Text>
                 <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                  {user?.email || 'No email'}
+                  {user?.email || t('profile.noEmail')}
                 </Text>
                 {user?.phone && (
                   <View style={styles.phoneContainer}>
@@ -319,31 +328,31 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.sectionContainer}>
           <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
             <Card.Content>
-              <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 8 }}>Quick actions</Text>
+              <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 8 }}>{t('profile.quickActions')}</Text>
               <View style={styles.grid}>
                 <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.primaryContainer }]} onPress={handleEditProfile}>
                   <Ionicons name="person" size={20} color={theme.colors.primary} />
-                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onPrimaryContainer }]}>Edit profile</Text>
+                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onPrimaryContainer }]}>{t('profile.editProfile')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.secondaryContainer }]} onPress={() => navigation.navigate('Orders' as any)}>
                   <Ionicons name="receipt" size={20} color={theme.colors.secondary} />
-                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onSecondaryContainer }]}>My orders</Text>
+                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onSecondaryContainer }]}>{t('profile.myOrders')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.tertiaryContainer }]} onPress={handleChangePassword}>
                   <Ionicons name="lock-closed" size={20} color={theme.colors.tertiary} />
-                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onTertiaryContainer }]}>Change Password</Text>
+                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onTertiaryContainer }]}>{t('profile.changePassword')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.primaryContainer }]} onPress={handleRateApp}>
-                  <Ionicons name="thumbs-up" size={20} color={theme.colors.primary} />
-                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onPrimaryContainer }]}>Rate app</Text>
-                </TouchableOpacity>
+                 <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.primaryContainer }]} onPress={handleChangeLanguage}>
+                   <Ionicons name="language" size={20} color={theme.colors.primary} />
+                   <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onPrimaryContainer }]}>{t('profile.changeLanguage')}</Text>
+                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.secondaryContainer }]} onPress={() => navigation.navigate('Services' as any)}>
                   <Ionicons name="briefcase" size={20} color={theme.colors.secondary} />
-                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onSecondaryContainer }]}>Browse Services</Text>
+                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onSecondaryContainer }]}>{t('profile.browseServices')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.errorContainer }]} onPress={handleDeleteAccount}>
                   <Ionicons name="trash" size={20} color={theme.colors.error} />
-                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onErrorContainer }]}>Delete Account</Text>
+                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onErrorContainer }]}>{t('profile.deleteAccount')}</Text>
                 </TouchableOpacity>
               </View>
             </Card.Content>
@@ -364,7 +373,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                 textColor={theme.colors.onError}
                 contentStyle={styles.buttonContent}
               >
-                Logout
+                {t('common.logout')}
               </Button>
             </Card.Content>
           </Card>
@@ -387,11 +396,11 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
             }
           ]}>
             <Text variant="headlineSmall" style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
-              Change Password
+              {t('profile.changePassword')}
             </Text>
             
             <TextInput
-              label="Current Password"
+              label={t('profile.currentPassword')}
               value={currentPassword}
               onChangeText={setCurrentPassword}
               secureTextEntry
@@ -401,7 +410,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
             />
             
             <TextInput
-              label="New Password"
+              label={t('profile.newPassword')}
               value={newPassword}
               onChangeText={setNewPassword}
               secureTextEntry
@@ -411,7 +420,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
             />
             
             <TextInput
-              label="Confirm New Password"
+              label={t('profile.confirmNewPassword')}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry
@@ -427,7 +436,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                 style={styles.modalButton}
                 disabled={changingPassword}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 mode="contained"
@@ -436,20 +445,26 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                 loading={changingPassword}
                 disabled={changingPassword}
               >
-                {changingPassword ? 'Changing...' : 'Change Password'}
+                {changingPassword ? t('profile.changingPassword') : t('profile.changePassword')}
               </Button>
             </View>
           </View>
-        </Modal>
-      </Portal>
-    </SafeAreaView>
-  );
-};
+         </Modal>
+       </Portal>
+
+       {/* Language Selector Modal */}
+       <EnhancedLanguageSelector
+         visible={languageSelectorVisible}
+         onDismiss={() => setLanguageSelectorVisible(false)}
+       />
+     </SafeAreaView>
+   );
+ };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#DBE2EF', // Soft blue-gray for profile section
   },
   scrollContainer: {
     flex: 1,
@@ -465,7 +480,7 @@ const styles = StyleSheet.create({
   profileCard: {
     borderRadius: 20,
     elevation: 8,
-    shadowColor: '#000000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -485,7 +500,7 @@ const styles = StyleSheet.create({
   },
   avatar: {
     elevation: 2,
-    shadowColor: '#000000',
+    shadowColor: '#112D4E',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 2,
@@ -494,14 +509,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#3F72AF', // Medium blue for edit button
     borderRadius: 20,
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
-    shadowColor: '#000000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -564,7 +579,7 @@ const styles = StyleSheet.create({
   statsCard: {
     borderRadius: 20,
     elevation: 8,
-    shadowColor: '#000000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -619,7 +634,7 @@ const styles = StyleSheet.create({
   menuCard: {
     borderRadius: 20,
     elevation: 8,
-    shadowColor: '#000000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -719,7 +734,7 @@ const styles = StyleSheet.create({
   logoutCard: {
     borderRadius: 20,
     elevation: 8,
-    shadowColor: '#000000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -748,7 +763,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 16,
     elevation: 8,
-    shadowColor: '#000',
+    shadowColor: '#112D4E',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -778,3 +793,5 @@ const styles = StyleSheet.create({
 
 export { ProfileScreen };
 export default ProfileScreen;
+
+

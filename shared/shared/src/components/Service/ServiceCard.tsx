@@ -374,13 +374,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 12,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: '#112D4E', // Dark navy shadow
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
   cardCompact: {
     marginBottom: 12,
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     minWidth: 40,
   },
   priceCalculation: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: '#DBE2EF', // Soft blue-gray background
     borderRadius: 8,
     padding: 16,
     marginTop: 8,

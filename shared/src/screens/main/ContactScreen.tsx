@@ -1,3 +1,4 @@
+// Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React, { useState } from 'react';
 import {
   View,
@@ -15,29 +16,33 @@ import AppHeader from '../../components/AppHeader';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { inquiriesAPI, InquiryData } from '../../services/inquiriesAPI';
 
-const contactSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email'),
-  phone: z.string().min(10, 'Please enter a valid phone number'),
-  service: z.string().min(1, 'Please select a service'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
+const createContactSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(2, t('cta.nameMinLength')),
+  email: z.string().email(t('cta.enterValidEmail')),
+  phone: z.string().min(10, t('cta.enterValidPhone')),
+  service: z.string().min(1, t('cta.selectService')),
+  message: z.string().min(10, t('cta.messageMinLength')),
   serviceArea: z.string().optional(),
   preferredDate: z.string().optional().refine((date) => {
     if (!date || date.trim() === '') return true; // Allow empty dates
     const parsedDate = new Date(date);
     return !isNaN(parsedDate.getTime()) && parsedDate.toISOString() === date;
   }, {
-    message: 'Please enter a valid date in YYYY-MM-DD format'
+    message: t('cta.enterValidDate')
   }),
 });
 
-type ContactFormData = z.infer<typeof contactSchema>;
+type ContactFormData = z.infer<ReturnType<typeof createContactSchema>>;
 
 const ContactScreen = () => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const contactSchema = createContactSchema(t);
 
   const {
     control,
@@ -58,13 +63,13 @@ const ContactScreen = () => {
   });
 
   const services = [
-    { id: 'kitchen-cleaning', name: 'Kitchen Deep Cleaning', price: 'From €50' },
-    { id: 'house-moving', name: 'House Moving', price: 'From €80' },
-    { id: 'deep-cleaning', name: 'Deep Cleaning', price: 'From €60' },
-    { id: 'furniture-assembly', name: 'Furniture Assembly', price: 'From €40' },
-    { id: 'carpet-cleaning', name: 'Carpet & Upholstery Cleaning', price: 'From €70' },
-    { id: 'window-cleaning', name: 'Window & Glass Cleaning', price: 'From €30' },
-    { id: 'custom-service', name: 'Custom Service', price: 'From €50' },
+    { id: 'kitchen-cleaning', name: t('services.kitchenDeepCleaning'), price: 'From €50' },
+    { id: 'house-moving', name: t('services.houseMoving'), price: 'From €80' },
+    { id: 'deep-cleaning', name: t('services.deepCleaning'), price: 'From €60' },
+    { id: 'furniture-assembly', name: t('services.furnitureAssembly'), price: 'From €40' },
+    { id: 'carpet-cleaning', name: t('services.carpetUpholsteryCleaning'), price: 'From €70' },
+    { id: 'window-cleaning', name: t('services.windowGlassCleaning'), price: 'From €30' },
+    { id: 'custom-service', name: t('services.customService'), price: 'From €50' },
   ];
 
   const onSubmit = async (data: ContactFormData) => {
@@ -75,7 +80,7 @@ const ContactScreen = () => {
       const selectedService = services.find(service => service.name === data.service);
       
       if (!selectedService) {
-        Alert.alert('Error', 'Please select a valid service');
+        Alert.alert(t('cta.error'), t('cta.selectValidService'));
         setIsSubmitting(false);
         return;
       }
@@ -100,21 +105,21 @@ const ContactScreen = () => {
       
       if (response.success) {
         Alert.alert(
-          'Success!',
-          'Thank you for your inquiry. We will get back to you within 24 hours.',
+          t('cta.success'),
+          t('cta.thankYouInquiry'),
           [
             {
-              text: 'OK',
+              text: t('cta.ok'),
               onPress: () => reset(),
             },
           ]
         );
       } else {
-        Alert.alert('Error', response.error || 'Failed to submit inquiry. Please try again.');
+        Alert.alert(t('cta.error'), response.error || t('cta.failedToSubmitInquiry'));
       }
     } catch (error) {
       console.error('Error submitting inquiry:', error);
-      Alert.alert('Error', 'Failed to submit inquiry. Please check your connection and try again.');
+      Alert.alert(t('cta.error'), t('cta.failedToSubmitInquiryConnection'));
     } finally {
       setIsSubmitting(false);
     }
@@ -122,25 +127,25 @@ const ContactScreen = () => {
 
   const handleCallNow = () => {
     Linking.openURL('tel:+4916097044182').catch(() => {
-      Alert.alert('Error', 'Could not open phone app');
+      Alert.alert(t('cta.error'), t('cta.couldNotOpenPhoneApp'));
     });
   };
 
   const handleEmailUs = () => {
     Linking.openURL('mailto:info@deepcleaninghub.com').catch(() => {
-      Alert.alert('Error', 'Could not open email app');
+      Alert.alert(t('cta.error'), t('cta.couldNotOpenEmailApp'));
     });
   };
 
   const handleWhatsApp = () => {
     Linking.openURL('whatsapp://send?phone=4916097044182&text=Hi, I would like to know more about your cleaning services.').catch(() => {
-      Alert.alert('Error', 'Could not open WhatsApp');
+      Alert.alert(t('cta.error'), t('cta.couldNotOpenWhatsApp'));
     });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="Contact Us" showBack />
+      <AppHeader title={t('contact.title')} showBack />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
@@ -149,10 +154,10 @@ const ContactScreen = () => {
           {/* Header Section */}
           <View style={styles.headerSection}>
             <Text variant="headlineMedium" style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
-              Get in Touch
+              {t('cta.getInTouch')}
             </Text>
             <Text variant="bodyLarge" style={[styles.headerDescription, { color: theme.colors.onSurfaceVariant }]}>
-              Ready to transform your space? Contact us for a free consultation and quote.
+              {t('cta.readyToTransform')}
             </Text>
           </View>
 
@@ -160,7 +165,7 @@ const ContactScreen = () => {
           <Card style={[styles.formCard, { backgroundColor: theme.colors.surface }]}>
             <Card.Content style={styles.formContent}>
               <Text variant="titleLarge" style={[styles.formTitle, { color: theme.colors.onSurface }]}>
-                Send us a Message
+                {t('cta.sendUsMessage')}
               </Text>
               
               <Controller
@@ -168,7 +173,7 @@ const ContactScreen = () => {
                 name="name"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    label="Full Name"
+                    label={t('contact.fullName')}
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
@@ -190,7 +195,7 @@ const ContactScreen = () => {
                 name="email"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    label="Email Address"
+                    label={t('contact.emailAddress')}
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
@@ -214,7 +219,7 @@ const ContactScreen = () => {
                 name="phone"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    label="Phone Number"
+                    label={t('contact.phoneNumber')}
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
@@ -237,7 +242,7 @@ const ContactScreen = () => {
                 name="service"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    label="Service Required"
+                    label={t('contact.serviceRequired')}
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
@@ -251,8 +256,8 @@ const ContactScreen = () => {
                         onPress={() => {
                           // Show service picker
                           Alert.alert(
-                            'Select Service',
-                            'Choose a service:',
+                            t('cta.selectServiceTitle'),
+                            t('cta.chooseService'),
                             (services || []).map(service => ({
                               text: `${service.name} - ${service.price}`,
                               onPress: () => onChange(service.name),
@@ -275,7 +280,7 @@ const ContactScreen = () => {
                 name="message"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    label="Message"
+                    label={t('contact.message')}
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
@@ -299,14 +304,14 @@ const ContactScreen = () => {
                 name="serviceArea"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    label="Service Area (Optional)"
+                    label={t('cta.serviceAreaOptional')}
                     value={value || ''}
                     onChangeText={onChange}
                     onBlur={onBlur}
                     mode="outlined"
                     style={styles.input}
                     left={<TextInput.Icon icon="map-marker" />}
-                    placeholder="e.g., Berlin, Munich, Hamburg"
+                    placeholder={t('cta.serviceAreaPlaceholder')}
                   />
                 )}
               />
@@ -316,14 +321,14 @@ const ContactScreen = () => {
                 name="preferredDate"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    label="Preferred Date (Optional)"
+                    label={t('cta.preferredDateOptional')}
                     value={value || ''}
                     onChangeText={onChange}
                     onBlur={onBlur}
                     mode="outlined"
                     style={styles.input}
                     left={<TextInput.Icon icon="calendar" />}
-                    placeholder="YYYY-MM-DD (e.g., 2024-01-15)"
+                    placeholder={t('cta.preferredDatePlaceholder')}
                     keyboardType="numeric"
                   />
                 )}
@@ -337,7 +342,7 @@ const ContactScreen = () => {
                 loading={isSubmitting}
                 disabled={isSubmitting}
               >
-                Send Message
+                {t('cta.sendMessage')}
               </Button>
             </Card.Content>
           </Card>
@@ -349,13 +354,13 @@ const ContactScreen = () => {
                 <View style={[styles.ctaIconCircle, { backgroundColor: theme.colors.primary }]}>
                   <Ionicons name="call" size={16} color={theme.colors.onPrimary} />
                 </View>
-                <Text style={[styles.ctaBadge, { color: theme.colors.primary }]}>Get in touch, instantly</Text>
+                <Text style={[styles.ctaBadge, { color: theme.colors.primary }]}>{t('cta.getInTouchInstantly')}</Text>
               </View>
               <Text variant="titleLarge" style={[styles.ctaTitle, { color: theme.colors.onSurface }]}>
-                Prefer to talk directly?
+                {t('cta.preferToTalkDirectly')}
               </Text>
               <Text variant="bodyMedium" style={[styles.ctaDescription, { color: theme.colors.onSurfaceVariant }]}>
-                Call, email, or message us for immediate assistance and personalized service.
+                {t('cta.callEmailMessageUs')}
               </Text>
               
               <View style={styles.contactMethods}>
@@ -365,7 +370,7 @@ const ContactScreen = () => {
                   </View>
                   <View style={styles.contactMethodText}>
                     <Text variant="titleMedium" style={[styles.contactMethodTitle, { color: theme.colors.onSurface }]}>
-                      Call Us
+                      {t('cta.callUs')}
                     </Text>
                     <Text variant="bodySmall" style={[styles.contactMethodSubtitle, { color: theme.colors.onSurfaceVariant }]}>
                       +49-16097044182
@@ -382,7 +387,7 @@ const ContactScreen = () => {
                     )}
                     compact
                   >
-                    Call
+                    {t('cta.call')}
                   </Button>
                 </View>
 
@@ -392,7 +397,7 @@ const ContactScreen = () => {
                   </View>
                   <View style={styles.contactMethodText}>
                     <Text variant="titleMedium" style={[styles.contactMethodTitle, { color: theme.colors.onSurface }]}>
-                      Email Us
+                      {t('cta.emailUs')}
                     </Text>
                     <Text variant="bodySmall" style={[styles.contactMethodSubtitle, { color: theme.colors.onSurfaceVariant }]}>
                       info@deepcleaninghub.com
@@ -409,20 +414,20 @@ const ContactScreen = () => {
                     )}
                     compact
                   >
-                    Email
+                    {t('cta.email')}
                   </Button>
                 </View>
 
                 <View style={styles.contactMethod}>
-                  <View style={[styles.contactIconContainer, { backgroundColor: '#25D366' }]}>
+                  <View style={[styles.contactIconContainer, { backgroundColor: '#3F72AF' }]}>
                     <Ionicons name="logo-whatsapp" size={20} color="white" />
                   </View>
                   <View style={styles.contactMethodText}>
                     <Text variant="titleMedium" style={[styles.contactMethodTitle, { color: theme.colors.onSurface }]}>
-                      WhatsApp
+                      {t('cta.whatsapp')}
                     </Text>
                     <Text variant="bodySmall" style={[styles.contactMethodSubtitle, { color: theme.colors.onSurfaceVariant }]}>
-                      Quick messaging
+                      {t('cta.quickMessaging')}
                     </Text>
                   </View>
                   <Button
@@ -436,7 +441,7 @@ const ContactScreen = () => {
                     )}
                     compact
                   >
-                    Message
+                    {t('cta.message')}
                   </Button>
                 </View>
               </View>
@@ -451,7 +456,7 @@ const ContactScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#F9F7F7',
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -506,7 +511,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     borderRadius: 16,
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: '#112D4E',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,

@@ -1,3 +1,4 @@
+// Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -12,8 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import AppHeader from '../../components/AppHeader';
 import { CartStackScreenProps } from '../../navigation/types';
-import whatsappAPI from '../../services/whatsappAPI';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { useNotifications } from '../../hooks/useNotifications';
 
 type Props = CartStackScreenProps<'OrderConfirmation'>;
@@ -21,10 +22,10 @@ type Props = CartStackScreenProps<'OrderConfirmation'>;
 const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
   const theme = useTheme();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { bookingId, orderData } = route.params || {};
   const [refreshing, setRefreshing] = useState(false);
   const [emailsSent, setEmailsSent] = useState(true); // Emails are sent during booking creation
-  const [whatsappStatus, setWhatsappStatus] = useState<'pending' | 'sending' | 'sent' | 'failed'>('pending');
   const [notificationsScheduled, setNotificationsScheduled] = useState(false);
   const { scheduleBookingConfirmation, scheduleServiceReminder, isInitialized } = useNotifications();
 
@@ -69,8 +70,8 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
           console.log('🔥 SENDING FORCED NOTIFICATION...');
           const notificationId = await Notifications.scheduleNotificationAsync({
             content: {
-              title: '✅ BOOKING CONFIRMED!',
-              body: `Your booking is confirmed! Order ID: ${bookingId}`,
+              title: t('orders.bookingConfirmedNotification'),
+              body: `${t('orders.bookingConfirmedBody')} ${bookingId}`,
               sound: 'default',
             },
             trigger: null,
@@ -90,7 +91,7 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="Order Confirmation" showBack />
+      <AppHeader title={t('orders.orderConfirmation')} showBack />
       
       <ScrollView 
         style={styles.scrollView}
@@ -103,13 +104,13 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
           <Card.Content style={styles.successContent}>
             <Ionicons name="checkmark-circle" size={80} color={theme.colors.primary} />
             <Text variant="headlineMedium" style={[styles.successTitle, { color: theme.colors.onSurface }]}>
-              Order Confirmed!
+              {t('orders.orderConfirmed')}
             </Text>
             <Text variant="bodyLarge" style={[styles.successSubtitle, { color: theme.colors.onSurfaceVariant }]}>
-              Your order has been placed successfully
+              {t('orders.orderPlacedSuccessfully')}
             </Text>
             <Text variant="bodyMedium" style={[styles.orderId, { color: theme.colors.primary }]}>
-              Order ID: {bookingId || 'N/A'}
+              {t('orders.orderId')} {bookingId || 'N/A'}
             </Text>
             
             {/* Email Status */}
@@ -118,30 +119,12 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
                 <View style={styles.emailStatusRow}>
                   <Ionicons name="checkmark-circle" size={16} color={theme.colors.primary} />
                   <Text variant="bodySmall" style={[styles.emailStatusText, { color: theme.colors.primary }]}>
-                    Confirmation emails sent
+                    {t('orders.confirmationEmailsSent')}
                   </Text>
                 </View>
               ) : null}
             </View>
 
-            {/* WhatsApp Status */}
-            <View style={styles.whatsappStatus}>
-              {whatsappStatus === 'sent' ? (
-                <View style={styles.emailStatusRow}>
-                  <Ionicons name="checkmark-circle" size={16} color={theme.colors.primary} />
-                  <Text variant="bodySmall" style={[styles.emailStatusText, { color: theme.colors.primary }]}>
-                    WhatsApp notification sent
-                  </Text>
-                </View>
-              ) : whatsappStatus === 'failed' ? (
-                <View style={styles.emailStatusRow}>
-                  <Ionicons name="information-circle" size={16} color={theme.colors.outline} />
-                  <Text variant="bodySmall" style={[styles.emailStatusText, { color: theme.colors.outline }]}>
-                    WhatsApp not configured
-                  </Text>
-                </View>
-              ) : null}
-            </View>
           </Card.Content>
         </Card>
 
@@ -149,13 +132,13 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
-              Order Details
+              {t('orders.orderDetails')}
             </Text>
             <Divider style={styles.divider} />
             
             <View style={styles.detailRow}>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                Service Date
+                {t('orders.serviceDate')}
               </Text>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
                 {orderData?.service_date || 'N/A'}
@@ -164,7 +147,7 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
             
             <View style={styles.detailRow}>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                Service Time
+                {t('orders.serviceTime')}
               </Text>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
                 {orderData?.service_time || 'N/A'}
@@ -173,7 +156,7 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
             
             <View style={styles.detailRow}>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                Total Amount
+                {t('orders.totalAmount')}
               </Text>
               <Text variant="bodyMedium" style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
                 €{(orderData?.total_amount || 0).toFixed(2)}
@@ -187,7 +170,7 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
           <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
             <Card.Content>
               <Text variant="titleLarge" style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
-                Service Address
+                {t('orders.serviceAddress')}
               </Text>
               <Divider style={styles.divider} />
               
@@ -203,7 +186,7 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
               
               {orderData.address.additional_notes && (
                 <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
-                  Notes: {orderData.address.additional_notes}
+                  {t('orders.notes')} {orderData.address.additional_notes}
                 </Text>
               )}
             </Card.Content>
@@ -215,7 +198,7 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
           <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
             <Card.Content>
               <Text variant="titleLarge" style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
-                Services Ordered
+                {t('orders.servicesOrdered')}
               </Text>
               <Divider style={styles.divider} />
               
@@ -223,10 +206,10 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
                 <View key={index} style={styles.itemRow}>
                   <View style={styles.itemInfo}>
                     <Text variant="bodyLarge" style={{ color: theme.colors.onSurface }}>
-                      {item.service_title || 'Service'}
+                      {item.service_title || t('orders.service')}
                     </Text>
                     <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                      {item.service_duration || '2 hours'} • Qty: {item.quantity}
+                      {item.service_duration || t('orders.twoHours')} • {t('orders.qty')} {item.quantity}
                     </Text>
                   </View>
                   <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: 'bold' }}>
@@ -246,7 +229,7 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
             style={styles.actionButton}
             icon="receipt"
           >
-            View Orders
+            {t('orders.viewOrders')}
           </Button>
           <Button
             mode="contained"
@@ -254,7 +237,7 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
             style={styles.actionButton}
             icon="shopping"
           >
-            Continue Shopping
+            {t('orders.continueShopping')}
           </Button>
         </View>
 
@@ -266,7 +249,7 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F7F7',
   },
   scrollView: {
     flex: 1,
@@ -327,10 +310,6 @@ const styles = StyleSheet.create({
   },
   emailStatus: {
     marginTop: 16,
-    alignItems: 'center',
-  },
-  whatsappStatus: {
-    marginTop: 8,
     alignItems: 'center',
   },
   emailStatusRow: {

@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { httpClient } from '../services/httpClient';
 import { secureLog, config } from '../config/environment';
 import { User, AuthContextType } from '../types';
+import { useLanguage } from './LanguageContext';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -30,6 +31,7 @@ const AUTH_STORAGE_KEY = 'auth_user';
 const TOKEN_STORAGE_KEY = 'auth_token';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const { t } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastActivity, setLastActivity] = useState<number>(Date.now());
@@ -287,15 +289,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(updatedUser);
         await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedUser));
         
-        Alert.alert('Success', response.message || 'Profile updated successfully!');
+        Alert.alert(t('common.success'), response.message || t('profile.profileUpdatedSuccess'));
         return true;
       } else {
-        Alert.alert('Error', 'Failed to update profile');
+        Alert.alert(t('common.error'), t('profile.failedToUpdateProfile'));
         return false;
       }
     } catch (error) {
       secureLog('error', 'Update profile error', { error, userId: user.id });
-      Alert.alert('Error', 'Failed to update profile');
+      Alert.alert(t('common.error'), t('profile.failedToUpdateProfile'));
       return false;
     } finally {
       setLoading(false);

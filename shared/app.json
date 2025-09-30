@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "DeepClean Mobile Hub",
+    "name": "Deep Cleaning Hub",
     "slug": "deepclean-mobile-hub",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,8 +17,18 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.deepcleanhub.mobile",
+      "buildNumber": "1",
       "infoPlist": {
-        "UIBackgroundModes": ["background-fetch", "background-processing"]
+        "UIBackgroundModes": ["background-fetch", "background-processing"],
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
+          "NSExceptionDomains": {
+            "13.211.76.43": {
+              "NSExceptionAllowsInsecureHTTPLoads": true,
+              "NSExceptionMinimumTLSVersion": "1.0"
+            }
+          }
+        }
       }
     },
     "android": {
@@ -49,7 +59,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "your-project-id-here"
+        "projectId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
       }
     }
   }

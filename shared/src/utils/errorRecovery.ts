@@ -21,9 +21,9 @@ export interface ErrorRecoveryConfig {
 export interface ErrorContext {
   component: string;
   action: string;
-  userId?: string;
+  userId?: string | undefined;
   timestamp: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, any> | undefined;
 }
 
 export interface RecoveryStrategy {

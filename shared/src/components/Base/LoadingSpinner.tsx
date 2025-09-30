@@ -32,7 +32,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       style={styles.container}
       testID={testID}
       accessibilityLabel={accessibilityLabel}
-      accessibilityRole={accessibilityRole}
+      accessibilityRole={accessibilityRole as any}
     >
       <ActivityIndicator 
         size={size} 

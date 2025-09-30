@@ -1,3 +1,4 @@
+// Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -11,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { serviceBookingAPI, ServiceBooking } from '../../services/serviceBookingAPI';
 import { OrdersStackScreenProps } from '../../navigation/types';
 
@@ -18,6 +20,7 @@ type Props = OrdersStackScreenProps<'OrdersMain'>;
 
 const OrderHistoryScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [scheduledBookings, setScheduledBookings] = useState<ServiceBooking[]>([]);
   const [completedBookings, setCompletedBookings] = useState<ServiceBooking[]>([]);
@@ -42,7 +45,7 @@ const OrderHistoryScreen: React.FC<Props> = ({ navigation }) => {
       setCompletedBookings(completed);
     } catch (error) {
       console.error('Error loading bookings:', error);
-      Alert.alert('Error', 'Failed to load bookings');
+      Alert.alert(t('common.error'), t('orders.failedToLoadBookings'));
     } finally {
       setLoading(false);
     }
@@ -105,9 +108,9 @@ const OrderHistoryScreen: React.FC<Props> = ({ navigation }) => {
             try {
               await serviceBookingAPI.cancelBooking(bookingId);
               await loadBookings();
-              Alert.alert('Success', 'Booking cancelled successfully');
+              Alert.alert(t('common.success'), t('orders.bookingCancelledSuccess'));
             } catch (error) {
-              Alert.alert('Error', 'Failed to cancel booking');
+              Alert.alert(t('common.error'), t('orders.failedToCancelBooking'));
             }
           }
         }
@@ -267,7 +270,7 @@ const OrderHistoryScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F7F7',
   },
   scrollView: {
     flex: 1,

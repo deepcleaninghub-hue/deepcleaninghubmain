@@ -149,33 +149,33 @@ export const designTokens = {
   },
 };
 
-// Color palette
+// Color palette - Enhanced with new color scheme
 const colors = {
-  primary: '#2563eb',
-  primaryContainer: '#dbeafe',
-  secondary: '#7c3aed',
-  secondaryContainer: '#ede9fe',
-  tertiary: '#059669',
+  primary: '#3F72AF',           // Medium blue for primary actions
+  primaryContainer: '#DBE2EF',  // Soft blue-gray for primary containers
+  secondary: '#112D4E',         // Dark navy for secondary elements
+  secondaryContainer: '#F9F7F7', // Light cream for secondary containers
+  tertiary: '#059669',          // Keep green for success states
   tertiaryContainer: '#d1fae5',
-  surface: '#ffffff',
-  surfaceVariant: '#f8fafc',
-  background: '#ffffff',
-  error: '#dc2626',
+  surface: '#F9F7F7',           // Light cream for main surfaces
+  surfaceVariant: '#DBE2EF',    // Soft blue-gray for variant surfaces
+  background: '#F9F7F7',        // Light cream background
+  error: '#dc2626',             // Keep red for errors
   errorContainer: '#fef2f2',
-  onPrimary: '#ffffff',
-  onSecondary: '#ffffff',
+  onPrimary: '#ffffff',         // White text on primary
+  onSecondary: '#ffffff',       // White text on secondary
   onTertiary: '#ffffff',
-  onSurface: '#1e293b',
-  onSurfaceVariant: '#64748b',
-  onBackground: '#1e293b',
+  onSurface: '#112D4E',         // Dark navy text on light surfaces
+  onSurfaceVariant: '#3F72AF',  // Medium blue text on variant surfaces
+  onBackground: '#112D4E',      // Dark navy text on background
   onError: '#ffffff',
-  outline: '#cbd5e1',
-  outlineVariant: '#e2e8f0',
-  shadow: '#000000',
-  scrim: '#000000',
-  inverseSurface: '#1e293b',
-  inverseOnSurface: '#f8fafc',
-  inversePrimary: '#93c5fd',
+  outline: '#DBE2EF',           // Soft blue-gray for outlines
+  outlineVariant: '#F9F7F7',    // Light cream for variant outlines
+  shadow: '#112D4E',            // Dark navy for shadows
+  scrim: '#112D4E',             // Dark navy for scrims
+  inverseSurface: '#112D4E',    // Dark navy for inverse surfaces
+  inverseOnSurface: '#F9F7F7',  // Light cream text on inverse surfaces
+  inversePrimary: '#DBE2EF',    // Soft blue-gray for inverse primary
 };
 
 // Main theme

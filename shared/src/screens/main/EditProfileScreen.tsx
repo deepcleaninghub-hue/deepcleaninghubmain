@@ -1,3 +1,4 @@
+// Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -24,6 +25,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import { profileAPI, UserProfile, UpdateProfileData } from '../../services/profileAPI';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { ProfileStackScreenProps } from '../../navigation/types';
 
 type Props = ProfileStackScreenProps<'EditProfile'>;
@@ -31,6 +33,7 @@ type Props = ProfileStackScreenProps<'EditProfile'>;
 const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { user, updateUser } = useAuth();
+  const { t } = useLanguage();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -61,14 +64,14 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
           city: profileData.city || '',
           state: profileData.state || '',
           postal_code: profileData.postal_code || '',
-          country: profileData.country || 'Germany',
+          country: profileData.country || t('profile.germany'),
           date_of_birth: profileData.date_of_birth || '',
           gender: profileData.gender || undefined
         });
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      Alert.alert('Error', 'Failed to load profile');
+      Alert.alert(t('common.error'), t('profile.failedToLoadProfile'));
     } finally {
       setLoading(false);
     }
@@ -100,53 +103,53 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 
     // Only validate fields that have been modified and are not empty
     if (formData.first_name !== undefined && formData.first_name !== '' && !formData.first_name.trim()) {
-      newErrors.first_name = 'First name cannot be empty';
+      newErrors.first_name = t('profile.firstNameCannotBeEmpty');
     }
 
     if (formData.last_name !== undefined && formData.last_name !== '' && !formData.last_name.trim()) {
-      newErrors.last_name = 'Last name cannot be empty';
+      newErrors.last_name = t('profile.lastNameCannotBeEmpty');
     }
 
     if (formData.email !== undefined && formData.email !== '') {
       if (!formData.email.trim()) {
-        newErrors.email = 'Email cannot be empty';
+        newErrors.email = t('profile.emailCannotBeEmpty');
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = 'Please enter a valid email';
+        newErrors.email = t('profile.pleaseEnterValidEmail');
       }
     }
 
     if (formData.phone && formData.phone.length > 0 && formData.phone.length < 10) {
-      newErrors.phone = 'Phone number must be at least 10 characters';
+      newErrors.phone = t('profile.phoneNumberMustBeAtLeast10');
     }
 
     if (formData.address && formData.address.length > 0 && formData.address.length < 5) {
-      newErrors.address = 'Address must be at least 5 characters';
+      newErrors.address = t('profile.addressMustBeAtLeast5');
     }
 
     if (formData.city && formData.city.length > 0 && formData.city.length < 2) {
-      newErrors.city = 'City must be at least 2 characters';
+      newErrors.city = t('profile.cityMustBeAtLeast2');
     }
 
     if (formData.postal_code && formData.postal_code.length > 0 && formData.postal_code.length < 3) {
-      newErrors.postal_code = 'Postal code must be at least 3 characters';
+      newErrors.postal_code = t('profile.postalCodeMustBeAtLeast3');
     }
 
     // Date of birth validation
     if (formData.date_of_birth && formData.date_of_birth.length > 0) {
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
       if (!dateRegex.test(formData.date_of_birth)) {
-        newErrors.date_of_birth = 'Please enter a valid date in YYYY-MM-DD format';
+        newErrors.date_of_birth = t('profile.pleaseEnterValidDate');
       } else {
         const selectedDate = new Date(formData.date_of_birth);
         const today = new Date();
         const minDate = new Date(1900, 0, 1);
         
         if (isNaN(selectedDate.getTime())) {
-          newErrors.date_of_birth = 'Please enter a valid date';
+          newErrors.date_of_birth = t('profile.pleaseEnterValidDateOnly');
         } else if (selectedDate > today) {
-          newErrors.date_of_birth = 'Date of birth cannot be in the future';
+          newErrors.date_of_birth = t('profile.dateOfBirthCannotBeInFuture');
         } else if (selectedDate < minDate) {
-          newErrors.date_of_birth = 'Please enter a valid date of birth';
+          newErrors.date_of_birth = t('profile.pleaseEnterValidDateOfBirth');
         }
       }
     }
@@ -211,7 +214,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 
       // If no fields have changed, show a message
       if (Object.keys(changedFields).length === 0) {
-        Alert.alert('No Changes', 'No changes were made to save.');
+        Alert.alert(t('profile.noChanges'), t('profile.noChangesMade'));
         return;
       }
 
@@ -234,13 +237,13 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
           updatedAt: result.data.updated_at
         };
         updateUser(userData);
-        Alert.alert('Success', result.message || 'Profile updated successfully');
+        Alert.alert(t('common.success'), result.message || t('profile.profileUpdatedSuccess'));
       } else {
-        Alert.alert('Error', result.error || 'Failed to update profile');
+        Alert.alert(t('common.error'), result.error || t('profile.failedToUpdateProfile'));
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      Alert.alert('Error', 'Failed to update profile');
+      Alert.alert(t('common.error'), t('profile.failedToUpdateProfile'));
     } finally {
       setSaving(false);
     }
@@ -258,7 +261,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
           <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, marginTop: 16 }}>
-            Loading profile...
+            {t('profile.loadingProfile')}
           </Text>
         </View>
       </SafeAreaView>
@@ -267,7 +270,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="Edit Profile" showBack/>
+      <AppHeader title={t('profile.editProfile')} showBack/>
       
       <ScrollView 
         style={styles.scrollView} 
@@ -281,7 +284,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
           <Card style={[styles.progressCard, { backgroundColor: theme.colors.primaryContainer }]}>
             <Card.Content style={styles.progressContent}>
               <Text variant="titleMedium" style={[styles.progressTitle, { color: theme.colors.onPrimaryContainer }]}>
-                Profile Completion
+                {t('profile.profileCompletion')}
               </Text>
               <ProgressBar 
                 progress={getProgressPercentage()} 
@@ -289,7 +292,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 style={styles.progressBar}
               />
               <Text variant="bodyMedium" style={[styles.progressText, { color: theme.colors.onPrimaryContainer }]}>
-                {profile.profile_completion_percentage}% Complete
+                {profile.profile_completion_percentage}% {t('profile.complete')}
               </Text>
             </Card.Content>
           </Card>
@@ -299,12 +302,12 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
         <Card style={styles.sectionCard}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Personal Information
+              {t('profile.personalInformation')}
             </Text>
             
             <View style={styles.row}>
               <TextInput
-                label="First Name *"
+                label={`${t('profile.firstName')} *`}
                 value={formData.first_name || ''}
                 onChangeText={(text) => handleInputChange('first_name', text)}
                 style={[styles.input, styles.halfInput]}
@@ -312,7 +315,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 mode="outlined"
               />
               <TextInput
-                label="Last Name *"
+                label={`${t('profile.lastName')} *`}
                 value={formData.last_name || ''}
                 onChangeText={(text) => handleInputChange('last_name', text)}
                 style={[styles.input, styles.halfInput]}
@@ -324,7 +327,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
             {errors.last_name && <HelperText type="error">{errors.last_name}</HelperText>}
 
             <TextInput
-              label="Email *"
+              label={`${t('profile.email')} *`}
               value={formData.email || ''}
               onChangeText={(text) => handleInputChange('email', text)}
               style={styles.input}
@@ -336,7 +339,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
             {errors.email && <HelperText type="error">{errors.email}</HelperText>}
 
             <TextInput
-              label="Phone"
+              label={t('auth.phone')}
               value={formData.phone || ''}
               onChangeText={(text) => handleInputChange('phone', text)}
               style={styles.input}
@@ -348,7 +351,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 
             <View style={styles.dateInputContainer}>
               <Text variant="bodyMedium" style={[styles.dateLabel, { color: theme.colors.onSurface }]}>
-                Date of Birth
+                {t('profile.dateOfBirth')}
               </Text>
               <Button
                 mode="outlined"
@@ -357,7 +360,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 contentStyle={styles.dateButtonContent}
                 icon="calendar"
               >
-                {formData.date_of_birth ? formatDate(selectedDate) : 'Select Date of Birth'}
+                {formData.date_of_birth ? formatDate(selectedDate) : t('profile.selectDateOfBirth')}
               </Button>
               {errors.date_of_birth && (
                 <HelperText type="error" style={styles.helperText}>
@@ -367,7 +370,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
             </View>
 
             <Text variant="bodyMedium" style={[styles.genderLabel, { color: theme.colors.onSurface }]}>
-              Gender
+              {t('profile.gender')}
             </Text>
             <View style={styles.genderContainer}>
               <View style={styles.genderOption}>
@@ -376,7 +379,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                   status={formData.gender === 'male' ? 'checked' : 'unchecked'}
                   onPress={() => handleInputChange('gender', 'male')}
                 />
-                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>Male</Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>{t('profile.male')}</Text>
               </View>
               <View style={styles.genderOption}>
                 <RadioButton
@@ -384,7 +387,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                   status={formData.gender === 'female' ? 'checked' : 'unchecked'}
                   onPress={() => handleInputChange('gender', 'female')}
                 />
-                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>Female</Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>{t('profile.female')}</Text>
               </View>
               <View style={styles.genderOption}>
                 <RadioButton
@@ -392,7 +395,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                   status={formData.gender === 'other' ? 'checked' : 'unchecked'}
                   onPress={() => handleInputChange('gender', 'other')}
                 />
-                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>Other</Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>{t('profile.other')}</Text>
               </View>
               <View style={styles.genderOption}>
                 <RadioButton
@@ -400,7 +403,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                   status={formData.gender === 'prefer_not_to_say' ? 'checked' : 'unchecked'}
                   onPress={() => handleInputChange('gender', 'prefer_not_to_say')}
                 />
-                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>Prefer not to say</Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>{t('profile.preferNotToSay')}</Text>
               </View>
             </View>
           </Card.Content>
@@ -410,11 +413,11 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
         <Card style={styles.sectionCard}>
           <Card.Content>
             <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Address Information
+              {t('profile.addressInformation')}
             </Text>
             
             <TextInput
-              label="Address"
+              label={t('auth.address')}
               value={formData.address || ''}
               onChangeText={(text) => handleInputChange('address', text)}
               style={styles.input}
@@ -426,7 +429,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 
             <View style={styles.row}>
               <TextInput
-                label="City"
+                label={t('checkout.city')}
                 value={formData.city || ''}
                 onChangeText={(text) => handleInputChange('city', text)}
                 style={[styles.input, styles.halfInput]}
@@ -434,7 +437,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 mode="outlined"
               />
               <TextInput
-                label="State"
+                label={t('profile.state')}
                 value={formData.state || ''}
                 onChangeText={(text) => handleInputChange('state', text)}
                 style={[styles.input, styles.halfInput]}
@@ -445,7 +448,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 
             <View style={styles.row}>
               <TextInput
-                label="Postal Code"
+                label={t('checkout.postalCode')}
                 value={formData.postal_code || ''}
                 onChangeText={(text) => handleInputChange('postal_code', text)}
                 style={[styles.input, styles.halfInput]}
@@ -454,7 +457,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 keyboardType="numeric"
               />
               <TextInput
-                label="Country"
+                label={t('checkout.country')}
                 value={formData.country || ''}
                 onChangeText={(text) => handleInputChange('country', text)}
                 style={[styles.input, styles.halfInput]}
@@ -479,7 +482,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 <Ionicons name="save" size={size} color={color} />
               )}
             >
-              {saving ? 'Saving...' : 'Save Profile'}
+              {saving ? t('profile.saving') : t('profile.saveProfile')}
             </Button>
           </Card.Content>
         </Card>
@@ -503,14 +506,14 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 onPress={() => setShowDatePicker(false)}
                 style={styles.pickerButton}
               >
-                Cancel
+{t('common.cancel')}
               </Button>
               <Button
                 mode="contained"
                 onPress={handleDateConfirm}
                 style={styles.pickerButton}
               >
-                Confirm
+{t('common.confirm')}
               </Button>
             </View>
           )}
@@ -523,7 +526,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F7F7',
   },
   scrollView: {
     flex: 1,
@@ -624,7 +627,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: -2,

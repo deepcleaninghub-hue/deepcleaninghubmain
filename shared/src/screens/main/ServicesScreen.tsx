@@ -1,3 +1,4 @@
+// Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -16,6 +17,8 @@ import { servicesAPI } from '../../services/api';
 import { serviceOptionsAPI } from '../../services/serviceOptionsAPI';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import AutoTranslateText from '../../components/AutoTranslateText';
 import { ServicesStackScreenProps } from '../../navigation/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -23,10 +26,12 @@ type Props = ServicesStackScreenProps<'ServicesMain'>;
 
 const ServicesScreen = ({ navigation }: Props) => {
   const theme = useTheme();
+  const { t, translateDynamicText } = useLanguage();
   const [services, setServices] = useState<any[]>([]);
   const [serviceOptions, setServiceOptions] = useState<any[]>([]);
   const [allServiceOptions, setAllServiceOptions] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [translatedCategories, setTranslatedCategories] = useState<{[key: string]: string}>({});
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -35,7 +40,20 @@ const ServicesScreen = ({ navigation }: Props) => {
   const [debouncedSearch, setDebouncedSearch] = useState<string>('');
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   
-  
+  // Function to translate categories
+  const translateCategories = async (categoryTitles: string[]) => {
+    const translated: {[key: string]: string} = {};
+    for (const title of categoryTitles) {
+      try {
+        const translatedTitle = await translateDynamicText(title);
+        translated[title] = translatedTitle;
+      } catch (error) {
+        // Fallback to original title if translation fails
+        translated[title] = title;
+      }
+    }
+    setTranslatedCategories(translated);
+  };
 
   // Fetch services and categories from API
   useEffect(() => {
@@ -67,9 +85,12 @@ const ServicesScreen = ({ navigation }: Props) => {
       // Use service titles as categories (no explicit "All" chip)
       const serviceTitles = [...servicesData.map(service => service.title)];
       setCategories(serviceTitles);
+      
+      // Translate categories for display
+      await translateCategories(serviceTitles);
     } catch (error) {
       console.error('Error fetching data:', error);
-      Alert.alert('Error', 'Failed to load services');
+      Alert.alert(t('common.error'), t('services.loadingServices'));
     } finally {
       setLoading(false);
     }
@@ -93,7 +114,7 @@ const ServicesScreen = ({ navigation }: Props) => {
       setServices(servicesData);
     } catch (error) {
       console.error('Error fetching services:', error);
-      Alert.alert('Error', 'Failed to load services');
+      Alert.alert(t('common.error'), t('services.failedToLoadServices'));
     } finally {
       setLoading(false);
     }
@@ -125,7 +146,7 @@ const ServicesScreen = ({ navigation }: Props) => {
         setServiceOptions(options);
       } catch (error) {
         console.error('Error fetching service options:', error);
-        Alert.alert('Error', 'Failed to load service options');
+        Alert.alert(t('common.error'), t('services.failedToLoadServiceOptions'));
         setServiceOptions([]);
       } finally {
         setLoading(false);
@@ -159,7 +180,7 @@ const ServicesScreen = ({ navigation }: Props) => {
 
   const handleCallNow = () => {
     Linking.openURL('tel:+4916097044182').catch(() => {
-      Alert.alert('Error', 'Could not open phone app');
+      Alert.alert(t('common.error'), t('services.couldNotOpenPhoneApp'));
     });
   };
 
@@ -180,7 +201,7 @@ const ServicesScreen = ({ navigation }: Props) => {
       }
       await Linking.openURL(webUrl);
     } catch (e) {
-      Alert.alert('Support', 'Unable to open WhatsApp on this device.');
+      Alert.alert(t('services.support'), t('services.unableToOpenWhatsApp'));
     }
   };
 
@@ -198,7 +219,7 @@ const ServicesScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="Deep Cleaning Hub" />
+      <AppHeader title={t('services.title')} />
       
       <ScrollView 
         style={styles.scrollView} 
@@ -210,13 +231,13 @@ const ServicesScreen = ({ navigation }: Props) => {
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.headerRow}>
-            <Text variant="titleMedium" style={[styles.headerTitle, { color: theme.colors.onSurface }]}>Services</Text>
+            <Text variant="titleMedium" style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{t('services.title')}</Text>
           </View>
           <Text
             variant="bodySmall"
             style={[styles.headerMeta, { color: theme.colors.onSurfaceVariant }]}
           >
-            {filteredServiceOptions.length} options • {selectedCategory || 'All'}
+            {filteredServiceOptions.length} {t('services.options')} • {selectedCategory ? (translatedCategories[selectedCategory] || selectedCategory) : t('services.all')}
           </Text>
         </View>
 
@@ -224,7 +245,7 @@ const ServicesScreen = ({ navigation }: Props) => {
         <View style={styles.searchContainer}>
           <TextInput
             mode="outlined"
-            placeholder="Search services or categories"
+            placeholder={t('services.searchServices')}
             value={searchQuery}
             onChangeText={setSearchQuery}
             style={[styles.searchInput, { backgroundColor: theme.colors.surface }]}
@@ -242,9 +263,9 @@ const ServicesScreen = ({ navigation }: Props) => {
         {/* Quick actions */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsRowScroll}>
           <View style={styles.quickActionsRow}>
-            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="refresh" size={size} color={color} />)} onPress={() => Alert.alert('Repeat', 'Repeat last booking coming soon')} style={styles.quickChip}>Repeat last booking</Button>
-            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="today" size={size} color={color} />)} onPress={() => Alert.alert('Schedule', 'Today scheduling coming soon')} style={styles.quickChip}>Today</Button>
-            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="calendar" size={size} color={color} />)} onPress={() => Alert.alert('Schedule', 'Tomorrow scheduling coming soon')} style={styles.quickChip}>Tomorrow</Button>
+            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="refresh" size={size} color={color} />)} onPress={() => Alert.alert(t('services.repeat'), t('services.repeatLastBookingComingSoon'))} style={styles.quickChip}>{t('services.repeatLastBooking')}</Button>
+            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="today" size={size} color={color} />)} onPress={() => Alert.alert(t('services.schedule'), t('services.todaySchedulingComingSoon'))} style={styles.quickChip}>{t('services.today')}</Button>
+            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="calendar" size={size} color={color} />)} onPress={() => Alert.alert(t('services.schedule'), t('services.tomorrowSchedulingComingSoon'))} style={styles.quickChip}>{t('services.tomorrow')}</Button>
           </View>
         </ScrollView>
 
@@ -253,13 +274,13 @@ const ServicesScreen = ({ navigation }: Props) => {
         {/* Services - compact carousel */}
         <View style={styles.servicesCarouselSection}>
           <View style={styles.sectionHeaderRow}>
-            <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>Service Options</Text>
+            <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>{t('services.serviceOptions')}</Text>
           </View>
           
           {/* Category Filter */}
         <View style={styles.categoryContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-            <Button mode="text" onPress={clearFilters} style={styles.clearFiltersBtn}>Clear</Button>
+            <Button mode="text" onPress={clearFilters} style={styles.clearFiltersBtn}>{t('services.clear')}</Button>
             {(categories || []).map((category) => {
               const isSelected = selectedCategory === category;
               return (
@@ -274,7 +295,7 @@ const ServicesScreen = ({ navigation }: Props) => {
                 ]}
                 textStyle={{ color: isSelected ? theme.colors.onPrimary : theme.colors.primary }}
                 >
-                  {category}
+                  {translatedCategories[category] || category}
                 </Chip>
               );
             })}
@@ -284,21 +305,21 @@ const ServicesScreen = ({ navigation }: Props) => {
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={theme.colors.primary} />
               <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, marginTop: 16 }}>
-                Loading services...
+                {t('services.loadingServicesText')}
               </Text>
             </View>
           ) : filteredServiceOptions.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Ionicons name="search-outline" size={64} color={theme.colors.outline} />
               <Text variant="headlineSmall" style={[styles.emptyTitle, { color: theme.colors.onSurface }]}>
-                {searchQuery ? 'No Search Results' : 'No Service Options Found'}
+                {searchQuery ? t('services.noSearchResults') : t('services.noServiceOptionsFound')}
               </Text>
               <Text variant="bodyLarge" style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
                 {searchQuery 
-                  ? `No services found for "${searchQuery}"`
-                  : selectedCategory === 'All' 
-                  ? 'No service options available' 
-                  : `No options available for ${selectedCategory}`
+                  ? `${t('services.noServicesFoundForQuery')} "${searchQuery}"`
+                  : selectedCategory === t('services.all') 
+                  ? t('services.noServiceOptionsAvailable') 
+                  : `${t('services.noOptionsAvailableFor')} ${translatedCategories[selectedCategory] || selectedCategory}`
                 }
               </Text>
             </View>
@@ -335,7 +356,7 @@ const ServicesScreen = ({ navigation }: Props) => {
 
         {/* Recommended */}
         <View style={styles.sectionHeaderRow}>
-          <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>Recommended for you</Text>
+          <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>{t('services.recommendedForYou')}</Text>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carouselList}>
           {recommended.map((option) => (
@@ -369,13 +390,13 @@ const ServicesScreen = ({ navigation }: Props) => {
               <View style={[styles.ctaIconCircle, { backgroundColor: theme.colors.primary }]}>
                 <Ionicons name="sparkles" size={16} color={theme.colors.onPrimary} />
               </View>
-              <Text style={[styles.ctaBadge, { color: theme.colors.primary }]}>Custom quotes, fast</Text>
+              <Text style={[styles.ctaBadge, { color: theme.colors.primary }]}>{t('services.customQuotesFast')}</Text>
             </View>
             <Text variant="titleLarge" style={[styles.ctaTitle, { color: theme.colors.onSurface }]}>
-              Need a tailored estimate?
+              {t('services.needTailoredEstimate')}
             </Text>
             <Text variant="bodyMedium" style={[styles.ctaDescription, { color: theme.colors.onSurfaceVariant }]}>
-              Tell us your requirements and we’ll get back within minutes.
+              {t('services.tellUsRequirements')}
             </Text>
             <View style={styles.ctaButtons}>
               <Button
@@ -387,7 +408,7 @@ const ServicesScreen = ({ navigation }: Props) => {
                   <Ionicons name="chatbubbles" size={size} color={color} />
                 )}
               >
-                Get Quote
+                {t('services.getQuote')}
               </Button>
               <Button
                 mode="outlined"
@@ -399,7 +420,7 @@ const ServicesScreen = ({ navigation }: Props) => {
                   <Ionicons name="call" size={size} color={color} />
                 )}
               >
-                Call
+                {t('services.call')}
               </Button>
             </View>
           </Card.Content>
@@ -407,7 +428,7 @@ const ServicesScreen = ({ navigation }: Props) => {
       </ScrollView>
       <FAB
         icon="message"
-        label="Help"
+        label={t('services.help')}
         style={styles.supportFab}
         onPress={openWhatsAppSupport}
       />
@@ -418,7 +439,7 @@ const ServicesScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#DBE2EF', // Soft blue-gray for filter section
   },
   scrollView: {
     flex: 1,
@@ -427,9 +448,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     alignItems: 'flex-start',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#F9F7F7',
     borderBottomWidth: 0.5,
-    borderBottomColor: '#ececec',
+    borderBottomColor: '#3F72AF', // Medium blue border for accent
   },
   headerRow: {
     width: '100%',
@@ -456,7 +477,7 @@ const styles = StyleSheet.create({
   searchInput: {
     borderRadius: 16,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: '#112D4E',
     shadowOffset: {
       width: 0,
       height: 1,
@@ -598,7 +619,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     borderRadius: 12,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: '#112D4E',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 2,

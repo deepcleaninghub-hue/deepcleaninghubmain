@@ -1,6 +1,7 @@
 module.exports = {
   extends: [
     'expo',
+    'eslint-config-expo',
     '@typescript-eslint/recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',

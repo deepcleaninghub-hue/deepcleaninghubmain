@@ -1,7 +1,7 @@
 /**
  * Environment Configuration
  * 
- * Centralized environment management for the DeepClean Mobile Hub app.
+ * Centralized environment management for the Deep Cleaning Hub app.
  * Handles development, staging, and production configurations securely.
  */
 

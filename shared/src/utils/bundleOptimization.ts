@@ -5,6 +5,8 @@
  * including code splitting, lazy loading, and performance monitoring.
  */
 
+import React from 'react';
+import { AppState } from 'react-native';
 import { secureLog, isDevelopment } from '../config/environment';
 
 export interface BundleMetrics {
@@ -66,7 +68,7 @@ class BundleOptimizationManager {
       return importFn().then(module => module.default) as any;
     }
 
-    return React.lazy(importFn);
+    return React.lazy(importFn as any);
   }
 
   // Code splitting utilities
@@ -163,10 +165,11 @@ class BundleOptimizationManager {
       
       for (const entry of entries) {
         if (entry.entryType === 'navigation') {
+          const navEntry = entry as any;
           this.updateMetrics({
-            loadTime: entry.loadEventEnd - entry.loadEventStart,
-            parseTime: entry.domContentLoadedEventEnd - entry.domContentLoadedEventStart,
-            executeTime: entry.loadEventEnd - entry.domContentLoadedEventEnd,
+            loadTime: (navEntry.loadEventEnd || 0) - (navEntry.loadEventStart || 0),
+            parseTime: (navEntry.domContentLoadedEventEnd || 0) - (navEntry.domContentLoadedEventStart || 0),
+            executeTime: (navEntry.loadEventEnd || 0) - (navEntry.domContentLoadedEventEnd || 0),
           });
         }
       }
@@ -289,7 +292,7 @@ bundleOptimizationManager.startPerformanceMonitoring();
 
 // Memory optimization on app background
 if (typeof AppState !== 'undefined') {
-  AppState.addEventListener('change', (nextAppState) => {
+  AppState.addEventListener('change', (nextAppState: any) => {
     if (nextAppState === 'background') {
       bundleOptimizationManager.optimizeMemory();
     }

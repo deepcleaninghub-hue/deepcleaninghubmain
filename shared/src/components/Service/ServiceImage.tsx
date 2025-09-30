@@ -53,7 +53,7 @@ export const ServiceImage: React.FC<ServiceImageProps> = ({
       ]}
       testID={testID}
       accessibilityLabel={accessibilityLabel}
-      accessibilityRole={accessibilityRole}
+      accessibilityRole={accessibilityRole as any}
     >
       {loading && (
         <View style={styles.loadingContainer}>

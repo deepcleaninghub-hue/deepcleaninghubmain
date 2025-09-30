@@ -23,6 +23,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { validateEmail, validatePassword, validateName } from '../../utils/validation';
 import { AuthStackScreenProps } from '../../navigation/types';
 
@@ -31,6 +32,7 @@ type Props = AuthStackScreenProps<'SignUp'>;
 export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { signUp, loading } = useAuth();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -60,62 +62,62 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
     // First name validation
     const firstNameValidation = validateName(formData.firstName);
     if (!firstNameValidation.isValid) {
-      newErrors.firstName = firstNameValidation.error || 'Invalid first name';
+      newErrors.firstName = firstNameValidation.error || t('auth.invalidFirstName');
       isValid = false;
     }
 
     // Last name validation
     const lastNameValidation = validateName(formData.lastName);
     if (!lastNameValidation.isValid) {
-      newErrors.lastName = lastNameValidation.error || 'Invalid last name';
+      newErrors.lastName = lastNameValidation.error || t('auth.invalidLastName');
       isValid = false;
     }
 
     // Email validation
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('auth.emailRequired');
       isValid = false;
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = t('auth.enterValidEmail');
       isValid = false;
     }
 
     // Phone validation (required)
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
+      newErrors.phone = t('auth.phoneRequired');
       isValid = false;
     } else if (!/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-\(\)]/g, ''))) {
-      newErrors.phone = 'Please enter a valid phone number';
+      newErrors.phone = t('auth.enterValidPhone');
       isValid = false;
     }
 
     // Address validation (required)
     if (!formData.address.trim()) {
-      newErrors.address = 'Address is required';
+      newErrors.address = t('auth.addressRequired');
       isValid = false;
     } else if (formData.address.trim().length < 10) {
-      newErrors.address = 'Please enter a complete address';
+      newErrors.address = t('auth.enterCompleteAddress');
       isValid = false;
     }
 
     // Password validation
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('auth.passwordRequired');
       isValid = false;
     } else {
       const passwordValidation = validatePassword(formData.password);
       if (!passwordValidation.isValid) {
-        newErrors.password = passwordValidation.errors[0] || 'Invalid password';
+        newErrors.password = passwordValidation.errors[0] || t('auth.invalidPassword');
         isValid = false;
       }
     }
 
     // Confirm password validation
     if (!formData.confirmPassword.trim()) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = t('auth.confirmPasswordRequired');
       isValid = false;
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = t('auth.passwordsDoNotMatch');
       isValid = false;
     }
 
@@ -173,13 +175,13 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               variant="headlineMedium" 
               style={[styles.title, { color: theme.colors.onSurface }]}
             >
-              Create Account
+              {t('auth.createAccount')}
             </Text>
             <Text 
               variant="bodyLarge" 
               style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
             >
-              Join Deep Cleaning Hub and get started today
+              {t('auth.joinDeepCleaningHub')}
             </Text>
           </View>
 
@@ -193,7 +195,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               <View style={styles.nameRow}>
                 <View style={[styles.inputContainer, styles.nameInput]}>
                   <TextInput
-                    label="First Name"
+                    label={t('auth.firstName')}
                     value={formData.firstName}
                     onChangeText={(text) => handleInputChange('firstName', text)}
                     mode="outlined"
@@ -213,7 +215,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                 
                 <View style={[styles.inputContainer, styles.nameInput]}>
                   <TextInput
-                    label="Last Name"
+                    label={t('auth.lastName')}
                     value={formData.lastName}
                     onChangeText={(text) => handleInputChange('lastName', text)}
                     mode="outlined"
@@ -235,7 +237,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               {/* Email Input */}
               <View style={styles.inputContainer}>
                 <TextInput
-                  label="Email"
+                  label={t('auth.email')}
                   value={formData.email}
                   onChangeText={(text) => handleInputChange('email', text)}
                   mode="outlined"
@@ -258,7 +260,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               {/* Phone Input */}
               <View style={styles.inputContainer}>
                 <TextInput
-                  label="Phone"
+                  label={t('auth.phone')}
                   value={formData.phone}
                   onChangeText={(text) => handleInputChange('phone', text)}
                   mode="outlined"
@@ -279,7 +281,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               {/* Address Input */}
               <View style={styles.inputContainer}>
                 <TextInput
-                  label="Address"
+                  label={t('auth.address')}
                   value={formData.address}
                   onChangeText={(text) => handleInputChange('address', text)}
                   mode="outlined"
@@ -302,7 +304,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               {/* Password Input */}
               <View style={styles.inputContainer}>
                 <TextInput
-                  label="Password"
+                  label={t('auth.password')}
                   value={formData.password}
                   onChangeText={(text) => handleInputChange('password', text)}
                   mode="outlined"
@@ -330,7 +332,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               {/* Confirm Password Input */}
               <View style={styles.inputContainer}>
                 <TextInput
-                  label="Confirm Password"
+                  label={t('auth.confirmPassword')}
                   value={formData.confirmPassword}
                   onChangeText={(text) => handleInputChange('confirmPassword', text)}
                   mode="outlined"
@@ -365,7 +367,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                 contentStyle={styles.buttonContent}
                 testID="signup-button"
               >
-                {loading ? 'Creating Account...' : 'Create Account'}
+                {loading ? t('auth.creatingAccount') : t('auth.createAccount')}
               </Button>
 
               {/* Sign In Link */}
@@ -374,7 +376,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   variant="bodyMedium" 
                   style={{ color: theme.colors.onSurfaceVariant }}
                 >
-                  Already have an account?{' '}
+                  {t('auth.alreadyHaveAccount')}{' '}
                 </Text>
                 <Button
                   mode="text"
@@ -383,7 +385,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   labelStyle={{ color: theme.colors.primary }}
                   testID="signin-button"
                 >
-                  Sign In
+                  {t('auth.signIn')}
                 </Button>
               </View>
             </View>

@@ -1,7 +1,7 @@
 /**
  * Main App Component
  * 
- * The root component of the DeepClean Mobile Hub app with proper
+ * The root component of the Deep Cleaning Hub app with proper
  * provider setup and error boundary.
  */
 

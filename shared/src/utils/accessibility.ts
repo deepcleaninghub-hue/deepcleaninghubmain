@@ -16,16 +16,16 @@ export interface AccessibilityConfig {
 }
 
 export interface AccessibilityProps {
-  accessibilityLabel?: string;
-  accessibilityHint?: string;
-  accessibilityRole?: string;
+  accessibilityLabel?: string | undefined;
+  accessibilityHint?: string | undefined;
+  accessibilityRole?: 'none' | 'button' | 'link' | 'image' | 'text' | 'keyboardkey' | 'search' | 'summary' | 'adjustable' | 'header' | 'alert' | 'checkbox' | 'combobox' | 'menu' | 'menubar' | 'menuitem' | 'progressbar' | 'radio' | 'radiogroup' | 'scrollbar' | 'spinbutton' | 'switch' | 'tab' | 'tablist' | 'timer' | 'toolbar' | 'tabbar' | 'tabpanel' | 'list' | 'listitem' | 'grid' | 'gridcell' | 'banner' | 'complementary' | 'contentinfo' | 'form' | 'main' | 'navigation' | 'region' | 'search' | 'article' | 'aside' | 'figure' | 'footer' | 'header' | 'section' | 'status' | 'alertdialog' | 'dialog' | 'log' | 'marquee' | 'note' | 'presentation' | 'separator' | 'tooltip' | 'tree' | 'treeitem';
   accessibilityState?: {
     disabled?: boolean;
     selected?: boolean;
     checked?: boolean | 'mixed';
     busy?: boolean;
     expanded?: boolean;
-  };
+  } | undefined;
   accessibilityValue?: {
     min?: number;
     max?: number;
@@ -198,7 +198,7 @@ class AccessibilityManager {
       accessibilityLabel: decorative ? undefined : label,
       accessibilityHint: hint,
       accessibilityRole: decorative ? 'none' : 'image',
-      accessibilityState: decorative ? {} : undefined,
+      accessibilityState: decorative ? undefined : undefined,
     };
   }
 

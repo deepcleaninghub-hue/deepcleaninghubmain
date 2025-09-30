@@ -3,19 +3,21 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Props { title?: string; showBack?: boolean; onBackPress?: () => void }
 
 const AppHeader: React.FC<Props> = ({ title, showBack, onBackPress }) => {
   const theme = useTheme();
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
 
   return (
     <View style={[styles.customHeader, { backgroundColor: theme.colors.surface }]}>
       {showBack ? (
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel="Go back"
+          accessibilityLabel={t('common.goBack')}
           onPress={onBackPress || (() => navigation.goBack())}
           style={styles.backButton}
         >

@@ -12,6 +12,7 @@ import { httpClient } from '../services/httpClient';
 import { secureLog, config } from '../config/environment';
 import { CartItem, CartSummary, Service, CartContextType } from '../types';
 import { useAuth } from './AuthContext';
+import { useLanguage } from './LanguageContext';
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -35,6 +36,7 @@ const SERVICES_CACHE_TIME_KEY = 'services_cache_time';
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartSummary, setCartSummary] = useState<CartSummary>({
     totalItems: 0,
@@ -85,7 +87,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const refreshCart = useCallback(async (forceRefresh = false) => {
-    console.log('🔄 refreshCart called', { forceRefresh, user: !!user, isAuthenticated });
+    // Only log in development to reduce console noise
+    if (__DEV__) {
+      console.log('🔄 refreshCart called', { forceRefresh, user: !!user, isAuthenticated });
+    }
     
     if (!user || !isAuthenticated) {
       secureLog('info', 'No user or not authenticated, skipping cart refresh');
@@ -209,7 +214,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = useCallback(async (service: Service, calculatedPrice?: number, userInputs?: any): Promise<boolean> => {
     if (!user || !isAuthenticated) {
-      Alert.alert('Error', 'Please login to add items to cart');
+      Alert.alert(t('common.error'), t('cart.loginToAddItems'));
       return false;
     }
 
@@ -217,7 +222,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       setLoading(true);
 
       if (isServiceInCart(service.id)) {
-        Alert.alert('Already in Cart', `${service.title} is already in your cart.`);
+        Alert.alert(t('cart.alreadyInCart'), `${service.title} ${t('cart.alreadyInCartMessage')}`);
         return false;
       }
 
@@ -232,20 +237,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       
       if (response.success) {
         await refreshCart(true); // Force refresh to clear cache
-        Alert.alert('Success', `${service.title} added to cart!`);
+        Alert.alert(t('common.success'), `${service.title} ${t('cart.addedToCart')}`);
         return true;
       } else {
-        Alert.alert('Error', 'Failed to add item to cart');
+        Alert.alert(t('common.error'), t('cart.failedToAddItem'));
         return false;
       }
     } catch (error) {
       secureLog('error', 'Error adding to cart', { error, serviceId: service.id });
-      Alert.alert('Error', 'Failed to add item to cart');
+      Alert.alert(t('common.error'), t('cart.failedToAddItem'));
       return false;
     } finally {
       setLoading(false);
     }
-  }, [user?.id, isAuthenticated, isServiceInCart, refreshCart]);
+  }, [user?.id, isAuthenticated, isServiceInCart, refreshCart, t]);
 
   const removeFromCart = useCallback(async (cartItemId: string): Promise<boolean> => {
     if (!user || !isAuthenticated) return false;
@@ -258,17 +263,17 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         await refreshCart(true); // Force refresh to clear cache
         return true;
       } else {
-        Alert.alert('Error', 'Failed to remove item from cart');
+        Alert.alert(t('common.error'), t('cart.failedToRemoveItem'));
         return false;
       }
     } catch (error) {
       secureLog('error', 'Error removing from cart', { error, cartItemId });
-      Alert.alert('Error', 'Failed to remove item from cart');
+      Alert.alert(t('common.error'), t('cart.failedToRemoveItem'));
       return false;
     } finally {
       setLoading(false);
     }
-  }, [user?.id, isAuthenticated, refreshCart]);
+  }, [user?.id, isAuthenticated, refreshCart, t]);
 
   const updateQuantity = useCallback(async (cartItemId: string, quantity: number): Promise<boolean> => {
     if (!user || !isAuthenticated) return false;
@@ -285,17 +290,17 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         await refreshCart(true); // Force refresh to clear cache
         return true;
       } else {
-        Alert.alert('Error', 'Failed to update quantity');
+        Alert.alert(t('common.error'), t('cart.failedToUpdateQuantity'));
         return false;
       }
     } catch (error) {
       secureLog('error', 'Error updating quantity', { error, cartItemId, quantity });
-      Alert.alert('Error', 'Failed to update quantity');
+      Alert.alert(t('common.error'), t('cart.failedToUpdateQuantity'));
       return false;
     } finally {
       setLoading(false);
     }
-  }, [user?.id, isAuthenticated, removeFromCart, refreshCart]);
+  }, [user?.id, isAuthenticated, removeFromCart, refreshCart, t]);
 
   const clearCart = useCallback(async (): Promise<boolean> => {
     if (!user || !isAuthenticated) return false;
@@ -313,20 +318,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         });
         
         await clearCache();
-        Alert.alert('Success', 'Cart cleared successfully');
+        Alert.alert(t('common.success'), t('cart.clearedSuccessfully'));
         return true;
       } else {
-        Alert.alert('Error', 'Failed to clear cart');
+        Alert.alert(t('common.error'), t('cart.failedToClearCart'));
         return false;
       }
     } catch (error) {
       secureLog('error', 'Error clearing cart', { error });
-      Alert.alert('Error', 'Failed to clear cart');
+      Alert.alert(t('common.error'), t('cart.failedToClearCart'));
       return false;
     } finally {
       setLoading(false);
     }
-  }, [user?.id, isAuthenticated]);
+  }, [user?.id, isAuthenticated, t]);
 
   // Memoize context value to prevent unnecessary re-renders
   const value: CartContextType = useMemo(() => ({

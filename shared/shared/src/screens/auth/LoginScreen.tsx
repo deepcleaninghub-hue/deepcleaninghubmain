@@ -263,23 +263,6 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           </Surface>
 
-          {/* Demo Credentials */}
-          <Card style={[styles.demoCard, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <Card.Content>
-              <Text 
-                variant="titleSmall" 
-                style={[styles.demoTitle, { color: theme.colors.onSurfaceVariant }]}
-              >
-                Demo Credentials
-              </Text>
-              <Text 
-                variant="bodySmall" 
-                style={[styles.demoText, { color: theme.colors.onSurfaceVariant }]}
-              >
-                For testing: Use any email and password (6+ chars)
-              </Text>
-            </Card.Content>
-          </Card>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -373,15 +356,5 @@ const styles = StyleSheet.create({
   },
   signUpButton: {
     marginLeft: -8,
-  },
-  demoCard: {
-    borderRadius: 8,
-  },
-  demoTitle: {
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  demoText: {
-    lineHeight: 16,
   },
 });

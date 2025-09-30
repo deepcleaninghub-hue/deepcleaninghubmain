@@ -9,6 +9,7 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text, Card, Button, Chip, useTheme, Divider, IconButton } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface BookingDate {
   date: string;
@@ -32,6 +33,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
   maxDays = 7,
 }) => {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [tempDate, setTempDate] = useState(new Date());
@@ -73,7 +75,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
 
   const handleAddDate = () => {
     if (selectedDates.length >= maxDays) {
-      Alert.alert('Maximum Days Reached', `You can select up to ${maxDays} days for this service.`);
+      Alert.alert(t('checkout.maximumDaysReached'), `${t('checkout.youCanSelectUpTo')} ${maxDays} ${t('checkout.daysForThisService')}`);
       return;
     }
 
@@ -88,7 +90,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
     );
 
     if (isDuplicate) {
-      Alert.alert('Date Already Selected', 'This date has already been added to your booking.');
+      Alert.alert(t('checkout.dateAlreadySelected'), t('checkout.dateAlreadyAdded'));
       return;
     }
 
@@ -121,10 +123,10 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
         <Card.Content>
           <View style={styles.header}>
             <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
-              Select Service Dates
+              {t('checkout.selectServiceDates')}
             </Text>
             <Text variant="bodySmall" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
-              {selectedDates.length} of {maxDays} days selected
+              {selectedDates.length} {t('checkout.ofDaysSelected')} {maxDays} {t('checkout.daysSelected')}
             </Text>
           </View>
 
@@ -133,7 +135,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
           {/* Time Selection */}
           <View style={styles.timeSection}>
             <Text variant="bodyMedium" style={[styles.timeLabel, { color: theme.colors.onSurfaceVariant }]}>
-              Service Time (same for all days)
+              {t('checkout.serviceTimeSameForAll')}
             </Text>
             <Button
               mode="outlined"
@@ -150,7 +152,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
           {/* Date Selection */}
           <View style={styles.dateSection}>
             <Text variant="bodyMedium" style={[styles.dateLabel, { color: theme.colors.onSurfaceVariant }]}>
-              Add Service Date
+              {t('checkout.addServiceDate')}
             </Text>
             <View style={styles.dateInputRow}>
               <Button
@@ -168,7 +170,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
                 disabled={selectedDates.length >= maxDays}
                 icon="plus"
               >
-                Add
+                {t('checkout.add')}
               </Button>
             </View>
           </View>
@@ -179,7 +181,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
               <Divider style={styles.divider} />
               <View style={styles.selectedDatesSection}>
                 <Text variant="bodyMedium" style={[styles.selectedDatesLabel, { color: theme.colors.onSurfaceVariant }]}>
-                  Selected Dates
+                  {t('checkout.selectedDates')}
                 </Text>
                 <View style={styles.selectedDatesList}>
                   {selectedDates.map((date, index) => (
@@ -204,13 +206,13 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
             <View style={styles.instructionRow}>
               <Ionicons name="information-circle-outline" size={16} color={theme.colors.onSurfaceVariant} />
               <Text variant="bodySmall" style={[styles.instructionText, { color: theme.colors.onSurfaceVariant }]}>
-                Select multiple dates for recurring service appointments
+                {t('checkout.selectMultipleDates')}
               </Text>
             </View>
             <View style={styles.instructionRow}>
               <Ionicons name="time-outline" size={16} color={theme.colors.onSurfaceVariant} />
               <Text variant="bodySmall" style={[styles.instructionText, { color: theme.colors.onSurfaceVariant }]}>
-                The same time will be used for all selected dates
+                {t('checkout.sameTimeForAll')}
               </Text>
             </View>
           </View>
@@ -224,7 +226,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
             <TouchableWithoutFeedback onPress={() => {}}>
               <View style={styles.pickerContainer}>
                 <Text variant="titleMedium" style={[styles.pickerTitle, { color: theme.colors.onSurface }]}>
-                  Select Date
+                  {t('checkout.selectDate')}
                 </Text>
                 <DateTimePicker
                   value={tempDate}
@@ -240,14 +242,14 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
                       onPress={() => setShowDatePicker(false)}
                       style={styles.pickerButton}
                     >
-                      Cancel
+                      {t('checkout.cancel')}
                     </Button>
                     <Button
                       mode="contained"
                       onPress={handleDateConfirm}
                       style={styles.pickerButton}
                     >
-                      OK
+                      {t('checkout.ok')}
                     </Button>
                   </View>
                 )}
@@ -264,7 +266,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
             <TouchableWithoutFeedback onPress={() => {}}>
               <View style={styles.pickerContainer}>
                 <Text variant="titleMedium" style={[styles.pickerTitle, { color: theme.colors.onSurface }]}>
-                  Select Time
+                  {t('checkout.selectTime')}
                 </Text>
                 <DateTimePicker
                   value={serviceTime}
@@ -279,14 +281,14 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
                       onPress={() => setShowTimePicker(false)}
                       style={styles.pickerButton}
                     >
-                      Cancel
+                      {t('checkout.cancel')}
                     </Button>
                     <Button
                       mode="contained"
                       onPress={handleTimeConfirm}
                       style={styles.pickerButton}
                     >
-                      OK
+                      {t('checkout.ok')}
                     </Button>
                   </View>
                 )}

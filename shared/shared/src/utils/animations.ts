@@ -86,7 +86,7 @@ export const AnimationPresets = {
     from: { transform: [{ scale: 1 }] },
     to: { transform: [{ scale: 1.05 }] },
     duration: 1000,
-    easing: Easing.inOut(Easing.sine),
+    easing: Easing.inOut(Easing.sin),
   },
 };
 
@@ -140,7 +140,10 @@ export class AnimationUtils {
     staggerTime: number = 100
   ): Animated.CompositeAnimation {
     const staggeredAnimations = animations.map((animation, index) => {
-      return Animated.delay(index * staggerTime, animation);
+      return Animated.sequence([
+        Animated.delay(index * staggerTime),
+        animation
+      ]);
     });
     return Animated.parallel(staggeredAnimations);
   }
@@ -226,13 +229,13 @@ export class AnimationUtils {
         Animated.timing(value, {
           toValue: 1.05,
           duration: duration / 2,
-          easing: Easing.inOut(Easing.sine),
+          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
         Animated.timing(value, {
           toValue: 1,
           duration: duration / 2,
-          easing: Easing.inOut(Easing.sine),
+          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
       ])
@@ -240,18 +243,18 @@ export class AnimationUtils {
   }
 
   // Gesture animations
-  static createPanGesture(value: Animated.Value, onGestureEvent: any): Animated.CompositeAnimation {
+  static createPanGesture(value: Animated.Value, onGestureEvent: any) {
     return Animated.event([{ nativeEvent: { translationX: value } }], {
       useNativeDriver: true,
       listener: onGestureEvent,
-    });
+    }) as any;
   }
 
-  static createPinchGesture(value: Animated.Value, onGestureEvent: any): Animated.CompositeAnimation {
+  static createPinchGesture(value: Animated.Value, onGestureEvent: any) {
     return Animated.event([{ nativeEvent: { scale: value } }], {
       useNativeDriver: true,
       listener: onGestureEvent,
-    });
+    }) as any;
   }
 
   // Interpolation utilities
@@ -260,7 +263,7 @@ export class AnimationUtils {
     inputRange: number[],
     outputRange: any[],
     extrapolate?: 'clamp' | 'extend' | 'identity'
-  ): Animated.AnimatedInterpolation {
+  ): Animated.AnimatedInterpolation<number> {
     return value.interpolate({
       inputRange,
       outputRange,
@@ -272,7 +275,7 @@ export class AnimationUtils {
     value: Animated.Value,
     inputRange: number[],
     outputRange: string[]
-  ): Animated.AnimatedInterpolation {
+  ): Animated.AnimatedInterpolation<number> {
     return value.interpolate({
       inputRange,
       outputRange,

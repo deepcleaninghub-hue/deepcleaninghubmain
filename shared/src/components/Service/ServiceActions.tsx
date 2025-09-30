@@ -9,6 +9,7 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { Button, useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Service, BaseComponentProps } from '../../types';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ServiceActionsProps extends BaseComponentProps {
   service: Service;
@@ -32,25 +33,26 @@ export const ServiceActions: React.FC<ServiceActionsProps> = ({
   accessibilityLabel = 'Service actions',
 }) => {
   const theme = useTheme();
+  const { t } = useLanguage();
 
   const handleViewService = useCallback(() => {
     if (onViewService) {
       onViewService();
     } else {
-      Alert.alert('Service Details', `Viewing details for ${service.title}`);
+      Alert.alert(t('services.serviceDetails'), `${t('services.viewingDetails')} ${service.title}`);
     }
-  }, [onViewService, service.title]);
+  }, [onViewService, service.title, t]);
 
   const handleAddToCart = useCallback(() => {
     if (!isAuthenticated) {
-      Alert.alert('Login Required', 'Please login to add items to your cart');
+      Alert.alert(t('auth.loginRequired'), t('cart.loginToAddItems'));
       return;
     }
 
     if (onAddToCart) {
       onAddToCart();
     }
-  }, [isAuthenticated, onAddToCart]);
+  }, [isAuthenticated, onAddToCart, t]);
 
   const handleSelectService = useCallback(() => {
     if (onSelectService) {
