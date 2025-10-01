@@ -128,6 +128,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           setCurrentPassword('');
           setNewPassword('');
           setConfirmPassword('');
+          hideModal();
         });
       } else {
         showError(t('common.error'), result.error || t('profile.passwordChangeError'));
