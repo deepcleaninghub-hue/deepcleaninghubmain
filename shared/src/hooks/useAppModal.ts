@@ -44,7 +44,7 @@ export const useAppModal = () => {
       message,
       type: 'error',
       onConfirm,
-      showCloseButton: false, // Hide close button for errors
+      showCloseButton: true, // Show close button for all modals
     });
   }, [showModal]);
 

@@ -262,9 +262,6 @@ const ServicesScreen = ({ navigation }: Props) => {
           />
         </View>
 
-
-
-        
         {/* Services - compact carousel */}
         <View style={styles.servicesCarouselSection}>
           <View style={styles.sectionHeaderRow}>

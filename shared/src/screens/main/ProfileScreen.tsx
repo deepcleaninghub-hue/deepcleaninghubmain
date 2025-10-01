@@ -296,6 +296,40 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* Menu section removed */}
 
+        {/* Quick Actions Grid */}
+        <View style={styles.sectionContainer}>
+          <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
+            <Card.Content>
+              <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 8 }}>{t('profile.quickActions')}</Text>
+              <View style={styles.grid}>
+                <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.primaryContainer }]} onPress={handleEditProfile}>
+                  <Ionicons name="person" size={20} color={theme.colors.primary} />
+                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onPrimaryContainer }]}>{t('profile.editProfile')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.secondaryContainer }]} onPress={() => navigation.navigate('Orders' as any)}>
+                  <Ionicons name="receipt" size={20} color={theme.colors.secondary} />
+                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onSecondaryContainer }]}>{t('profile.myOrders')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.tertiaryContainer }]} onPress={handleChangePassword}>
+                  <Ionicons name="lock-closed" size={20} color={theme.colors.tertiary} />
+                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onTertiaryContainer }]}>{t('profile.changePassword')}</Text>
+                </TouchableOpacity>
+                 <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.primaryContainer }]} onPress={handleChangeLanguage}>
+                   <Ionicons name="language" size={20} color={theme.colors.primary} />
+                   <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onPrimaryContainer }]}>{t('profile.changeLanguage')}</Text>
+                 </TouchableOpacity>
+                <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.secondaryContainer }]} onPress={() => navigation.navigate('Services' as any)}>
+                  <Ionicons name="briefcase" size={20} color={theme.colors.secondary} />
+                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onSecondaryContainer }]}>{t('profile.browseServices')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.colors.errorContainer }]} onPress={handleDeleteAccount}>
+                  <Ionicons name="trash" size={20} color={theme.colors.error} />
+                  <Text variant="bodyMedium" style={[styles.gridLabel, { color: theme.colors.onErrorContainer }]}>{t('profile.deleteAccount')}</Text>
+                </TouchableOpacity>
+              </View>
+            </Card.Content>
+          </Card>
+        </View>
 
         {/* Account Actions removed */}
 
@@ -656,6 +690,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginTop: 10,
     marginBottom: 32,
+  },
+  sectionContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  sectionCard: {
+    borderRadius: 16,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  gridItem: {
+    width: '47%',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    gap: 6,
+  },
+  gridLabel: {
+    textAlign: 'center',
   },
   actionsRow: {
     flexDirection: 'row',

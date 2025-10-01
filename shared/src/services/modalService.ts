@@ -33,7 +33,7 @@ class ModalService {
       title,
       message,
       type: 'error',
-      showCloseButton: false, // Hide close button for errors
+      showCloseButton: true, // Show close button for all modals
     });
   }
 
