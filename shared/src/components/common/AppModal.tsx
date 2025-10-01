@@ -1,6 +1,6 @@
 import React from 'react';
-import { Modal, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { Text, Button, useTheme, Portal } from 'react-native-paper';
+import { Modal, StyleSheet, View } from 'react-native';
+import { Text, Button, Card, useTheme, Portal, IconButton } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 
 export interface AppModalProps {
@@ -15,7 +15,9 @@ export interface AppModalProps {
   onConfirm?: (() => void) | undefined;
   onCancel?: (() => void) | undefined;
   icon?: string | undefined;
+  children?: React.ReactNode;
   showCloseButton?: boolean | undefined;
+  maxHeight?: number | undefined;
 }
 
 const AppModal: React.FC<AppModalProps> = ({
@@ -30,7 +32,9 @@ const AppModal: React.FC<AppModalProps> = ({
   onConfirm,
   onCancel,
   icon,
-  showCloseButton = true,
+  children,
+  showCloseButton = false,
+  maxHeight = 400,
 }) => {
   const theme = useTheme();
 
@@ -84,76 +88,74 @@ const AppModal: React.FC<AppModalProps> = ({
         onDismiss={onDismiss}
         transparent
         animationType="fade"
-        statusBarTranslucent={false}
       >
-        <TouchableOpacity 
-          style={styles.overlay} 
-          activeOpacity={1} 
-          onPress={onDismiss}
-        >
-          <TouchableOpacity 
-            activeOpacity={1} 
-            onPress={(e) => e.stopPropagation()}
-          >
-            <View style={[styles.modal, { backgroundColor: theme.colors.surface }]}>
-            {/* Close Button - Always visible */}
-            <TouchableOpacity 
-              style={styles.closeButtonContainer}
-              onPress={onDismiss}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons 
-                name="close" 
-                size={20} 
-                color={theme.colors.onSurface} 
-              />
-            </TouchableOpacity>
-
-            {/* Icon */}
-            <View style={styles.iconContainer}>
-              <Ionicons 
-                name={getIconName() as any} 
-                size={48} 
-                color={getIconColor()} 
-              />
-            </View>
-
-            {/* Title */}
-            <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
-              {title}
-            </Text>
-
-            {/* Message */}
-            <Text variant="bodyMedium" style={[styles.message, { color: theme.colors.onSurfaceVariant }]}>
-              {message}
-            </Text>
-
-            {/* Buttons */}
-            <View style={styles.buttonContainer}>
-              {showCancel && (
-                <Button
-                  mode="outlined"
-                  onPress={handleCancel}
-                  style={[styles.button, styles.cancelButton]}
-                  textColor={theme.colors.onSurface}
-                  contentStyle={styles.buttonContent}
-                >
-                  {cancelText}
-                </Button>
+        <View style={styles.overlay}>
+          <Card style={[styles.modal, { backgroundColor: theme.colors.surface, maxHeight }]}>
+            <Card.Content style={styles.content}>
+              {/* Close Button */}
+              {showCloseButton && (
+                <View style={styles.closeButtonContainer}>
+                  <IconButton
+                    icon="close"
+                    onPress={onDismiss}
+                    iconColor={theme.colors.onSurfaceVariant}
+                    size={24}
+                  />
+                </View>
               )}
-              <Button
-                mode="contained"
-                onPress={handleConfirm}
-                style={[styles.button, styles.confirmButton]}
-                buttonColor={type === 'error' ? theme.colors.error : theme.colors.primary}
-                contentStyle={styles.buttonContent}
-              >
-                {confirmText}
-              </Button>
-            </View>
-            </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
+
+              {/* Icon */}
+              {!children && (
+                <View style={styles.iconContainer}>
+                  <Ionicons 
+                    name={getIconName() as any} 
+                    size={48} 
+                    color={getIconColor()} 
+                  />
+                </View>
+              )}
+
+              {/* Title */}
+              <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
+                {title}
+              </Text>
+
+              {/* Message */}
+              {message && (
+                <Text variant="bodyMedium" style={[styles.message, { color: theme.colors.onSurfaceVariant }]}>
+                  {message}
+                </Text>
+              )}
+
+              {/* Custom Content */}
+              {children}
+
+              {/* Buttons */}
+              {!children && (
+                <View style={styles.buttonContainer}>
+                  {showCancel && (
+                    <Button
+                      mode="outlined"
+                      onPress={handleCancel}
+                      style={[styles.button, styles.cancelButton]}
+                      textColor={theme.colors.onSurface}
+                    >
+                      {cancelText}
+                    </Button>
+                  )}
+                  <Button
+                    mode="contained"
+                    onPress={handleConfirm}
+                    style={[styles.button, styles.confirmButton]}
+                    buttonColor={type === 'error' ? theme.colors.error : theme.colors.primary}
+                  >
+                    {confirmText}
+                  </Button>
+                </View>
+              )}
+            </Card.Content>
+          </Card>
+        </View>
       </Modal>
     </Portal>
   );
@@ -162,17 +164,17 @@ const AppModal: React.FC<AppModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 60, // Add gap from top
+    paddingBottom: 40,
   },
   modal: {
-    width: '90%',
-    maxWidth: 300,
+    width: '100%',
+    maxWidth: 400,
     borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: {
@@ -181,51 +183,38 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 8,
-    maxHeight: '60%', // Limit height to 60% of screen
+  },
+  content: {
+    padding: 24,
+    alignItems: 'center',
   },
   closeButtonContainer: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
+    top: 8,
+    right: 8,
+    zIndex: 1,
   },
   iconContainer: {
-    marginBottom: 12,
-    marginTop: 8,
+    marginBottom: 16,
   },
   title: {
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
     fontWeight: '600',
-    fontSize: 18,
-    lineHeight: 22,
   },
   message: {
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 24,
     lineHeight: 20,
-    fontSize: 14,
-    paddingHorizontal: 4,
   },
   buttonContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 12,
     width: '100%',
-    marginTop: 4,
   },
   button: {
     flex: 1,
     borderRadius: 8,
-  },
-  buttonContent: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
   },
   cancelButton: {
     // Additional styles if needed

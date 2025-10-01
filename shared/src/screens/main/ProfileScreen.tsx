@@ -353,26 +353,15 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       </ScrollView>
 
       {/* Change Password Modal */}
-      <Portal>
-        <Modal
-          visible={changePasswordModalVisible}
-          onDismiss={handleCancelChangePassword}
-          presentationStyle="formSheet"
-          animationType="slide"
-        >
-          <View style={[
-            styles.modalContainer,
-            styles.modalContent,
-            { 
-              backgroundColor: theme.colors.surface,
-              marginTop: insets.top + 12,
-              marginBottom: Math.max(insets.bottom, 12)
-            }
-          ]}>
-            <Text variant="headlineSmall" style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
-              {t('profile.changePassword')}
-            </Text>
-            
+      <AppModal
+        visible={changePasswordModalVisible}
+        onDismiss={handleCancelChangePassword}
+        title={t('profile.changePassword')}
+        message=""
+        showCloseButton={true}
+        maxHeight={500}
+        children={
+          <View style={styles.modalContent}>
             <TextInput
               label={t('profile.currentPassword')}
               value={currentPassword}
@@ -429,8 +418,8 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
               </Button>
             </View>
           </View>
-         </Modal>
-       </Portal>
+        }
+      />
 
        {/* Language Selector Modal */}
           <EnhancedLanguageSelector
@@ -451,7 +440,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
          onConfirm={modalConfig?.onConfirm}
          onCancel={modalConfig?.onCancel}
          icon={modalConfig?.icon}
-        showCloseButton={modalConfig?.showCloseButton}
        />
      </SafeAreaView>
    );
@@ -759,22 +747,9 @@ const styles = StyleSheet.create({
   logoutButton: {
     borderRadius: 12,
   },
-  modalContainer: {
-    margin: 20,
-    borderRadius: 16,
-    elevation: 8,
-    shadowColor: '#112D4E',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-  },
   modalContent: {
-    padding: 24,
-  },
-  modalTitle: {
-    textAlign: 'center',
-    marginBottom: 24,
-    fontWeight: '600',
+    padding: 0,
+    width: '100%',
   },
   input: {
     marginBottom: 16,

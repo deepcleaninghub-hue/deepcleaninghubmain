@@ -228,18 +228,6 @@ const ServicesScreen = ({ navigation }: Props) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
         }
       >
-        {/* Header Section */}
-        {/* <View style={styles.headerSection}>
-          <View style={styles.headerRow}>
-            <Text variant="titleMedium" style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{t('services.title')}</Text>
-          </View>
-          <Text
-            variant="bodySmall"
-            style={[styles.headerMeta, { color: theme.colors.onSurfaceVariant }]}
-          >
-            {filteredServiceOptions.length} {t('services.options')} • {selectedCategory ? (translatedCategories[selectedCategory] || selectedCategory) : t('services.all')}
-          </Text>
-        </View> */}
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
@@ -261,7 +249,7 @@ const ServicesScreen = ({ navigation }: Props) => {
             blurOnSubmit={true}
           />
         </View>
-
+        
         {/* Services - compact carousel */}
         <View style={styles.servicesCarouselSection}>
           <View style={styles.sectionHeaderRow}>
@@ -437,7 +425,6 @@ const ServicesScreen = ({ navigation }: Props) => {
         onConfirm={modalConfig?.onConfirm}
         onCancel={modalConfig?.onCancel}
         icon={modalConfig?.icon}
-        showCloseButton={modalConfig?.showCloseButton}
       />
     </SafeAreaView>
   );
@@ -574,6 +561,19 @@ const styles = StyleSheet.create({
   },
   heroBtn: {
     borderRadius: 10,
+  },
+  quickActionsRow: {
+    flexDirection: 'row',
+    paddingBottom: 8,
+  },
+  quickActionsRowScroll: {
+    paddingHorizontal: 16,
+  },
+  quickChip: {
+    borderRadius: 16,
+  },
+  quickChipMargin: {
+    marginRight: 4,
   },
   badgesRow: {
     flexDirection: 'row',

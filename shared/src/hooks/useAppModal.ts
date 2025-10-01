@@ -10,7 +10,6 @@ export interface ModalConfig {
   onConfirm?: (() => void) | undefined;
   onCancel?: (() => void) | undefined;
   icon?: string | undefined;
-  showCloseButton?: boolean | undefined;
 }
 
 export const useAppModal = () => {
@@ -34,7 +33,6 @@ export const useAppModal = () => {
       message,
       type: 'success',
       onConfirm,
-      showCloseButton: true,
     });
   }, [showModal]);
 
@@ -44,7 +42,6 @@ export const useAppModal = () => {
       message,
       type: 'error',
       onConfirm,
-      showCloseButton: true, // Show close button for all modals
     });
   }, [showModal]);
 
@@ -54,7 +51,6 @@ export const useAppModal = () => {
       message,
       type: 'warning',
       onConfirm,
-      showCloseButton: true,
     });
   }, [showModal]);
 
@@ -64,7 +60,6 @@ export const useAppModal = () => {
       message,
       type: 'info',
       onConfirm,
-      showCloseButton: true,
     });
   }, [showModal]);
 
@@ -85,7 +80,6 @@ export const useAppModal = () => {
       cancelText,
       onConfirm,
       onCancel,
-      showCloseButton: true,
     });
   }, [showModal]);
 

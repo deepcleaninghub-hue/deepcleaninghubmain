@@ -121,17 +121,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       return;
     }
 
-    // Debug: Log the pricing info
-    console.log('Service pricing info:', {
-      pricing_type,
-      unit_price,
-      title,
-      id
-    });
-
     // If it's a per-unit pricing service, show measurement modal
     if (pricing_type === 'per_unit' && unit_price) {
-      console.log('Showing measurement modal for:', title);
       setShowMeasurementModal(true);
       return;
     }
@@ -316,133 +307,102 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         </Card.Content>
       </TouchableOpacity>
 
-      {/* Measurement Selection Modal - Proper Modal */}
-      <Portal>
-        <Modal
-          visible={showMeasurementModal}
-          onDismiss={() => setShowMeasurementModal(false)}
-          transparent
-          animationType="fade"
-        >
-          {console.log('Modal rendering, visible:', showMeasurementModal)}
-          <TouchableOpacity 
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={() => setShowMeasurementModal(false)}
-          >
-            <TouchableOpacity 
-              activeOpacity={1}
-              onPress={(e) => e.stopPropagation()}
-            >
-              <View style={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}>
-              {/* Close Button */}
-              <TouchableOpacity 
-                style={styles.modalCloseButton}
-                onPress={() => setShowMeasurementModal(false)}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons name="close" size={20} color={theme.colors.onSurface} />
-              </TouchableOpacity>
+      {/* Measurement Selection Modal */}
+      <AppModal
+        visible={showMeasurementModal}
+        onDismiss={() => setShowMeasurementModal(false)}
+        title={modalTitle}
+        message={title}
+        showCloseButton={true}
+        maxHeight={600}
+        children={
+          <View style={styles.modalContent}>
+            <View style={styles.measurementInput}>
+              <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
+                {inputLabel}
+              </Text>
+              <TextInput
+                style={[styles.textInput, { 
+                  borderColor: theme.colors.outline,
+                  backgroundColor: theme.colors.surface,
+                  color: theme.colors.onSurface,
+                }]}
+                placeholder={inputPlaceholder}
+                placeholderTextColor={theme.colors.onSurfaceVariant}
+                value={measurement}
+                onChangeText={handleMeasurementChange}
+                keyboardType="numeric"
+                autoFocus
+                selectionColor={theme.colors.primary}
+                returnKeyType="next"
+                blurOnSubmit={false}
+              />
+            </View>
 
-              <ScrollView 
-                style={styles.modalScrollView}
-                contentContainerStyle={styles.modalContent}
-                showsVerticalScrollIndicator={false}
-              >
-                <Text variant="headlineSmall" style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
-                  {modalTitle}
+            <View style={styles.measurementInput}>
+              <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
+                {t('services.distance')} (km)
+              </Text>
+              <TextInput
+                style={[styles.textInput, { 
+                  borderColor: theme.colors.outline,
+                  backgroundColor: theme.colors.surface,
+                  color: theme.colors.onSurface,
+                }]}
+                placeholder={t('services.enterDistance')}
+                placeholderTextColor={theme.colors.onSurfaceVariant}
+                value={distance}
+                onChangeText={handleDistanceChange}
+                keyboardType="numeric"
+                selectionColor={theme.colors.primary}
+                returnKeyType="done"
+                blurOnSubmit={true}
+              />
+            </View>
+
+            {calculatedPrice > 0 && (
+              <View style={styles.priceCalculation}>
+                <Text variant="bodySmall" style={[styles.calculationText, { color: theme.colors.onSurface }]}>
+                  {isOfficeMoving ? t('serviceCard.items') : t('serviceCard.area')}: {measurement} {isOfficeMoving ? t('serviceCard.items') : 'm²'} × €{unit_price?.toFixed(2)} = €{(parseFloat(measurement) * (unit_price || 0)).toFixed(2)}
                 </Text>
-                
-                <Text variant="bodyMedium" style={[styles.modalDescription, { color: theme.colors.onSurfaceVariant }]}>
-                  {title}
+                <Text variant="bodySmall" style={[styles.calculationText, { color: theme.colors.onSurface }]}>
+                  Transport: {distance} km × €0.50 = €{(parseFloat(distance) * 0.5).toFixed(2)}
                 </Text>
-
-                <View style={styles.measurementInput}>
-                  <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
-                    {inputLabel}
-                  </Text>
-                  <TextInput
-                    style={[styles.textInput, { 
-                      borderColor: theme.colors.outline,
-                      backgroundColor: theme.colors.surface,
-                      color: theme.colors.onSurface,
-                    }]}
-                    placeholder={inputPlaceholder}
-                    placeholderTextColor={theme.colors.onSurfaceVariant}
-                    value={measurement}
-                    onChangeText={handleMeasurementChange}
-                    keyboardType="numeric"
-                    autoFocus
-                    selectionColor={theme.colors.primary}
-                    returnKeyType="next"
-                    blurOnSubmit={false}
-                  />
-                </View>
-
-                <View style={styles.measurementInput}>
-                  <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
-                    {t('services.distance')} (km)
-                  </Text>
-                  <TextInput
-                    style={[styles.textInput, { 
-                      borderColor: theme.colors.outline,
-                      backgroundColor: theme.colors.surface,
-                      color: theme.colors.onSurface,
-                    }]}
-                    placeholder={t('services.enterDistance')}
-                    placeholderTextColor={theme.colors.onSurfaceVariant}
-                    value={distance}
-                    onChangeText={handleDistanceChange}
-                    keyboardType="numeric"
-                    selectionColor={theme.colors.primary}
-                    returnKeyType="done"
-                    blurOnSubmit={true}
-                  />
-                </View>
-
-                {calculatedPrice > 0 && (
-                  <View style={styles.priceCalculation}>
-                    <Text variant="bodySmall" style={[styles.calculationText, { color: theme.colors.onSurface }]}>
-                      {isOfficeMoving ? t('serviceCard.items') : t('serviceCard.area')}: {measurement} {isOfficeMoving ? t('serviceCard.items') : 'm²'} × €{unit_price?.toFixed(2)} = €{(parseFloat(measurement) * (unit_price || 0)).toFixed(2)}
-                    </Text>
-                    <Text variant="bodySmall" style={[styles.calculationText, { color: theme.colors.onSurface }]}>
-                      Transport: {distance} km × €0.50 = €{(parseFloat(distance) * 0.5).toFixed(2)}
-                    </Text>
-                    <Text variant="bodySmall" style={[styles.calculationText, { color: theme.colors.onSurface }]}>
-                      Subtotal: €{((parseFloat(measurement) * (unit_price || 0)) + (parseFloat(distance) * 0.5)).toFixed(2)}
-                    </Text>
-                    <Text variant="bodySmall" style={[styles.calculationText, { color: theme.colors.onSurface }]}>
-                      VAT (19%): €{(((parseFloat(measurement) * (unit_price || 0)) + (parseFloat(distance) * 0.5)) * 0.19).toFixed(2)}
-                    </Text>
-                    <Text variant="titleLarge" style={[styles.totalPrice, { color: theme.colors.primary }]}>
-                      Total: €{calculatedPrice.toFixed(2)}
-                    </Text>
-                  </View>
-                )}
-
-                <View style={styles.modalButtons}>
-                  <Button
-                    mode="outlined"
-                    onPress={() => setShowMeasurementModal(false)}
-                    style={styles.modalButton}
-                  >
-                    {t('common.cancel')}
-                  </Button>
-                  <Button
-                    mode="contained"
-                    onPress={handleConfirmMeasurement}
-                    disabled={!measurement || !distance || calculatedPrice <= 0}
-                    style={styles.modalButton}
-                  >
-                    {t('serviceCard.addToCart')}
-                  </Button>
-                </View>
-              </ScrollView>
+                <Text variant="bodySmall" style={[styles.calculationText, { color: theme.colors.onSurface }]}>
+                  Subtotal: €{((parseFloat(measurement) * (unit_price || 0)) + (parseFloat(distance) * 0.5)).toFixed(2)}
+                </Text>
+                <Text variant="bodySmall" style={[styles.calculationText, { color: theme.colors.onSurface }]}>
+                  VAT (19%): €{(((parseFloat(measurement) * (unit_price || 0)) + (parseFloat(distance) * 0.5)) * 0.19).toFixed(2)}
+                </Text>
+                <Text variant="titleLarge" style={[styles.totalPrice, { color: theme.colors.primary }]}>
+                  Total: €{calculatedPrice.toFixed(2)}
+                </Text>
               </View>
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </Modal>
-      </Portal>
+            )}
+
+            <View style={styles.modalButtons}>
+              <Button
+                mode="outlined"
+                onPress={() => setShowMeasurementModal(false)}
+                style={styles.modalButton}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleConfirmMeasurement}
+                disabled={!measurement || !distance || calculatedPrice <= 0}
+                style={styles.modalButton}
+              >
+                {t('serviceCard.addToCart')}
+              </Button>
+            </View>
+            
+            {/* Add bottom spacing */}
+            <View style={styles.modalBottomSpacing} />
+          </View>
+        }
+      />
       
       {/* App Modal */}
       {modalConfig && (
@@ -562,57 +522,9 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContainer: {
-    width: '90%',
-    maxWidth: 400,
-    maxHeight: '70%',
-    borderRadius: 16,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    position: 'relative',
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
-  },
-  modalScrollView: {
-    flex: 1,
-  },
   modalContent: {
-    padding: 24,
-    paddingTop: 40, // Space for close button
-    flexGrow: 1,
-  },
-  modalTitle: {
-    fontWeight: '600',
-    marginBottom: 8,
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  modalDescription: {
-    textAlign: 'center',
-    marginBottom: 24,
+    padding: 0,
+    width: '100%',
   },
   measurementInput: {
     marginBottom: 20,
@@ -651,10 +563,14 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     gap: 12,
+    marginTop: 8,
   },
   modalButton: {
     flex: 1,
     borderRadius: 8,
+  },
+  modalBottomSpacing: {
+    height: 20,
   },
 });
 
