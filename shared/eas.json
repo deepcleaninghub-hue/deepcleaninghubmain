@@ -21,6 +21,15 @@
         "buildType": "apk"
       },
       "ios": {
+        "autoIncrement": "buildNumber",
+        "distribution": "store",
+        "buildConfiguration": "Release",
+        "simulator": false
+      }
+    },
+    "internal": {
+      "ios": {
+        "distribution": "internal",
         "autoIncrement": "buildNumber"
       }
     }
