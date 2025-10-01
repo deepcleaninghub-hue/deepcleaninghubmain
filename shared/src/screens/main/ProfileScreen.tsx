@@ -101,19 +101,25 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     
     if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
       console.log('Validation failed: Empty fields');
-      showError(t('common.error'), t('profile.fillAllFields'));
+      setTimeout(() => {
+        showError(t('common.error'), t('profile.fillAllFields'));
+      }, 50);
       return;
     }
 
     if (newPassword.length < 6) {
       console.log('Validation failed: Password too short');
-      showError(t('common.error'), t('profile.passwordTooShort'));
+      setTimeout(() => {
+        showError(t('common.error'), t('profile.passwordTooShort'));
+      }, 50);
       return;
     }
 
     if (newPassword !== confirmPassword) {
       console.log('Validation failed: Passwords do not match');
-      showError(t('common.error'), t('profile.passwordsDoNotMatch'));
+      setTimeout(() => {
+        showError(t('common.error'), t('profile.passwordsDoNotMatch'));
+      }, 50);
       return;
     }
 
@@ -147,11 +153,15 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         }, 100);
       } else {
         console.log('Password change failed:', result.error);
-        showError(t('common.error'), result.error || t('profile.passwordChangeError'));
+        setTimeout(() => {
+          showError(t('common.error'), result.error || t('profile.passwordChangeError'));
+        }, 50);
       }
     } catch (error) {
       console.error('Error changing password:', error);
-      showError(t('common.error'), t('profile.unexpectedError'));
+      setTimeout(() => {
+        showError(t('common.error'), t('profile.unexpectedError'));
+      }, 50);
     } finally {
       setChangingPassword(false);
     }
@@ -162,6 +172,12 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
+  };
+
+  // Test function for debugging error modals on iOS
+  const testErrorModal = () => {
+    console.log('Testing error modal');
+    showError(t('common.error'), 'Test error message for iOS debugging');
   };
 
   const handleDeleteAccount = () => {
@@ -353,6 +369,21 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         </View>
 
         {/* Account Actions removed */}
+
+        {/* Temporary Debug Section - Remove in production */}
+        <View style={styles.sectionContainer}>
+          <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
+            <Card.Content>
+              <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 8 }}>Debug (iOS Testing)</Text>
+              <Button mode="outlined" onPress={testErrorModal} style={{ marginBottom: 8 }}>
+                Test Error Modal
+              </Button>
+              <Button mode="outlined" onPress={() => showSuccess(t('common.success'), 'Test success modal')}>
+                Test Success Modal
+              </Button>
+            </Card.Content>
+          </Card>
+        </View>
 
         {/* Logout Section */}
         <View style={styles.logoutSection}>

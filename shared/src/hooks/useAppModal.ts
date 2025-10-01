@@ -42,13 +42,14 @@ export const useAppModal = () => {
 
   const showError = useCallback((title: string, message: string, onConfirm?: () => void) => {
     console.log('showError called with:', { title, message, onConfirm: !!onConfirm });
+    console.log('Current modal state before showError:', { visible, modalConfig });
     showModal({
       title,
       message,
       type: 'error',
       onConfirm,
     });
-  }, [showModal]);
+  }, [showModal, visible, modalConfig]);
 
   const showWarning = useCallback((title: string, message: string, onConfirm?: () => void) => {
     showModal({
