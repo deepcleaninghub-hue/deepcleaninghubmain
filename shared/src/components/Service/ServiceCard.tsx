@@ -121,8 +121,17 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       return;
     }
 
+    // Debug: Log the pricing info
+    console.log('Service pricing info:', {
+      pricing_type,
+      unit_price,
+      title,
+      id
+    });
+
     // If it's a per-unit pricing service, show measurement modal
     if (pricing_type === 'per_unit' && unit_price) {
+      console.log('Showing measurement modal for:', title);
       setShowMeasurementModal(true);
       return;
     }
@@ -315,6 +324,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           transparent
           animationType="fade"
         >
+          {console.log('Modal rendering, visible:', showMeasurementModal)}
           <TouchableOpacity 
             style={styles.modalOverlay}
             activeOpacity={1}
