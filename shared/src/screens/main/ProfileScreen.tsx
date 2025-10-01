@@ -97,48 +97,27 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleChangePasswordSubmit = async () => {
-    console.log('Password change attempt started');
-    console.log('Current password length:', currentPassword.length);
-    console.log('New password length:', newPassword.length);
-    console.log('Confirm password length:', confirmPassword.length);
-
-    // Validation checks
-    if (!currentPassword.trim()) {
-      console.log('Validation failed: Current password empty');
-      console.log('Calling showError with:', t('common.error'), t('profile.fillAllFields'));
-      showError(t('common.error'), t('profile.fillAllFields'));
-      return;
-    }
-
-    if (!newPassword.trim()) {
-      console.log('Validation failed: New password empty');
-      console.log('Calling showError with:', t('common.error'), t('profile.fillAllFields'));
-      showError(t('common.error'), t('profile.fillAllFields'));
-      return;
-    }
-
-    if (!confirmPassword.trim()) {
-      console.log('Validation failed: Confirm password empty');
-      console.log('Calling showError with:', t('common.error'), t('profile.fillAllFields'));
+    console.log('Password change submit called');
+    
+    if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
+      console.log('Validation failed: Empty fields');
       showError(t('common.error'), t('profile.fillAllFields'));
       return;
     }
 
     if (newPassword.length < 6) {
       console.log('Validation failed: Password too short');
-      console.log('Calling showError with:', t('common.error'), t('profile.passwordTooShort'));
       showError(t('common.error'), t('profile.passwordTooShort'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
       console.log('Validation failed: Passwords do not match');
-      console.log('Calling showError with:', t('common.error'), t('profile.passwordsDoNotMatch'));
       showError(t('common.error'), t('profile.passwordsDoNotMatch'));
       return;
     }
 
-    console.log('All validations passed, starting password change...');
+    console.log('Starting password change process');
     setChangingPassword(true);
 
     try {
@@ -147,13 +126,12 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         newPassword: newPassword
       };
 
-      console.log('Calling profileAPI.changePassword...');
+      console.log('Calling profileAPI.changePassword');
       const result = await profileAPI.changePassword(passwordData);
       console.log('Password change result:', result);
 
       if (result.success) {
         console.log('Password change successful, showing success modal');
-        console.log('Calling showSuccess with:', t('common.success'), t('profile.passwordChangeSuccess'));
         showSuccess(t('common.success'), t('profile.passwordChangeSuccess'), () => {
           console.log('Success modal callback executed');
           setChangePasswordModalVisible(false);
@@ -164,7 +142,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         });
       } else {
         console.log('Password change failed:', result.error);
-        console.log('Calling showError with:', t('common.error'), result.error || t('profile.passwordChangeError'));
         showError(t('common.error'), result.error || t('profile.passwordChangeError'));
       }
     } catch (error) {

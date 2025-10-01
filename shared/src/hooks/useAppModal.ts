@@ -17,10 +17,12 @@ export const useAppModal = () => {
   const [visible, setVisible] = useState(false);
 
   const showModal = useCallback((config: ModalConfig) => {
-    console.log('useAppModal: showModal called with config:', config);
+    console.log('showModal called with config:', config);
     setModalConfig(config);
-    setVisible(true);
-    console.log('useAppModal: Modal visibility set to true');
+    // Add a small delay for iOS to ensure proper state update
+    setTimeout(() => {
+      setVisible(true);
+    }, 10);
   }, []);
 
   const hideModal = useCallback(() => {
@@ -30,7 +32,7 @@ export const useAppModal = () => {
   }, []);
 
   const showSuccess = useCallback((title: string, message: string, onConfirm?: () => void) => {
-    console.log('useAppModal: showSuccess called with:', { title, message, onConfirm: !!onConfirm });
+    console.log('showSuccess called with:', { title, message, onConfirm: !!onConfirm });
     showModal({
       title,
       message,
@@ -40,7 +42,7 @@ export const useAppModal = () => {
   }, [showModal]);
 
   const showError = useCallback((title: string, message: string, onConfirm?: () => void) => {
-    console.log('useAppModal: showError called with:', { title, message, onConfirm: !!onConfirm });
+    console.log('showError called with:', { title, message, onConfirm: !!onConfirm });
     showModal({
       title,
       message,
