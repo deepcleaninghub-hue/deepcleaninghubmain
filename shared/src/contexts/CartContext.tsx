@@ -6,13 +6,13 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
-import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { httpClient } from '../services/httpClient';
 import { secureLog, config } from '../config/environment';
 import { CartItem, CartSummary, Service, CartContextType } from '../types';
 import { useAuth } from './AuthContext';
 import { useLanguage } from './LanguageContext';
+import { modalService } from '../services/modalService';
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -214,7 +214,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = useCallback(async (service: Service, calculatedPrice?: number, userInputs?: any): Promise<boolean> => {
     if (!user || !isAuthenticated) {
-      Alert.alert(t('common.error'), t('cart.loginToAddItems'));
+      modalService.showError(t('common.error'), t('cart.loginToAddItems'));
       return false;
     }
 
@@ -222,7 +222,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       setLoading(true);
 
       if (isServiceInCart(service.id)) {
-        Alert.alert(t('cart.alreadyInCart'), `${service.title} ${t('cart.alreadyInCartMessage')}`);
+        modalService.showError(t('cart.alreadyInCart'), `${service.title} ${t('cart.alreadyInCartMessage')}`);
         return false;
       }
 
@@ -237,15 +237,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       
       if (response.success) {
         await refreshCart(true); // Force refresh to clear cache
-        Alert.alert(t('common.success'), `${service.title} ${t('cart.addedToCart')}`);
+        modalService.showSuccess(t('common.success'), `${service.title} ${t('cart.addedToCart')}`);
         return true;
       } else {
-        Alert.alert(t('common.error'), t('cart.failedToAddItem'));
+        modalService.showError(t('common.error'), t('cart.failedToAddItem'));
         return false;
       }
     } catch (error) {
       secureLog('error', 'Error adding to cart', { error, serviceId: service.id });
-      Alert.alert(t('common.error'), t('cart.failedToAddItem'));
+      modalService.showError(t('common.error'), t('cart.failedToAddItem'));
       return false;
     } finally {
       setLoading(false);
@@ -263,12 +263,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         await refreshCart(true); // Force refresh to clear cache
         return true;
       } else {
-        Alert.alert(t('common.error'), t('cart.failedToRemoveItem'));
+        modalService.showError(t('common.error'), t('cart.failedToRemoveItem'));
         return false;
       }
     } catch (error) {
       secureLog('error', 'Error removing from cart', { error, cartItemId });
-      Alert.alert(t('common.error'), t('cart.failedToRemoveItem'));
+      modalService.showError(t('common.error'), t('cart.failedToRemoveItem'));
       return false;
     } finally {
       setLoading(false);
@@ -290,12 +290,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         await refreshCart(true); // Force refresh to clear cache
         return true;
       } else {
-        Alert.alert(t('common.error'), t('cart.failedToUpdateQuantity'));
+        modalService.showError(t('common.error'), t('cart.failedToUpdateQuantity'));
         return false;
       }
     } catch (error) {
       secureLog('error', 'Error updating quantity', { error, cartItemId, quantity });
-      Alert.alert(t('common.error'), t('cart.failedToUpdateQuantity'));
+      modalService.showError(t('common.error'), t('cart.failedToUpdateQuantity'));
       return false;
     } finally {
       setLoading(false);
@@ -318,15 +318,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         });
         
         await clearCache();
-        Alert.alert(t('common.success'), t('cart.clearedSuccessfully'));
+        modalService.showSuccess(t('common.success'), t('cart.clearedSuccessfully'));
         return true;
       } else {
-        Alert.alert(t('common.error'), t('cart.failedToClearCart'));
+        modalService.showError(t('common.error'), t('cart.failedToClearCart'));
         return false;
       }
     } catch (error) {
       secureLog('error', 'Error clearing cart', { error });
-      Alert.alert(t('common.error'), t('cart.failedToClearCart'));
+      modalService.showError(t('common.error'), t('cart.failedToClearCart'));
       return false;
     } finally {
       setLoading(false);

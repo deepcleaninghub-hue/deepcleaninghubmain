@@ -5,7 +5,6 @@ import {
   ScrollView,
   StyleSheet,
   Linking,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -18,6 +17,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { inquiriesAPI, InquiryData } from '../../services/inquiriesAPI';
+import AppModal from '../../components/common/AppModal';
+import { useAppModal } from '../../hooks/useAppModal';
 
 const createContactSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(2, t('cta.nameMinLength')),
@@ -41,6 +42,7 @@ const ContactScreen = () => {
   const theme = useTheme();
   const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { modalConfig, visible, hideModal, showError, showSuccess } = useAppModal();
 
   const contactSchema = createContactSchema(t);
 
@@ -80,7 +82,7 @@ const ContactScreen = () => {
       const selectedService = services.find(service => service.name === data.service);
       
       if (!selectedService) {
-        Alert.alert(t('cta.error'), t('cta.selectValidService'));
+        showError(t('cta.error'), t('cta.selectValidService'));
         setIsSubmitting(false);
         return;
       }
@@ -104,22 +106,13 @@ const ContactScreen = () => {
       const response = await inquiriesAPI.submitInquiry(inquiryData);
       
       if (response.success) {
-        Alert.alert(
-          t('cta.success'),
-          t('cta.thankYouInquiry'),
-          [
-            {
-              text: t('cta.ok'),
-              onPress: () => reset(),
-            },
-          ]
-        );
+        showSuccess(t('cta.success'), t('cta.thankYouInquiry'), () => reset());
       } else {
-        Alert.alert(t('cta.error'), response.error || t('cta.failedToSubmitInquiry'));
+        showError(t('cta.error'), response.error || t('cta.failedToSubmitInquiry'));
       }
     } catch (error) {
       console.error('Error submitting inquiry:', error);
-      Alert.alert(t('cta.error'), t('cta.failedToSubmitInquiryConnection'));
+      showError(t('cta.error'), t('cta.failedToSubmitInquiryConnection'));
     } finally {
       setIsSubmitting(false);
     }
@@ -127,19 +120,19 @@ const ContactScreen = () => {
 
   const handleCallNow = () => {
     Linking.openURL('tel:+4916097044182').catch(() => {
-      Alert.alert(t('cta.error'), t('cta.couldNotOpenPhoneApp'));
+      showError(t('cta.error'), t('cta.couldNotOpenPhoneApp'));
     });
   };
 
   const handleEmailUs = () => {
     Linking.openURL('mailto:info@deepcleaninghub.com').catch(() => {
-      Alert.alert(t('cta.error'), t('cta.couldNotOpenEmailApp'));
+      showError(t('cta.error'), t('cta.couldNotOpenEmailApp'));
     });
   };
 
   const handleWhatsApp = () => {
     Linking.openURL('whatsapp://send?phone=4916097044182&text=Hi, I would like to know more about your cleaning services.').catch(() => {
-      Alert.alert(t('cta.error'), t('cta.couldNotOpenWhatsApp'));
+      showError(t('cta.error'), t('cta.couldNotOpenWhatsApp'));
     });
   };
 
@@ -180,6 +173,8 @@ const ContactScreen = () => {
                     mode="outlined"
                     style={styles.input}
                     error={!!errors.name}
+                    returnKeyType="next"
+                    blurOnSubmit={false}
                     left={<TextInput.Icon icon="account" />}
                   />
                 )}
@@ -204,6 +199,8 @@ const ContactScreen = () => {
                     error={!!errors.email}
                     keyboardType="email-address"
                     autoCapitalize="none"
+                    returnKeyType="next"
+                    blurOnSubmit={false}
                     left={<TextInput.Icon icon="email" />}
                   />
                 )}
@@ -227,6 +224,8 @@ const ContactScreen = () => {
                     style={styles.input}
                     error={!!errors.phone}
                     keyboardType="phone-pad"
+                    returnKeyType="next"
+                    blurOnSubmit={false}
                     left={<TextInput.Icon icon="phone" />}
                   />
                 )}
@@ -249,20 +248,16 @@ const ContactScreen = () => {
                     mode="outlined"
                     style={styles.input}
                     error={!!errors.service}
+                    returnKeyType="next"
+                    blurOnSubmit={false}
                     left={<TextInput.Icon icon="briefcase" />}
                     right={
                       <TextInput.Icon 
                         icon="chevron-down" 
                         onPress={() => {
-                          // Show service picker
-                          Alert.alert(
-                            t('cta.selectServiceTitle'),
-                            t('cta.chooseService'),
-                            (services || []).map(service => ({
-                              text: `${service.name} - ${service.price}`,
-                              onPress: () => onChange(service.name),
-                            }))
-                          );
+                          // Show service picker - for now, just select the first service
+                          // TODO: Implement proper service picker modal
+                          onChange(services[0]?.name || '');
                         }}
                       />
                     }
@@ -289,6 +284,8 @@ const ContactScreen = () => {
                     error={!!errors.message}
                     multiline
                     numberOfLines={4}
+                    returnKeyType="next"
+                    blurOnSubmit={false}
                     left={<TextInput.Icon icon="message" />}
                   />
                 )}
@@ -310,6 +307,8 @@ const ContactScreen = () => {
                     onBlur={onBlur}
                     mode="outlined"
                     style={styles.input}
+                    returnKeyType="next"
+                    blurOnSubmit={false}
                     left={<TextInput.Icon icon="map-marker" />}
                     placeholder={t('cta.serviceAreaPlaceholder')}
                   />
@@ -330,6 +329,9 @@ const ContactScreen = () => {
                     left={<TextInput.Icon icon="calendar" />}
                     placeholder={t('cta.preferredDatePlaceholder')}
                     keyboardType="numeric"
+                    returnKeyType="done"
+                    blurOnSubmit={true}
+                    onSubmitEditing={handleSubmit(onSubmit)}
                   />
                 )}
               />
@@ -449,6 +451,23 @@ const ContactScreen = () => {
           </Card>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      {/* App Modal */}
+      {modalConfig && (
+        <AppModal
+          visible={visible}
+          onDismiss={hideModal}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          type={modalConfig.type}
+          showCancel={modalConfig.showCancel}
+          confirmText={modalConfig.confirmText}
+          cancelText={modalConfig.cancelText}
+          onConfirm={modalConfig.onConfirm}
+          onCancel={modalConfig.onCancel}
+          icon={modalConfig.icon}
+        />
+      )}
     </SafeAreaView>
   );
 };

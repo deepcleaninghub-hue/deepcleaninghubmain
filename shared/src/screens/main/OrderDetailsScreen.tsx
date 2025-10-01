@@ -4,7 +4,6 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  Alert,
   Linking,
   RefreshControl,
 } from 'react-native';
@@ -16,6 +15,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { serviceBookingAPI, ServiceBooking, BookingGroup } from '../../services/serviceBookingAPI';
 import { OrdersStackScreenProps } from '../../navigation/types';
+import AppModal from '../../components/common/AppModal';
+import { useAppModal } from '../../hooks/useAppModal';
 
 type Props = OrdersStackScreenProps<'OrderDetails'>;
 
@@ -67,6 +68,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
   const theme = useTheme();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { modalConfig, visible, hideModal, showError, showSuccess, showConfirm } = useAppModal();
   const { orderId } = route.params;
   const [order, setOrder] = useState<Order | ServiceBooking | BookingGroup | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,7 +109,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
       
     } catch (error) {
       console.error('Error loading order details:', error);
-      Alert.alert(t('common.error'), t('orders.failedToLoadOrderDetails'));
+      showError(t('common.error'), t('orders.failedToLoadOrderDetails'));
     } finally {
       setLoading(false);
     }
@@ -176,32 +178,28 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
     if (!order) return;
     
     const itemType = isBooking || isBookingGroup ? 'booking' : 'order';
-    Alert.alert(
+    showConfirm(
       itemType === 'booking' ? t('orders.cancelBooking') : t('orders.cancelOrder'),
       itemType === 'booking' ? t('orders.cancelBookingConfirm') : t('orders.cancelOrderConfirm'),
-      [
-        { text: t('common.no'), style: 'cancel' },
-        {
-          text: t('orders.yesCancel'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              if (isBooking) {
-                await serviceBookingAPI.cancelBooking(order.id);
-              }
-              setOrder({ ...order, status: 'cancelled' } as any);
-              Alert.alert(t('common.success'), itemType === 'booking' ? t('orders.bookingCancelledSuccess') : t('orders.orderCancelledSuccess'));
-            } catch (error) {
-              Alert.alert(t('common.error'), itemType === 'booking' ? t('orders.failedToCancelBooking') : t('orders.failedToCancelOrder'));
-            }
+      async () => {
+        try {
+          if (isBooking) {
+            await serviceBookingAPI.cancelBooking(order.id);
           }
+          setOrder({ ...order, status: 'cancelled' } as any);
+          showSuccess(t('common.success'), itemType === 'booking' ? t('orders.bookingCancelledSuccess') : t('orders.orderCancelledSuccess'));
+        } catch (error) {
+          showError(t('common.error'), itemType === 'booking' ? t('orders.failedToCancelBooking') : t('orders.failedToCancelOrder'));
         }
-      ]
+      },
+      undefined,
+      t('orders.yesCancel'),
+      t('common.no')
     );
   };
 
   const handleRescheduleOrder = () => {
-    Alert.alert(t('orders.reschedule'), t('orders.rescheduleComingSoon'));
+    showError(t('orders.reschedule'), t('orders.rescheduleComingSoon'));
   };
 
   const handleContactProvider = () => {
@@ -518,6 +516,21 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
           </Button>
         </View>
       </ScrollView>
+
+      {/* App Modal */}
+      <AppModal
+        visible={visible}
+        onDismiss={hideModal}
+        title={modalConfig?.title || ''}
+        message={modalConfig?.message || ''}
+        type={modalConfig?.type}
+        showCancel={modalConfig?.showCancel}
+        confirmText={modalConfig?.confirmText}
+        cancelText={modalConfig?.cancelText}
+        onConfirm={modalConfig?.onConfirm}
+        onCancel={modalConfig?.onCancel}
+        icon={modalConfig?.icon}
+      />
     </SafeAreaView>
   );
 };

@@ -1,6 +1,6 @@
 // Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Alert, TouchableOpacity, RefreshControl, Platform, Linking, Dimensions, Modal } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Platform, Linking, Dimensions, Modal } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Card, Button, Avatar, Divider, useTheme, IconButton, Badge, ActivityIndicator, TextInput, Portal } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +10,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { ProfileStackScreenProps } from '../../navigation/types';
 import { profileAPI, ChangePasswordData } from '../../services/profileAPI';
+import AppModal from '../../components/common/AppModal';
+import { useAppModal } from '../../hooks/useAppModal';
 
 type Props = ProfileStackScreenProps<'ProfileMain'>;
 
@@ -19,6 +21,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { user, signOut, isAuthenticated, loading } = useAuth();
   const { t } = useLanguage();
+  const { modalConfig, visible, hideModal, showError, showSuccess, showConfirm } = useAppModal();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false);
@@ -56,17 +59,17 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleSettings = () => {
-    Alert.alert(t('profile.settings'), t('profile.settingsComingSoon'));
+    showError(t('profile.settings'), t('profile.settingsComingSoon'));
   };
 
   const handleLogout = () => {
-    Alert.alert(
+    showConfirm(
       t('common.logout'),
       t('profile.logoutConfirm'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        { text: t('common.logout'), style: 'destructive', onPress: () => signOut() },
-      ]
+      () => signOut(),
+      undefined,
+      t('common.logout'),
+      t('common.cancel')
     );
   };
 
@@ -91,17 +94,17 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleChangePasswordSubmit = async () => {
     if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
-      Alert.alert(t('common.error'), t('profile.fillAllFields'));
+      showError(t('common.error'), t('profile.fillAllFields'));
       return;
     }
 
     if (newPassword.length < 6) {
-      Alert.alert(t('common.error'), t('profile.passwordTooShort'));
+      showError(t('common.error'), t('profile.passwordTooShort'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert(t('common.error'), t('profile.passwordsDoNotMatch'));
+      showError(t('common.error'), t('profile.passwordsDoNotMatch'));
       return;
     }
 
@@ -116,23 +119,18 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       const result = await profileAPI.changePassword(passwordData);
 
       if (result.success) {
-        Alert.alert(t('common.success'), t('profile.passwordChangeSuccess'), [
-          {
-            text: t('common.ok'),
-            onPress: () => {
-              setChangePasswordModalVisible(false);
-              setCurrentPassword('');
-              setNewPassword('');
-              setConfirmPassword('');
-            }
-          }
-        ]);
+        showSuccess(t('common.success'), t('profile.passwordChangeSuccess'), () => {
+          setChangePasswordModalVisible(false);
+          setCurrentPassword('');
+          setNewPassword('');
+          setConfirmPassword('');
+        });
       } else {
-        Alert.alert(t('common.error'), result.error || t('profile.passwordChangeError'));
+        showError(t('common.error'), result.error || t('profile.passwordChangeError'));
       }
     } catch (error) {
       console.error('Error changing password:', error);
-      Alert.alert(t('common.error'), t('profile.unexpectedError'));
+      showError(t('common.error'), t('profile.unexpectedError'));
     } finally {
       setChangingPassword(false);
     }
@@ -148,91 +146,65 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const handleDeleteAccount = () => {
     if (deleteAccountStep === 0) {
       // First step: Initial warning
-      Alert.alert(
+      showConfirm(
         t('profile.deleteAccountStep1Title'),
         t('profile.deleteAccountStep1Message'),
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-          { 
-            text: t('profile.iUnderstandContinue'), 
-            style: 'destructive', 
-            onPress: () => {
-              setDeleteAccountStep(1);
-              // Show second confirmation after a brief delay
-              setTimeout(() => {
-                handleSecondDeleteConfirmation();
-              }, 500);
-            }
-          }
-        ]
+        () => {
+          setDeleteAccountStep(1);
+          // Show second confirmation after a brief delay
+          setTimeout(() => {
+            handleSecondDeleteConfirmation();
+          }, 500);
+        },
+        undefined,
+        t('profile.iUnderstandContinue'),
+        t('common.cancel')
       );
     }
   };
 
   const handleSecondDeleteConfirmation = () => {
-    Alert.alert(
+    showConfirm(
       t('profile.deleteAccountStep2'),
       t('profile.deleteAccountFinal'),
-      [
-        { text: t('common.cancel'), style: 'cancel', onPress: () => setDeleteAccountStep(0) },
-        { 
-          text: t('profile.typeDeleteToConfirmButton'), 
-          style: 'destructive', 
-          onPress: () => {
-            setDeleteAccountStep(2);
-            // Show input dialog
-            setTimeout(() => {
-              handleDeleteConfirmationInput();
-            }, 300);
-          }
-        }
-      ]
+      () => {
+        setDeleteAccountStep(2);
+        // Show input dialog
+        setTimeout(() => {
+          handleDeleteConfirmationInput();
+        }, 300);
+      },
+      () => setDeleteAccountStep(0),
+      t('profile.typeDeleteToConfirmButton'),
+      t('common.cancel')
     );
   };
 
   const handleDeleteConfirmationInput = () => {
-    Alert.prompt(
+    // TODO: Implement proper text input modal for delete confirmation
+    // For now, show a simple confirmation
+    showConfirm(
       t('profile.deleteAccountStep2'),
       t('profile.typeDeleteToConfirm'),
-      [
-        { text: t('common.cancel'), style: 'cancel', onPress: () => setDeleteAccountStep(0) },
-        { 
-          text: t('profile.deleteForever'), 
-          style: 'destructive', 
-          onPress: (text: string | undefined) => {
-            if (text === t('profile.deleteConfirmationText')) {
-              // Proceed with actual deletion
-              handleActualDeleteAccount();
-            } else {
-              Alert.alert(
-                t('profile.invalidConfirmation'),
-                t('profile.invalidConfirmation'),
-                [{ text: t('common.ok'), onPress: () => setDeleteAccountStep(0) }]
-              );
-            }
-          }
-        }
-      ],
-      'plain-text',
-      '',
-      'default'
+      () => {
+        // Proceed with actual deletion
+        handleActualDeleteAccount();
+      },
+      () => setDeleteAccountStep(0),
+      t('profile.deleteForever'),
+      t('common.cancel')
     );
   };
 
   const handleActualDeleteAccount = () => {
-    Alert.alert(
+    showSuccess(
       t('profile.accountDeletedTitle'),
       t('profile.accountDeletedMessage'),
-      [
-        { 
-          text: t('common.ok'), 
-          onPress: () => {
-            setDeleteAccountStep(0);
-            // Here you would call the actual delete API
-            // For now, just show the coming soon message
-          }
-        }
-      ]
+      () => {
+        setDeleteAccountStep(0);
+        // Here you would call the actual delete API
+        // For now, just show the coming soon message
+      }
     );
   };
 
@@ -271,9 +243,9 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const handleMenuPress = (menuItem: string) => {
     if (menuItem === t('profile.myOrders')) {
       // Navigate to Orders tab - this will be handled by the main tab navigator
-      Alert.alert(t('profile.orders'), t('profile.navigateToOrders'));
+      showError(t('profile.orders'), t('profile.navigateToOrders'));
     } else {
-      Alert.alert(menuItem, `${menuItem} ${t('profile.functionalityComingSoon')}`);
+      showError(menuItem, `${menuItem} ${t('profile.functionalityComingSoon')}`);
     }
   };
 
@@ -385,6 +357,8 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         <Modal
           visible={changePasswordModalVisible}
           onDismiss={handleCancelChangePassword}
+          presentationStyle="formSheet"
+          animationType="slide"
         >
           <View style={[
             styles.modalContainer,
@@ -407,6 +381,8 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
               mode="outlined"
               style={styles.input}
               theme={{ colors: { primary: theme.colors.primary } }}
+              returnKeyType="next"
+              blurOnSubmit={false}
             />
             
             <TextInput
@@ -417,6 +393,8 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
               mode="outlined"
               style={styles.input}
               theme={{ colors: { primary: theme.colors.primary } }}
+              returnKeyType="next"
+              blurOnSubmit={false}
             />
             
             <TextInput
@@ -427,6 +405,8 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
               mode="outlined"
               style={styles.input}
               theme={{ colors: { primary: theme.colors.primary } }}
+              returnKeyType="done"
+              blurOnSubmit={true}
             />
             
             <View style={styles.modalButtons}>
@@ -453,9 +433,24 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
        </Portal>
 
        {/* Language Selector Modal */}
-       <EnhancedLanguageSelector
-         visible={languageSelectorVisible}
-         onDismiss={() => setLanguageSelectorVisible(false)}
+          <EnhancedLanguageSelector
+            visible={languageSelectorVisible}
+            onDismiss={() => setLanguageSelectorVisible(false)}
+          />
+
+       {/* App Modal */}
+       <AppModal
+         visible={visible}
+         onDismiss={hideModal}
+         title={modalConfig?.title || ''}
+         message={modalConfig?.message || ''}
+         type={modalConfig?.type}
+         showCancel={modalConfig?.showCancel}
+         confirmText={modalConfig?.confirmText}
+         cancelText={modalConfig?.cancelText}
+         onConfirm={modalConfig?.onConfirm}
+         onCancel={modalConfig?.onCancel}
+         icon={modalConfig?.icon}
        />
      </SafeAreaView>
    );

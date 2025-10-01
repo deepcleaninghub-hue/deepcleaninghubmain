@@ -6,12 +6,12 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { httpClient } from '../services/httpClient';
 import { secureLog, config } from '../config/environment';
 import { User, AuthContextType } from '../types';
 import { useLanguage } from './LanguageContext';
+import { modalService } from '../services/modalService';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -144,12 +144,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         // Handle specific authentication errors
         const errorMessage = response.error || 'Invalid email or password';
-        Alert.alert(
+        modalService.showError(
           'Login Failed', 
           errorMessage.includes('Invalid credentials') || errorMessage.includes('Invalid email') || errorMessage.includes('Invalid password')
             ? 'Wrong email or password. Please check your credentials and try again.'
-            : errorMessage,
-          [{ text: 'OK', style: 'default' }]
+            : errorMessage
         );
         return false;
       }
@@ -158,22 +157,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Handle network errors
       if (error.message && error.message.includes('Network request failed')) {
-        Alert.alert(
+        modalService.showError(
           'Connection Error',
-          'Unable to connect to the server. Please check your internet connection and try again.',
-          [{ text: 'OK', style: 'default' }]
+          'Unable to connect to the server. Please check your internet connection and try again.'
         );
       } else if (error.message && error.message.includes('401')) {
-        Alert.alert(
+        modalService.showError(
           'Login Failed',
-          'Wrong email or password. Please check your credentials and try again.',
-          [{ text: 'OK', style: 'default' }]
+          'Wrong email or password. Please check your credentials and try again.'
         );
       } else {
-        Alert.alert(
+        modalService.showError(
           'Login Error',
-          'Failed to sign in. Please try again.',
-          [{ text: 'OK', style: 'default' }]
+          'Failed to sign in. Please try again.'
         );
       }
       return false;
@@ -220,7 +216,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         // Handle specific signup errors
         const errorMessage = response.error || 'Failed to create account';
-        Alert.alert(
+        modalService.showError(
           'Sign Up Failed', 
           errorMessage.includes('already exists') || errorMessage.includes('User already exists')
             ? 'An account with this email already exists. Please try logging in instead.'
@@ -228,8 +224,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             ? 'Please enter a valid email address.'
             : errorMessage.includes('Password must be')
             ? 'Password must be at least 6 characters long.'
-            : errorMessage,
-          [{ text: 'OK', style: 'default' }]
+            : errorMessage
         );
         return false;
       }
@@ -238,22 +233,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Handle network errors
       if (error.message && error.message.includes('Network request failed')) {
-        Alert.alert(
+        modalService.showError(
           'Connection Error',
-          'Unable to connect to the server. Please check your internet connection and try again.',
-          [{ text: 'OK', style: 'default' }]
+          'Unable to connect to the server. Please check your internet connection and try again.'
         );
       } else if (error.message && error.message.includes('400')) {
-        Alert.alert(
+        modalService.showError(
           'Sign Up Failed',
-          'Please check your information and try again.',
-          [{ text: 'OK', style: 'default' }]
+          'Please check your information and try again.'
         );
       } else {
-        Alert.alert(
+        modalService.showError(
           'Sign Up Error',
-          'Failed to create account. Please try again.',
-          [{ text: 'OK', style: 'default' }]
+          'Failed to create account. Please try again.'
         );
       }
       return false;
@@ -289,15 +281,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(updatedUser);
         await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedUser));
         
-        Alert.alert(t('common.success'), response.message || t('profile.profileUpdatedSuccess'));
+        modalService.showSuccess(t('common.success'), response.message || t('profile.profileUpdatedSuccess'));
         return true;
       } else {
-        Alert.alert(t('common.error'), t('profile.failedToUpdateProfile'));
+        modalService.showError(t('common.error'), t('profile.failedToUpdateProfile'));
         return false;
       }
     } catch (error) {
       secureLog('error', 'Update profile error', { error, userId: user.id });
-      Alert.alert(t('common.error'), t('profile.failedToUpdateProfile'));
+      modalService.showError(t('common.error'), t('profile.failedToUpdateProfile'));
       return false;
     } finally {
       setLoading(false);

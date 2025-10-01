@@ -201,6 +201,8 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                     mode="outlined"
                     autoCapitalize="words"
                     autoComplete="given-name"
+                    returnKeyType="next"
+                    blurOnSubmit={false}
                     error={!!errors.firstName}
                     left={<TextInput.Icon icon="account" />}
                     style={styles.input}
@@ -221,6 +223,8 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                     mode="outlined"
                     autoCapitalize="words"
                     autoComplete="family-name"
+                    returnKeyType="next"
+                    blurOnSubmit={false}
                     error={!!errors.lastName}
                     left={<TextInput.Icon icon="account" />}
                     style={styles.input}
@@ -245,6 +249,8 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   autoCapitalize="none"
                   autoComplete="email"
                   autoCorrect={false}
+                  returnKeyType="next"
+                  blurOnSubmit={false}
                   error={!!errors.email}
                   left={<TextInput.Icon icon="email" />}
                   style={styles.input}
@@ -266,6 +272,8 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   mode="outlined"
                   keyboardType="phone-pad"
                   autoComplete="tel"
+                  returnKeyType="next"
+                  blurOnSubmit={false}
                   error={!!errors.phone}
                   left={<TextInput.Icon icon="phone" />}
                   style={styles.input}
@@ -289,6 +297,8 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   autoComplete="street-address"
                   multiline
                   numberOfLines={2}
+                  returnKeyType="next"
+                  blurOnSubmit={false}
                   error={!!errors.address}
                   left={<TextInput.Icon icon="map-marker" />}
                   style={styles.input}
@@ -311,6 +321,8 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   secureTextEntry={!showPassword}
                   autoComplete="new-password"
                   autoCorrect={false}
+                  returnKeyType="next"
+                  blurOnSubmit={false}
                   error={!!errors.password}
                   left={<TextInput.Icon icon="lock" />}
                   right={
@@ -339,6 +351,9 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   secureTextEntry={!showConfirmPassword}
                   autoComplete="new-password"
                   autoCorrect={false}
+                  returnKeyType="done"
+                  blurOnSubmit={true}
+                  onSubmitEditing={handleSignUp}
                   error={!!errors.confirmPassword}
                   left={<TextInput.Icon icon="lock" />}
                   right={

@@ -15,8 +15,11 @@
       "**/*"
     ],
     "ios": {
-      "buildNumber": "4",
-      "bundleIdentifier": "com.deepcleanhub.mobile"
+      "buildNumber": "9",
+      "bundleIdentifier": "com.deepcleanhub.mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {

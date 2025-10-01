@@ -4,7 +4,6 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  Alert,
   RefreshControl,
   Linking,
 } from 'react-native';
@@ -21,12 +20,15 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import AutoTranslateText from '../../components/AutoTranslateText';
 import { ServicesStackScreenProps } from '../../navigation/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AppModal from '../../components/common/AppModal';
+import { useAppModal } from '../../hooks/useAppModal';
 
 type Props = ServicesStackScreenProps<'ServicesMain'>;
 
 const ServicesScreen = ({ navigation }: Props) => {
   const theme = useTheme();
   const { t, translateDynamicText } = useLanguage();
+  const { modalConfig, visible, hideModal, showError } = useAppModal();
   const [services, setServices] = useState<any[]>([]);
   const [serviceOptions, setServiceOptions] = useState<any[]>([]);
   const [allServiceOptions, setAllServiceOptions] = useState<any[]>([]);
@@ -90,7 +92,7 @@ const ServicesScreen = ({ navigation }: Props) => {
       await translateCategories(serviceTitles);
     } catch (error) {
       console.error('Error fetching data:', error);
-      Alert.alert(t('common.error'), t('services.loadingServices'));
+      showError(t('common.error'), t('services.loadingServices'));
     } finally {
       setLoading(false);
     }
@@ -114,7 +116,7 @@ const ServicesScreen = ({ navigation }: Props) => {
       setServices(servicesData);
     } catch (error) {
       console.error('Error fetching services:', error);
-      Alert.alert(t('common.error'), t('services.failedToLoadServices'));
+      showError(t('common.error'), t('services.failedToLoadServices'));
     } finally {
       setLoading(false);
     }
@@ -146,7 +148,7 @@ const ServicesScreen = ({ navigation }: Props) => {
         setServiceOptions(options);
       } catch (error) {
         console.error('Error fetching service options:', error);
-        Alert.alert(t('common.error'), t('services.failedToLoadServiceOptions'));
+        showError(t('common.error'), t('services.failedToLoadServiceOptions'));
         setServiceOptions([]);
       } finally {
         setLoading(false);
@@ -180,7 +182,7 @@ const ServicesScreen = ({ navigation }: Props) => {
 
   const handleCallNow = () => {
     Linking.openURL('tel:+4916097044182').catch(() => {
-      Alert.alert(t('common.error'), t('services.couldNotOpenPhoneApp'));
+      showError(t('common.error'), t('services.couldNotOpenPhoneApp'));
     });
   };
 
@@ -201,11 +203,9 @@ const ServicesScreen = ({ navigation }: Props) => {
       }
       await Linking.openURL(webUrl);
     } catch (e) {
-      Alert.alert(t('services.support'), t('services.unableToOpenWhatsApp'));
+      showError(t('services.support'), t('services.unableToOpenWhatsApp'));
     }
   };
-
-  // Voice search removed
 
   const clearFilters = async () => {
     setSelectedCategory('');
@@ -219,7 +219,7 @@ const ServicesScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title={t('services.title')} />
+      <AppHeader title="Deep Cleaning Hub" />
       
       <ScrollView 
         style={styles.scrollView} 
@@ -257,15 +257,17 @@ const ServicesScreen = ({ navigation }: Props) => {
             activeOutlineColor={theme.colors.primary}
             textColor={theme.colors.onSurface}
             placeholderTextColor={theme.colors.onSurfaceVariant}
+            returnKeyType="done"
+            blurOnSubmit={true}
           />
         </View>
 
         {/* Quick actions */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsRowScroll}>
           <View style={styles.quickActionsRow}>
-            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="refresh" size={size} color={color} />)} onPress={() => Alert.alert(t('services.repeat'), t('services.repeatLastBookingComingSoon'))} style={styles.quickChip}>{t('services.repeatLastBooking')}</Button>
-            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="today" size={size} color={color} />)} onPress={() => Alert.alert(t('services.schedule'), t('services.todaySchedulingComingSoon'))} style={styles.quickChip}>{t('services.today')}</Button>
-            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="calendar" size={size} color={color} />)} onPress={() => Alert.alert(t('services.schedule'), t('services.tomorrowSchedulingComingSoon'))} style={styles.quickChip}>{t('services.tomorrow')}</Button>
+            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="refresh" size={size} color={color} />)} onPress={() => showError(t('services.repeat'), t('services.repeatLastBookingComingSoon'))} style={[styles.quickChip, styles.quickChipMargin]}>{t('services.repeatLastBooking')}</Button>
+            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="today" size={size} color={color} />)} onPress={() => showError(t('services.schedule'), t('services.todaySchedulingComingSoon'))} style={[styles.quickChip, styles.quickChipMargin]}>{t('services.today')}</Button>
+            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="calendar" size={size} color={color} />)} onPress={() => showError(t('services.schedule'), t('services.tomorrowSchedulingComingSoon'))} style={styles.quickChip}>{t('services.tomorrow')}</Button>
           </View>
         </ScrollView>
 
@@ -432,6 +434,21 @@ const ServicesScreen = ({ navigation }: Props) => {
         style={styles.supportFab}
         onPress={openWhatsAppSupport}
       />
+
+      {/* App Modal */}
+      <AppModal
+        visible={visible}
+        onDismiss={hideModal}
+        title={modalConfig?.title || ''}
+        message={modalConfig?.message || ''}
+        type={modalConfig?.type}
+        showCancel={modalConfig?.showCancel}
+        confirmText={modalConfig?.confirmText}
+        cancelText={modalConfig?.cancelText}
+        onConfirm={modalConfig?.onConfirm}
+        onCancel={modalConfig?.onCancel}
+        icon={modalConfig?.icon}
+      />
     </SafeAreaView>
   );
 };
@@ -472,6 +489,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     paddingHorizontal: 20,
+    marginTop: 12,
     marginBottom: 16,
   },
   searchInput: {
@@ -569,7 +587,6 @@ const styles = StyleSheet.create({
   },
   quickActionsRow: {
     flexDirection: 'row',
-    gap: 8,
     paddingBottom: 8,
   },
   quickActionsRowScroll: {
@@ -577,6 +594,9 @@ const styles = StyleSheet.create({
   },
   quickChip: {
     borderRadius: 16,
+  },
+  quickChipMargin: {
+    marginRight: 4,
   },
   badgesRow: {
     flexDirection: 'row',

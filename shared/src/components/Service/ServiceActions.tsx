@@ -5,11 +5,12 @@
  */
 
 import React, { useCallback } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Button, useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Service, BaseComponentProps } from '../../types';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useAppModal } from '../../hooks/useAppModal';
 
 interface ServiceActionsProps extends BaseComponentProps {
   service: Service;
@@ -34,25 +35,26 @@ export const ServiceActions: React.FC<ServiceActionsProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useLanguage();
+  const { showError } = useAppModal();
 
   const handleViewService = useCallback(() => {
     if (onViewService) {
       onViewService();
     } else {
-      Alert.alert(t('services.serviceDetails'), `${t('services.viewingDetails')} ${service.title}`);
+      showError(t('services.serviceDetails'), `${t('services.viewingDetails')} ${service.title}`);
     }
-  }, [onViewService, service.title, t]);
+  }, [onViewService, service.title, t, showError]);
 
   const handleAddToCart = useCallback(() => {
     if (!isAuthenticated) {
-      Alert.alert(t('auth.loginRequired'), t('cart.loginToAddItems'));
+      showError(t('auth.loginRequired'), t('cart.loginToAddItems'));
       return;
     }
 
     if (onAddToCart) {
       onAddToCart();
     }
-  }, [isAuthenticated, onAddToCart, t]);
+  }, [isAuthenticated, onAddToCart, t, showError]);
 
   const handleSelectService = useCallback(() => {
     if (onSelectService) {

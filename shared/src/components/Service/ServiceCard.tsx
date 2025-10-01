@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  Alert,
   Modal,
   TextInput,
   ScrollView,
@@ -15,6 +14,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import AppModal from '../common/AppModal';
+import { useAppModal } from '../../hooks/useAppModal';
 
 interface ServiceCardProps {
   id: string;
@@ -57,6 +58,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const { isAuthenticated } = useAuth();
   const { addToCart, isServiceInCart, loading } = useCart();
   const { t, translateDynamicText, currentLanguage } = useLanguage();
+  const { modalConfig, visible, hideModal, showError } = useAppModal();
   const [showMeasurementModal, setShowMeasurementModal] = useState(false);
   const [measurement, setMeasurement] = useState('');
   const [distance, setDistance] = useState('');
@@ -109,13 +111,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   // Debug logging - silent
 
   const handleViewService = () => {
-    Alert.alert(t('services.serviceDetails'), `${t('services.viewingDetails')} ${title}`);
+    showError(t('services.serviceDetails'), `${t('services.viewingDetails')} ${title}`);
     // Here you would typically navigate to a service detail screen
   };
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
-      Alert.alert(t('auth.loginRequired'), t('cart.loginToAddItems'));
+      showError(t('auth.loginRequired'), t('cart.loginToAddItems'));
       return;
     }
 
@@ -182,22 +184,29 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     const numDistance = parseFloat(distance);
     
     if (isNaN(numMeasurement) || numMeasurement <= 0) {
-      Alert.alert(t('errors.invalidInput'), `${t('services.enterValid')} ${isOfficeMoving ? t('services.numberOfItems') : t('services.area')}`);
+      const errorMessage = isOfficeMoving ? t('errors.enterValidItems') : t('errors.enterValidArea');
+      showError(t('errors.invalidInput'), errorMessage);
       return;
     }
 
     if (isNaN(numDistance) || numDistance <= 0) {
-      Alert.alert(t('errors.invalidInput'), t('services.enterValidDistance'));
+      showError(t('errors.invalidInput'), t('errors.enterValidDistance'));
       return;
     }
 
     if (min_measurement && numMeasurement < min_measurement) {
-      Alert.alert(t('errors.invalidInput'), `${t('services.minimum')} ${isOfficeMoving ? t('services.items') : t('services.area')} ${t('services.is')} ${min_measurement} ${unit_measure}`);
+      const errorMessage = isOfficeMoving 
+        ? `${t('errors.minimumItemsRequired')} ${min_measurement} ${unit_measure}`
+        : `${t('errors.minimumAreaRequired')} ${min_measurement} ${unit_measure}`;
+      showError(t('errors.invalidInput'), errorMessage);
       return;
     }
 
     if (max_measurement && numMeasurement > max_measurement) {
-      Alert.alert(t('errors.invalidInput'), `${t('services.maximum')} ${isOfficeMoving ? t('services.items') : t('services.area')} ${t('services.is')} ${max_measurement} ${unit_measure}`);
+      const errorMessage = isOfficeMoving 
+        ? `${t('errors.maximumItemsAllowed')} ${max_measurement} ${unit_measure}`
+        : `${t('errors.maximumAreaAllowed')} ${max_measurement} ${unit_measure}`;
+      showError(t('errors.invalidInput'), errorMessage);
       return;
     }
 
@@ -335,12 +344,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 keyboardType="numeric"
                 autoFocus
                 selectionColor={theme.colors.primary}
+                returnKeyType="next"
+                blurOnSubmit={false}
               />
             </View>
 
             <View style={styles.measurementInput}>
               <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
-                Distance (km)
+                {t('services.distance')} (km)
               </Text>
               <TextInput
                 style={[styles.textInput, { 
@@ -354,6 +365,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 onChangeText={handleDistanceChange}
                 keyboardType="numeric"
                 selectionColor={theme.colors.primary}
+                returnKeyType="done"
+                blurOnSubmit={true}
               />
             </View>
 
@@ -383,7 +396,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 onPress={() => setShowMeasurementModal(false)}
                 style={styles.modalButton}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 mode="contained"
@@ -391,12 +404,29 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 disabled={!measurement || !distance || calculatedPrice <= 0}
                 style={styles.modalButton}
               >
-                Add to Cart
+                {t('serviceCard.addToCart')}
               </Button>
             </View>
           </ScrollView>
         </Modal>
       </Portal>
+      
+      {/* App Modal */}
+      {modalConfig && (
+        <AppModal
+          visible={visible}
+          onDismiss={hideModal}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          type={modalConfig.type}
+          showCancel={modalConfig.showCancel}
+          confirmText={modalConfig.confirmText}
+          cancelText={modalConfig.cancelText}
+          onConfirm={modalConfig.onConfirm}
+          onCancel={modalConfig.onCancel}
+          icon={modalConfig.icon}
+        />
+      )}
     </Card>
   );
 };

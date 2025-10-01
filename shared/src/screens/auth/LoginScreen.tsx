@@ -8,7 +8,6 @@ import React, { useState, useCallback } from 'react';
 import {
   View,
   StyleSheet,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -27,6 +26,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { validateEmail, validatePassword } from '../../utils/validation';
 import { AuthStackScreenProps } from '../../navigation/types';
+import AppModal from '../../components/common/AppModal';
+import { useAppModal } from '../../hooks/useAppModal';
 
 type Props = AuthStackScreenProps<'Login'>;
 
@@ -34,6 +35,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { signIn, loading } = useAuth();
   const { t } = useLanguage();
+  const { modalConfig, visible, hideModal, showError } = useAppModal();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -108,8 +110,8 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleForgotPassword = useCallback(() => {
     // TODO: Implement forgot password flow
-    Alert.alert(t('auth.forgotPasswordTitle'), t('auth.passwordResetComingSoon'));
-  }, []);
+    showError(t('auth.forgotPasswordTitle'), t('auth.passwordResetComingSoon'));
+  }, [showError, t]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -158,6 +160,12 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
                   autoCapitalize="none"
                   autoComplete="email"
                   autoCorrect={false}
+                  returnKeyType="next"
+                  blurOnSubmit={false}
+                  onSubmitEditing={() => {
+                    // Focus on password field
+                    // This will be handled by the password input's ref
+                  }}
                   error={!!errors.email}
                   left={<TextInput.Icon icon="email" />}
                   style={styles.input}
@@ -185,6 +193,9 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
                   secureTextEntry={!showPassword}
                   autoComplete="password"
                   autoCorrect={false}
+                  returnKeyType="done"
+                  blurOnSubmit={true}
+                  onSubmitEditing={handleLogin}
                   error={!!errors.password}
                   left={<TextInput.Icon icon="lock" />}
                   right={
@@ -267,6 +278,21 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* App Modal */}
+      <AppModal
+        visible={visible}
+        onDismiss={hideModal}
+        title={modalConfig?.title || ''}
+        message={modalConfig?.message || ''}
+        type={modalConfig?.type}
+        showCancel={modalConfig?.showCancel}
+        confirmText={modalConfig?.confirmText}
+        cancelText={modalConfig?.cancelText}
+        onConfirm={modalConfig?.onConfirm}
+        onCancel={modalConfig?.onCancel}
+        icon={modalConfig?.icon}
+      />
     </SafeAreaView>
   );
 };

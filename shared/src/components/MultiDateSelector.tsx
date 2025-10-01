@@ -3,13 +3,13 @@ import {
   View,
   StyleSheet,
   Platform,
-  Alert,
   TouchableWithoutFeedback,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text, Card, Button, Chip, useTheme, Divider, IconButton } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAppModal } from '../hooks/useAppModal';
 
 interface BookingDate {
   date: string;
@@ -34,6 +34,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useLanguage();
+  const { showError } = useAppModal();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [tempDate, setTempDate] = useState(new Date());
@@ -75,7 +76,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
 
   const handleAddDate = () => {
     if (selectedDates.length >= maxDays) {
-      Alert.alert(t('checkout.maximumDaysReached'), `${t('checkout.youCanSelectUpTo')} ${maxDays} ${t('checkout.daysForThisService')}`);
+      showError(t('checkout.maximumDaysReached'), `${t('checkout.youCanSelectUpTo')} ${maxDays} ${t('checkout.daysForThisService')}`);
       return;
     }
 
@@ -90,7 +91,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
     );
 
     if (isDuplicate) {
-      Alert.alert(t('checkout.dateAlreadySelected'), t('checkout.dateAlreadyAdded'));
+      showError(t('checkout.dateAlreadySelected'), t('checkout.dateAlreadyAdded'));
       return;
     }
 

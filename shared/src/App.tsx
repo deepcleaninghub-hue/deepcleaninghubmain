@@ -19,6 +19,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import ErrorBoundary from './components/Base/ErrorBoundary';
 import { MainNavigator } from './navigation/MainNavigator';
 import { NotificationProvider } from './components/NotificationProvider';
+import { GlobalModalProvider } from './components/GlobalModalProvider';
 import { config } from './config/environment';
 
 export default function App() {
@@ -38,10 +39,12 @@ export default function App() {
               <AuthProvider>
                 <CartProvider>
                   <NotificationProvider>
-                    <NavigationContainer>
-                      <StatusBar style="auto" />
-                      <MainNavigator />
-                    </NavigationContainer>
+                    <GlobalModalProvider>
+                      <NavigationContainer>
+                        <StatusBar style="auto" />
+                        <MainNavigator />
+                      </NavigationContainer>
+                    </GlobalModalProvider>
                   </NotificationProvider>
                 </CartProvider>
               </AuthProvider>

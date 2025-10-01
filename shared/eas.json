@@ -22,9 +22,7 @@
       },
       "ios": {
         "autoIncrement": "buildNumber",
-        "distribution": "store",
-        "buildConfiguration": "Release",
-        "simulator": false
+        "distribution": "store"
       }
     },
     "internal": {

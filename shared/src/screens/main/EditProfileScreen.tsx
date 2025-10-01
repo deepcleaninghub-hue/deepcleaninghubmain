@@ -4,7 +4,6 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  Alert,
   RefreshControl,
   Platform,
 } from 'react-native';
@@ -27,6 +26,8 @@ import { profileAPI, UserProfile, UpdateProfileData } from '../../services/profi
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { ProfileStackScreenProps } from '../../navigation/types';
+import AppModal from '../../components/common/AppModal';
+import { useAppModal } from '../../hooks/useAppModal';
 
 type Props = ProfileStackScreenProps<'EditProfile'>;
 
@@ -34,6 +35,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { user, updateUser } = useAuth();
   const { t } = useLanguage();
+  const { modalConfig, visible, hideModal, showError, showSuccess } = useAppModal();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -71,7 +73,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      Alert.alert(t('common.error'), t('profile.failedToLoadProfile'));
+      showError(t('common.error'), t('profile.failedToLoadProfile'));
     } finally {
       setLoading(false);
     }
@@ -214,7 +216,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 
       // If no fields have changed, show a message
       if (Object.keys(changedFields).length === 0) {
-        Alert.alert(t('profile.noChanges'), t('profile.noChangesMade'));
+        showError(t('profile.noChanges'), t('profile.noChangesMade'));
         return;
       }
 
@@ -237,13 +239,13 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
           updatedAt: result.data.updated_at
         };
         updateUser(userData);
-        Alert.alert(t('common.success'), result.message || t('profile.profileUpdatedSuccess'));
+        showSuccess(t('common.success'), result.message || t('profile.profileUpdatedSuccess'));
       } else {
-        Alert.alert(t('common.error'), result.error || t('profile.failedToUpdateProfile'));
+        showError(t('common.error'), result.error || t('profile.failedToUpdateProfile'));
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      Alert.alert(t('common.error'), t('profile.failedToUpdateProfile'));
+      showError(t('common.error'), t('profile.failedToUpdateProfile'));
     } finally {
       setSaving(false);
     }
@@ -313,6 +315,11 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 style={[styles.input, styles.halfInput]}
                 error={!!errors.first_name}
                 mode="outlined"
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => {
+                  // Move to next field
+                }}
               />
               <TextInput
                 label={`${t('profile.lastName')} *`}
@@ -321,6 +328,11 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 style={[styles.input, styles.halfInput]}
                 error={!!errors.last_name}
                 mode="outlined"
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => {
+                  // Move to next field
+                }}
               />
             </View>
             {errors.first_name && <HelperText type="error">{errors.first_name}</HelperText>}
@@ -335,6 +347,11 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
               mode="outlined"
               keyboardType="email-address"
               autoCapitalize="none"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onSubmitEditing={() => {
+                // Move to next field
+              }}
             />
             {errors.email && <HelperText type="error">{errors.email}</HelperText>}
 
@@ -346,6 +363,11 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
               error={!!errors.phone}
               mode="outlined"
               keyboardType="phone-pad"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onSubmitEditing={() => {
+                // Move to next field
+              }}
             />
             {errors.phone && <HelperText type="error">{errors.phone}</HelperText>}
 
@@ -424,6 +446,12 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
               error={!!errors.address}
               mode="outlined"
               multiline
+              numberOfLines={3}
+              returnKeyType="done"
+              blurOnSubmit={true}
+              onSubmitEditing={() => {
+                // Dismiss keyboard when done is pressed
+              }}
             />
             {errors.address && <HelperText type="error">{errors.address}</HelperText>}
 
@@ -435,6 +463,11 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 style={[styles.input, styles.halfInput]}
                 error={!!errors.city}
                 mode="outlined"
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => {
+                  // Move to next field
+                }}
               />
               <TextInput
                 label={t('profile.state')}
@@ -442,6 +475,11 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 onChangeText={(text) => handleInputChange('state', text)}
                 style={[styles.input, styles.halfInput]}
                 mode="outlined"
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => {
+                  // Move to next field
+                }}
               />
             </View>
             {errors.city && <HelperText type="error">{errors.city}</HelperText>}
@@ -455,6 +493,11 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 error={!!errors.postal_code}
                 mode="outlined"
                 keyboardType="numeric"
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => {
+                  // Move to next field
+                }}
               />
               <TextInput
                 label={t('checkout.country')}
@@ -462,6 +505,12 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 onChangeText={(text) => handleInputChange('country', text)}
                 style={[styles.input, styles.halfInput]}
                 mode="outlined"
+                returnKeyType="done"
+                blurOnSubmit={true}
+                onSubmitEditing={() => {
+                  // Dismiss keyboard when done is pressed
+                  // This ensures the keyboard is dismissed
+                }}
               />
             </View>
             {errors.postal_code && <HelperText type="error">{errors.postal_code}</HelperText>}
@@ -519,6 +568,21 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
           )}
         </View>
       )}
+
+      {/* App Modal */}
+      <AppModal
+        visible={visible}
+        onDismiss={hideModal}
+        title={modalConfig?.title || ''}
+        message={modalConfig?.message || ''}
+        type={modalConfig?.type}
+        showCancel={modalConfig?.showCancel}
+        confirmText={modalConfig?.confirmText}
+        cancelText={modalConfig?.cancelText}
+        onConfirm={modalConfig?.onConfirm}
+        onCancel={modalConfig?.onCancel}
+        icon={modalConfig?.icon}
+      />
     </SafeAreaView>
   );
 };

@@ -4,7 +4,6 @@ import {
   ScrollView,
   StyleSheet,
   RefreshControl,
-  Alert,
 } from 'react-native';
 import { Text, Card, Button, Chip, useTheme, Divider, FAB, SegmentedButtons } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +13,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { serviceBookingAPI, ServiceBooking, BookingGroup } from '../../services/serviceBookingAPI';
 import { OrdersStackScreenProps } from '../../navigation/types';
+import AppModal from '../../components/common/AppModal';
+import { useAppModal } from '../../hooks/useAppModal';
 
 type Props = OrdersStackScreenProps<'OrdersMain'>;
 
@@ -21,6 +22,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { modalConfig, visible, hideModal, showError, showSuccess, showConfirm } = useAppModal();
   const [scheduledBookings, setScheduledBookings] = useState<ServiceBooking[]>([]);
   const [completedBookings, setCompletedBookings] = useState<ServiceBooking[]>([]);
   const [bookingGroups, setBookingGroups] = useState<BookingGroup[]>([]);
@@ -48,7 +50,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
       setBookingGroups(groups);
     } catch (error) {
       console.error('Error loading bookings:', error);
-      Alert.alert(t('common.error'), t('orders.failedToLoadBookings'));
+      showError(t('common.error'), t('orders.failedToLoadBookings'));
     } finally {
       setLoading(false);
     }
@@ -103,29 +105,25 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
     const booking = allBookings.find(b => b.id === bookingId);
     const isGroupBooking = booking?.is_group_booking;
     
-    Alert.alert(
+    showConfirm(
       t('orders.cancelBooking'),
       `${t('orders.cancelBookingConfirm')} ${isGroupBooking ? t('orders.multiDayBooking') : t('orders.booking')}?`,
-      [
-        { text: t('common.no'), style: 'cancel' },
-        {
-          text: t('orders.yesCancel'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              if (isGroupBooking) {
-                await serviceBookingAPI.cancelBookingGroup(bookingId);
-              } else {
-                await serviceBookingAPI.cancelBooking(bookingId);
-              }
-              await loadBookings();
-              Alert.alert(t('common.success'), t('orders.bookingCancelledSuccess'));
-            } catch (error) {
-              Alert.alert(t('common.error'), t('orders.failedToCancelBooking'));
-            }
+      async () => {
+        try {
+          if (isGroupBooking) {
+            await serviceBookingAPI.cancelBookingGroup(bookingId);
+          } else {
+            await serviceBookingAPI.cancelBooking(bookingId);
           }
+          await loadBookings();
+          showSuccess(t('common.success'), t('orders.bookingCancelledSuccess'));
+        } catch (error) {
+          showError(t('common.error'), t('orders.failedToCancelBooking'));
         }
-      ]
+      },
+      undefined,
+      t('orders.yesCancel'),
+      t('common.no')
     );
   };
 
@@ -344,6 +342,21 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => navigation.navigate('Services' as any)}
+      />
+
+      {/* App Modal */}
+      <AppModal
+        visible={visible}
+        onDismiss={hideModal}
+        title={modalConfig?.title || ''}
+        message={modalConfig?.message || ''}
+        type={modalConfig?.type}
+        showCancel={modalConfig?.showCancel}
+        confirmText={modalConfig?.confirmText}
+        cancelText={modalConfig?.cancelText}
+        onConfirm={modalConfig?.onConfirm}
+        onCancel={modalConfig?.onCancel}
+        icon={modalConfig?.icon}
       />
     </SafeAreaView>
   );

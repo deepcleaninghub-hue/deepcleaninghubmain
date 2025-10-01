@@ -4,7 +4,6 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  Alert,
   Platform,
   RefreshControl,
 } from 'react-native';
@@ -18,6 +17,8 @@ import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import AutoTranslateText from '../../components/AutoTranslateText';
+import AppModal from '../../components/common/AppModal';
+import { useAppModal } from '../../hooks/useAppModal';
 import { serviceBookingAPI, CreateServiceBookingData } from '../../services/serviceBookingAPI';
 import { profileAPI, UserProfile } from '../../services/profileAPI';
 import { CartStackScreenProps } from '../../navigation/types';
@@ -38,6 +39,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
   const { cartItems, cartSummary, clearCart } = useCart();
   const { user } = useAuth();
   const { t, tAuto } = useLanguage();
+  const { modalConfig, visible, hideModal, showError } = useAppModal();
   
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -138,23 +140,23 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
 
   const validateForm = () => {
     if (!address.street_address.trim()) {
-      Alert.alert(t('errors.error'), t('checkout.enterStreetAddress'));
+      showError(t('errors.error'), t('checkout.enterStreetAddress'));
       return false;
     }
     if (!address.city.trim()) {
-      Alert.alert(t('errors.error'), t('checkout.enterCity'));
+      showError(t('errors.error'), t('checkout.enterCity'));
       return false;
     }
     if (!address.postal_code.trim()) {
-      Alert.alert(t('errors.error'), t('checkout.enterPostalCode'));
+      showError(t('errors.error'), t('checkout.enterPostalCode'));
       return false;
     }
     if (isMultiDay && selectedDates.length === 0) {
-      Alert.alert(t('errors.error'), t('checkout.selectServiceDate'));
+      showError(t('errors.error'), t('checkout.selectServiceDate'));
       return false;
     }
     if (!isMultiDay && !serviceDate) {
-      Alert.alert(t('errors.error'), t('checkout.selectServiceDate'));
+      showError(t('errors.error'), t('checkout.selectServiceDate'));
       return false;
     }
     return true;
@@ -255,7 +257,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
       
     } catch (error) {
       console.error('Error creating service bookings:', error);
-      Alert.alert(t('errors.error'), `${t('checkout.bookingFailed')}: ${error instanceof Error ? error.message : t('errors.unknownError')}`);
+      showError(t('errors.error'), `${t('checkout.bookingFailed')}: ${error instanceof Error ? error.message : t('errors.unknownError')}`);
     } finally {
       setLoading(false);
     }
@@ -439,6 +441,8 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               onChangeText={(text) => setAddress({...address, street_address: text})}
               mode="outlined"
               style={styles.input}
+              returnKeyType="next"
+              blurOnSubmit={false}
             />
             
             <View style={styles.addressRow}>
@@ -448,6 +452,8 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                 onChangeText={(text) => setAddress({...address, city: text})}
                 mode="outlined"
                 style={[styles.input, styles.halfInput]}
+                returnKeyType="next"
+                blurOnSubmit={false}
               />
               <TextInput
                 label={t('checkout.postalCode')}
@@ -456,6 +462,8 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                 mode="outlined"
                 style={[styles.input, styles.halfInput]}
                 keyboardType="numeric"
+                returnKeyType="next"
+                blurOnSubmit={false}
               />
             </View>
             
@@ -465,6 +473,8 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               onChangeText={(text) => setAddress({...address, country: text})}
               mode="outlined"
               style={styles.input}
+              returnKeyType="next"
+              blurOnSubmit={false}
             />
             
             <TextInput
@@ -475,6 +485,8 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               multiline
               numberOfLines={3}
               style={styles.input}
+              returnKeyType="next"
+              blurOnSubmit={false}
             />
           </Card.Content>
         </Card>
@@ -495,6 +507,8 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               multiline
               numberOfLines={4}
               style={styles.input}
+              returnKeyType="done"
+              blurOnSubmit={true}
             />
           </Card.Content>
         </Card>
@@ -575,6 +589,23 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           )}
         </View>
+      )}
+      
+      {/* App Modal */}
+      {modalConfig && (
+        <AppModal
+          visible={visible}
+          onDismiss={hideModal}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          type={modalConfig.type}
+          showCancel={modalConfig.showCancel}
+          confirmText={modalConfig.confirmText}
+          cancelText={modalConfig.cancelText}
+          onConfirm={modalConfig.onConfirm}
+          onCancel={modalConfig.onCancel}
+          icon={modalConfig.icon}
+        />
       )}
     </SafeAreaView>
   );

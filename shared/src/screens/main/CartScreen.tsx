@@ -1,6 +1,6 @@
 // Enhanced with comprehensive color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
 import React from 'react';
-import { View, ScrollView, StyleSheet, RefreshControl, Alert, Platform } from 'react-native';
+import { View, ScrollView, StyleSheet, RefreshControl, Platform } from 'react-native';
 import { Text, Card, Button, Chip, Divider, useTheme, IconButton, ActivityIndicator } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -10,6 +10,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import AutoTranslateText from '../../components/AutoTranslateText';
 import { CartStackScreenProps } from '../../navigation/types';
+import AppModal from '../../components/common/AppModal';
+import { useAppModal } from '../../hooks/useAppModal';
 
 type Props = CartStackScreenProps<'CartMain'>;
 
@@ -26,10 +28,11 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
     clearCart, 
     refreshCart
   } = useCart();
+  const { modalConfig, visible, hideModal, showError } = useAppModal();
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
-      Alert.alert(t('cart.loginRequired'), t('cart.loginToCheckout'));
+      showError(t('cart.loginRequired'), t('cart.loginToCheckout'));
       return;
     }
     navigation.navigate('Checkout');
@@ -195,6 +198,8 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             onPress={handleClearCart}
             icon="delete-sweep"
             style={styles.clearButton}
+            contentStyle={styles.buttonContent}
+            labelStyle={styles.clearButtonLabel}
             disabled={loading}
           >
             {t('cart.clearCart')}
@@ -204,13 +209,30 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             onPress={handleCheckout}
             icon="cart-check"
             style={styles.checkoutButton}
-            contentStyle={styles.checkoutButtonContent}
+            contentStyle={styles.buttonContent}
             disabled={loading}
           >
             {loading ? <ActivityIndicator size="small" color="white" /> : t('cart.proceedToCheckout')}
           </Button>
         </View>
       </ScrollView>
+      
+      {/* App Modal */}
+      {modalConfig && (
+        <AppModal
+          visible={visible}
+          onDismiss={hideModal}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          type={modalConfig.type}
+          showCancel={modalConfig.showCancel}
+          confirmText={modalConfig.confirmText}
+          cancelText={modalConfig.cancelText}
+          onConfirm={modalConfig.onConfirm}
+          onCancel={modalConfig.onCancel}
+          icon={modalConfig.icon}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -357,17 +379,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     marginBottom: 32,
+    alignItems: 'stretch',
   },
   clearButton: {
-    flex: 1,
+    flex: 1.3,
     borderRadius: 12,
+    minHeight: 48,
+  },
+  clearButtonLabel: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   checkoutButton: {
-    flex: 2,
+    flex: 1.7,
     borderRadius: 12,
+    minHeight: 48,
   },
-  checkoutButtonContent: {
-    paddingVertical: 8,
+  buttonContent: {
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyContainer: {
     flex: 1,
