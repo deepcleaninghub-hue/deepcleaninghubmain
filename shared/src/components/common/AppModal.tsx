@@ -86,22 +86,28 @@ const AppModal: React.FC<AppModalProps> = ({
         animationType="fade"
         statusBarTranslucent={false}
       >
-        <View style={styles.overlay}>
-          <View style={[styles.modal, { backgroundColor: theme.colors.surface }]}>
-            {/* Close Button */}
-            {showCloseButton && (
-              <TouchableOpacity 
-                style={styles.closeButtonContainer}
-                onPress={onDismiss}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons 
-                  name="close" 
-                  size={24} 
-                  color={theme.colors.onSurfaceVariant} 
-                />
-              </TouchableOpacity>
-            )}
+        <TouchableOpacity 
+          style={styles.overlay} 
+          activeOpacity={1} 
+          onPress={onDismiss}
+        >
+          <TouchableOpacity 
+            activeOpacity={1} 
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View style={[styles.modal, { backgroundColor: theme.colors.surface }]}>
+            {/* Close Button - Always visible */}
+            <TouchableOpacity 
+              style={styles.closeButtonContainer}
+              onPress={onDismiss}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons 
+                name="close" 
+                size={20} 
+                color={theme.colors.onSurface} 
+              />
+            </TouchableOpacity>
 
             {/* Icon */}
             <View style={styles.iconContainer}>
@@ -145,8 +151,9 @@ const AppModal: React.FC<AppModalProps> = ({
                 {confirmText}
               </Button>
             </View>
-          </View>
-        </View>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </Portal>
   );
@@ -158,65 +165,67 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: 20,
   },
   modal: {
-    width: '100%',
-    maxWidth: 320,
-    borderRadius: 20,
-    padding: 24,
+    width: '90%',
+    maxWidth: 300,
+    borderRadius: 16,
+    padding: 20,
     alignItems: 'center',
-    elevation: 12,
+    elevation: 8,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    maxHeight: '60%', // Limit height to 60% of screen
   },
   closeButtonContainer: {
     position: 'absolute',
-    top: 16,
-    right: 16,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    top: 12,
+    right: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 10,
   },
   iconContainer: {
-    marginBottom: 16,
+    marginBottom: 12,
     marginTop: 8,
   },
   title: {
     textAlign: 'center',
-    marginBottom: 12,
-    fontWeight: '700',
-    fontSize: 20,
-    lineHeight: 24,
+    marginBottom: 8,
+    fontWeight: '600',
+    fontSize: 18,
+    lineHeight: 22,
   },
   message: {
     textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 22,
-    fontSize: 16,
-    paddingHorizontal: 8,
+    marginBottom: 16,
+    lineHeight: 20,
+    fontSize: 14,
+    paddingHorizontal: 4,
   },
   buttonContainer: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 8,
     width: '100%',
-    marginTop: 8,
+    marginTop: 4,
   },
   button: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 8,
   },
   buttonContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   cancelButton: {
     // Additional styles if needed
