@@ -1,5 +1,5 @@
 // Enhanced with comprehensive color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   ScrollView,
@@ -61,6 +61,13 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
   // Multi-day booking state
   const [isMultiDay, setIsMultiDay] = useState(false);
   const [selectedDates, setSelectedDates] = useState<BookingDate[]>([]);
+  
+  // Refs for focusing next field
+  const cityRef = useRef<any>(null);
+  const postalCodeRef = useRef<any>(null);
+  const countryRef = useRef<any>(null);
+  const additionalNotesRef = useRef<any>(null);
+  const specialInstructionsRef = useRef<any>(null);
 
   // Calculate total price accounting for multiple days
   const calculateTotalPrice = () => {
@@ -443,10 +450,12 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               style={styles.input}
               returnKeyType="next"
               blurOnSubmit={false}
+              onSubmitEditing={() => cityRef.current?.focus()}
             />
             
             <View style={styles.addressRow}>
               <TextInput
+                ref={cityRef}
                 label={t('checkout.city')}
                 value={address.city}
                 onChangeText={(text) => setAddress({...address, city: text})}
@@ -454,8 +463,10 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                 style={[styles.input, styles.halfInput]}
                 returnKeyType="next"
                 blurOnSubmit={false}
+                onSubmitEditing={() => postalCodeRef.current?.focus()}
               />
               <TextInput
+                ref={postalCodeRef}
                 label={t('checkout.postalCode')}
                 value={address.postal_code}
                 onChangeText={(text) => setAddress({...address, postal_code: text})}
@@ -464,10 +475,12 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                 keyboardType="numeric"
                 returnKeyType="next"
                 blurOnSubmit={false}
+                onSubmitEditing={() => countryRef.current?.focus()}
               />
             </View>
             
             <TextInput
+              ref={countryRef}
               label={t('checkout.country')}
               value={address.country}
               onChangeText={(text) => setAddress({...address, country: text})}
@@ -475,9 +488,11 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               style={styles.input}
               returnKeyType="next"
               blurOnSubmit={false}
+              onSubmitEditing={() => additionalNotesRef.current?.focus()}
             />
             
             <TextInput
+              ref={additionalNotesRef}
               label={t('checkout.additionalNotesOptional')}
               value={address.additional_notes}
               onChangeText={(text) => setAddress({...address, additional_notes: text})}
@@ -487,6 +502,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               style={styles.input}
               returnKeyType="next"
               blurOnSubmit={false}
+              onSubmitEditing={() => specialInstructionsRef.current?.focus()}
             />
           </Card.Content>
         </Card>
@@ -500,6 +516,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
             <Divider style={styles.divider} />
             
             <TextInput
+              ref={specialInstructionsRef}
               label={t('checkout.specialRequests')}
               value={specialInstructions}
               onChangeText={setSpecialInstructions}
@@ -509,6 +526,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               style={styles.input}
               returnKeyType="done"
               blurOnSubmit={true}
+              onSubmitEditing={handlePlaceOrder}
             />
           </Card.Content>
         </Card>

@@ -1,5 +1,5 @@
 // Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   ScrollView,
@@ -44,6 +44,16 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  
+  // Refs for focusing next field
+  const lastNameRef = useRef<any>(null);
+  const emailRef = useRef<any>(null);
+  const phoneRef = useRef<any>(null);
+  const addressRef = useRef<any>(null);
+  const cityRef = useRef<any>(null);
+  const stateRef = useRef<any>(null);
+  const postalCodeRef = useRef<any>(null);
+  const countryRef = useRef<any>(null);
 
   useEffect(() => {
     fetchProfile();
@@ -317,11 +327,10 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 mode="outlined"
                 returnKeyType="next"
                 blurOnSubmit={false}
-                onSubmitEditing={() => {
-                  // Move to next field
-                }}
+                onSubmitEditing={() => lastNameRef.current?.focus()}
               />
               <TextInput
+                ref={lastNameRef}
                 label={`${t('profile.lastName')} *`}
                 value={formData.last_name || ''}
                 onChangeText={(text) => handleInputChange('last_name', text)}
@@ -330,15 +339,14 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 mode="outlined"
                 returnKeyType="next"
                 blurOnSubmit={false}
-                onSubmitEditing={() => {
-                  // Move to next field
-                }}
+                onSubmitEditing={() => emailRef.current?.focus()}
               />
             </View>
             {errors.first_name && <HelperText type="error">{errors.first_name}</HelperText>}
             {errors.last_name && <HelperText type="error">{errors.last_name}</HelperText>}
 
             <TextInput
+              ref={emailRef}
               label={`${t('profile.email')} *`}
               value={formData.email || ''}
               onChangeText={(text) => handleInputChange('email', text)}
@@ -349,13 +357,12 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
               autoCapitalize="none"
               returnKeyType="next"
               blurOnSubmit={false}
-              onSubmitEditing={() => {
-                // Move to next field
-              }}
+              onSubmitEditing={() => phoneRef.current?.focus()}
             />
             {errors.email && <HelperText type="error">{errors.email}</HelperText>}
 
             <TextInput
+              ref={phoneRef}
               label={t('auth.phone')}
               value={formData.phone || ''}
               onChangeText={(text) => handleInputChange('phone', text)}
@@ -365,9 +372,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
               keyboardType="phone-pad"
               returnKeyType="next"
               blurOnSubmit={false}
-              onSubmitEditing={() => {
-                // Move to next field
-              }}
+              onSubmitEditing={() => addressRef.current?.focus()}
             />
             {errors.phone && <HelperText type="error">{errors.phone}</HelperText>}
 
@@ -439,6 +444,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
             </Text>
             
             <TextInput
+              ref={addressRef}
               label={t('auth.address')}
               value={formData.address || ''}
               onChangeText={(text) => handleInputChange('address', text)}
@@ -457,6 +463,7 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 
             <View style={styles.row}>
               <TextInput
+                ref={cityRef}
                 label={t('checkout.city')}
                 value={formData.city || ''}
                 onChangeText={(text) => handleInputChange('city', text)}
@@ -465,11 +472,10 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 mode="outlined"
                 returnKeyType="next"
                 blurOnSubmit={false}
-                onSubmitEditing={() => {
-                  // Move to next field
-                }}
+                onSubmitEditing={() => stateRef.current?.focus()}
               />
               <TextInput
+                ref={stateRef}
                 label={t('profile.state')}
                 value={formData.state || ''}
                 onChangeText={(text) => handleInputChange('state', text)}
@@ -477,15 +483,14 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 mode="outlined"
                 returnKeyType="next"
                 blurOnSubmit={false}
-                onSubmitEditing={() => {
-                  // Move to next field
-                }}
+                onSubmitEditing={() => postalCodeRef.current?.focus()}
               />
             </View>
             {errors.city && <HelperText type="error">{errors.city}</HelperText>}
 
             <View style={styles.row}>
               <TextInput
+                ref={postalCodeRef}
                 label={t('checkout.postalCode')}
                 value={formData.postal_code || ''}
                 onChangeText={(text) => handleInputChange('postal_code', text)}
@@ -495,11 +500,10 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
                 keyboardType="numeric"
                 returnKeyType="next"
                 blurOnSubmit={false}
-                onSubmitEditing={() => {
-                  // Move to next field
-                }}
+                onSubmitEditing={() => countryRef.current?.focus()}
               />
               <TextInput
+                ref={countryRef}
                 label={t('checkout.country')}
                 value={formData.country || ''}
                 onChangeText={(text) => handleInputChange('country', text)}

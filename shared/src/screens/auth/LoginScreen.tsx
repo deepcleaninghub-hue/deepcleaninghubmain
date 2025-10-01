@@ -4,7 +4,7 @@
  * A clean, accessible login screen with proper validation and error handling.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -47,6 +47,9 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoginFailed, setIsLoginFailed] = useState(false);
+  
+  // Refs for focusing next field
+  const passwordInputRef = useRef<any>(null);
 
   const validateForm = useCallback(() => {
     const newErrors = { email: '', password: '' };
@@ -163,8 +166,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
                   returnKeyType="next"
                   blurOnSubmit={false}
                   onSubmitEditing={() => {
-                    // Focus on password field
-                    // This will be handled by the password input's ref
+                    passwordInputRef.current?.focus();
                   }}
                   error={!!errors.email}
                   left={<TextInput.Icon icon="email" />}
@@ -186,6 +188,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
               {/* Password Input */}
               <View style={styles.inputContainer}>
                 <TextInput
+                  ref={passwordInputRef}
                   label={t('auth.password')}
                   value={formData.password}
                   onChangeText={(text) => handleInputChange('password', text)}

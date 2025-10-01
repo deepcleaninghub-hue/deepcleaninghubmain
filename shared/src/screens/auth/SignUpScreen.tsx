@@ -4,7 +4,7 @@
  * A clean, accessible sign up screen with proper validation.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -54,6 +54,14 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Refs for focusing next field
+  const lastNameRef = useRef<any>(null);
+  const emailRef = useRef<any>(null);
+  const phoneRef = useRef<any>(null);
+  const addressRef = useRef<any>(null);
+  const passwordRef = useRef<any>(null);
+  const confirmPasswordRef = useRef<any>(null);
 
   const validateForm = useCallback(() => {
     const newErrors = { firstName: '', lastName: '', email: '', phone: '', address: '', password: '', confirmPassword: '' };
@@ -203,6 +211,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                     autoComplete="given-name"
                     returnKeyType="next"
                     blurOnSubmit={false}
+                    onSubmitEditing={() => lastNameRef.current?.focus()}
                     error={!!errors.firstName}
                     left={<TextInput.Icon icon="account" />}
                     style={styles.input}
@@ -217,6 +226,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                 
                 <View style={[styles.inputContainer, styles.nameInput]}>
                   <TextInput
+                    ref={lastNameRef}
                     label={t('auth.lastName')}
                     value={formData.lastName}
                     onChangeText={(text) => handleInputChange('lastName', text)}
@@ -225,6 +235,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                     autoComplete="family-name"
                     returnKeyType="next"
                     blurOnSubmit={false}
+                    onSubmitEditing={() => emailRef.current?.focus()}
                     error={!!errors.lastName}
                     left={<TextInput.Icon icon="account" />}
                     style={styles.input}
@@ -241,6 +252,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               {/* Email Input */}
               <View style={styles.inputContainer}>
                 <TextInput
+                  ref={emailRef}
                   label={t('auth.email')}
                   value={formData.email}
                   onChangeText={(text) => handleInputChange('email', text)}
@@ -251,6 +263,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   autoCorrect={false}
                   returnKeyType="next"
                   blurOnSubmit={false}
+                  onSubmitEditing={() => phoneRef.current?.focus()}
                   error={!!errors.email}
                   left={<TextInput.Icon icon="email" />}
                   style={styles.input}
@@ -266,6 +279,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               {/* Phone Input */}
               <View style={styles.inputContainer}>
                 <TextInput
+                  ref={phoneRef}
                   label={t('auth.phone')}
                   value={formData.phone}
                   onChangeText={(text) => handleInputChange('phone', text)}
@@ -274,6 +288,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   autoComplete="tel"
                   returnKeyType="next"
                   blurOnSubmit={false}
+                  onSubmitEditing={() => addressRef.current?.focus()}
                   error={!!errors.phone}
                   left={<TextInput.Icon icon="phone" />}
                   style={styles.input}
@@ -289,6 +304,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               {/* Address Input */}
               <View style={styles.inputContainer}>
                 <TextInput
+                  ref={addressRef}
                   label={t('auth.address')}
                   value={formData.address}
                   onChangeText={(text) => handleInputChange('address', text)}
@@ -299,6 +315,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   numberOfLines={2}
                   returnKeyType="next"
                   blurOnSubmit={false}
+                  onSubmitEditing={() => passwordRef.current?.focus()}
                   error={!!errors.address}
                   left={<TextInput.Icon icon="map-marker" />}
                   style={styles.input}
@@ -314,6 +331,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               {/* Password Input */}
               <View style={styles.inputContainer}>
                 <TextInput
+                  ref={passwordRef}
                   label={t('auth.password')}
                   value={formData.password}
                   onChangeText={(text) => handleInputChange('password', text)}
@@ -323,6 +341,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                   autoCorrect={false}
                   returnKeyType="next"
                   blurOnSubmit={false}
+                  onSubmitEditing={() => confirmPasswordRef.current?.focus()}
                   error={!!errors.password}
                   left={<TextInput.Icon icon="lock" />}
                   right={
@@ -344,6 +363,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               {/* Confirm Password Input */}
               <View style={styles.inputContainer}>
                 <TextInput
+                  ref={confirmPasswordRef}
                   label={t('auth.confirmPassword')}
                   value={formData.confirmPassword}
                   onChangeText={(text) => handleInputChange('confirmPassword', text)}

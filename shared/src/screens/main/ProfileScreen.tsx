@@ -1,5 +1,5 @@
 // Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Platform, Linking, Dimensions, Modal } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Card, Button, Avatar, Divider, useTheme, IconButton, Badge, ActivityIndicator, TextInput, Portal } from 'react-native-paper';
@@ -32,6 +32,10 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const [changingPassword, setChangingPassword] = useState(false);
   const [deleteAccountStep, setDeleteAccountStep] = useState(0); // 0: not started, 1: first confirmation, 2: second confirmation
   const [deleteConfirmationText, setDeleteConfirmationText] = useState('');
+  
+  // Refs for focusing next field in password change modal
+  const newPasswordRef = useRef<any>(null);
+  const confirmPasswordRef = useRef<any>(null);
 
   // Helper function to get user initials safely
   const getUserInitials = () => {
@@ -372,9 +376,11 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
               theme={{ colors: { primary: theme.colors.primary } }}
               returnKeyType="next"
               blurOnSubmit={false}
+              onSubmitEditing={() => newPasswordRef.current?.focus()}
             />
             
             <TextInput
+              ref={newPasswordRef}
               label={t('profile.newPassword')}
               value={newPassword}
               onChangeText={setNewPassword}
@@ -384,9 +390,11 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
               theme={{ colors: { primary: theme.colors.primary } }}
               returnKeyType="next"
               blurOnSubmit={false}
+              onSubmitEditing={() => confirmPasswordRef.current?.focus()}
             />
             
             <TextInput
+              ref={confirmPasswordRef}
               label={t('profile.confirmNewPassword')}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
@@ -396,6 +404,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
               theme={{ colors: { primary: theme.colors.primary } }}
               returnKeyType="done"
               blurOnSubmit={true}
+              onSubmitEditing={handleChangePasswordSubmit}
             />
             
             <View style={styles.modalButtons}>

@@ -1,5 +1,5 @@
 // Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   ScrollView,
@@ -43,6 +43,14 @@ const ContactScreen = () => {
   const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { modalConfig, visible, hideModal, showError, showSuccess } = useAppModal();
+  
+  // Refs for focusing next field
+  const emailRef = useRef<any>(null);
+  const phoneRef = useRef<any>(null);
+  const serviceRef = useRef<any>(null);
+  const messageRef = useRef<any>(null);
+  const serviceAreaRef = useRef<any>(null);
+  const preferredDateRef = useRef<any>(null);
 
   const contactSchema = createContactSchema(t);
 
@@ -175,6 +183,7 @@ const ContactScreen = () => {
                     error={!!errors.name}
                     returnKeyType="next"
                     blurOnSubmit={false}
+                    onSubmitEditing={() => emailRef.current?.focus()}
                     left={<TextInput.Icon icon="account" />}
                   />
                 )}
@@ -190,6 +199,7 @@ const ContactScreen = () => {
                 name="email"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
+                    ref={emailRef}
                     label={t('contact.emailAddress')}
                     value={value}
                     onChangeText={onChange}
@@ -201,6 +211,7 @@ const ContactScreen = () => {
                     autoCapitalize="none"
                     returnKeyType="next"
                     blurOnSubmit={false}
+                    onSubmitEditing={() => phoneRef.current?.focus()}
                     left={<TextInput.Icon icon="email" />}
                   />
                 )}
@@ -216,6 +227,7 @@ const ContactScreen = () => {
                 name="phone"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
+                    ref={phoneRef}
                     label={t('contact.phoneNumber')}
                     value={value}
                     onChangeText={onChange}
@@ -226,6 +238,7 @@ const ContactScreen = () => {
                     keyboardType="phone-pad"
                     returnKeyType="next"
                     blurOnSubmit={false}
+                    onSubmitEditing={() => serviceRef.current?.focus()}
                     left={<TextInput.Icon icon="phone" />}
                   />
                 )}
@@ -241,6 +254,7 @@ const ContactScreen = () => {
                 name="service"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
+                    ref={serviceRef}
                     label={t('contact.serviceRequired')}
                     value={value}
                     onChangeText={onChange}
@@ -250,6 +264,7 @@ const ContactScreen = () => {
                     error={!!errors.service}
                     returnKeyType="next"
                     blurOnSubmit={false}
+                    onSubmitEditing={() => messageRef.current?.focus()}
                     left={<TextInput.Icon icon="briefcase" />}
                     right={
                       <TextInput.Icon 
@@ -275,6 +290,7 @@ const ContactScreen = () => {
                 name="message"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
+                    ref={messageRef}
                     label={t('contact.message')}
                     value={value}
                     onChangeText={onChange}
@@ -286,6 +302,7 @@ const ContactScreen = () => {
                     numberOfLines={4}
                     returnKeyType="next"
                     blurOnSubmit={false}
+                    onSubmitEditing={() => serviceAreaRef.current?.focus()}
                     left={<TextInput.Icon icon="message" />}
                   />
                 )}
@@ -301,6 +318,7 @@ const ContactScreen = () => {
                 name="serviceArea"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
+                    ref={serviceAreaRef}
                     label={t('cta.serviceAreaOptional')}
                     value={value || ''}
                     onChangeText={onChange}
@@ -309,6 +327,7 @@ const ContactScreen = () => {
                     style={styles.input}
                     returnKeyType="next"
                     blurOnSubmit={false}
+                    onSubmitEditing={() => preferredDateRef.current?.focus()}
                     left={<TextInput.Icon icon="map-marker" />}
                     placeholder={t('cta.serviceAreaPlaceholder')}
                   />
@@ -320,6 +339,7 @@ const ContactScreen = () => {
                 name="preferredDate"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
+                    ref={preferredDateRef}
                     label={t('cta.preferredDateOptional')}
                     value={value || ''}
                     onChangeText={onChange}

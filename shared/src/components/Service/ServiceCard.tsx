@@ -1,5 +1,5 @@
 // Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -62,6 +62,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [showMeasurementModal, setShowMeasurementModal] = useState(false);
   const [measurement, setMeasurement] = useState('');
   const [distance, setDistance] = useState('');
+  
+  // Refs for focusing next field
+  const distanceRef = useRef<any>(null);
   const [calculatedPrice, setCalculatedPrice] = useState(0);
   const [translatedTitle, setTranslatedTitle] = useState(title);
   const [translatedDescription, setTranslatedDescription] = useState(description);
@@ -336,6 +339,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 selectionColor={theme.colors.primary}
                 returnKeyType="next"
                 blurOnSubmit={false}
+                onSubmitEditing={() => distanceRef.current?.focus()}
               />
             </View>
 
@@ -344,6 +348,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 {t('services.distance')} (km)
               </Text>
               <TextInput
+                ref={distanceRef}
                 style={[styles.textInput, { 
                   borderColor: theme.colors.outline,
                   backgroundColor: theme.colors.surface,
@@ -357,6 +362,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 selectionColor={theme.colors.primary}
                 returnKeyType="done"
                 blurOnSubmit={true}
+                onSubmitEditing={handleAddToCart}
               />
             </View>
 
