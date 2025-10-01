@@ -74,7 +74,7 @@ export const fr = {
     addressRequired: 'L\'adresse est requise',
     enterCompleteAddress: 'Veuillez entrer une adresse complète',
     confirmPasswordRequired: 'Veuillez confirmer votre mot de passe',
-    joinDeepCleaningHub: 'Rejoignez Deep Cleaning Hub et commencez dès aujourd'hui',
+    joinDeepCleaningHub: 'Rejoignez Deep Cleaning Hub et commencez dès aujourd\'hui',
     creatingAccount: 'Création du compte...',
   },
   cart: {
