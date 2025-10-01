@@ -15,14 +15,13 @@ export interface ModalConfig {
 export const useAppModal = () => {
   const [modalConfig, setModalConfig] = useState<ModalConfig | null>(null);
   const [visible, setVisible] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const showModal = useCallback((config: ModalConfig) => {
     console.log('showModal called with config:', config);
     setModalConfig(config);
-    // Add a small delay for iOS to ensure proper state update
-    setTimeout(() => {
-      setVisible(true);
-    }, 10);
+    setVisible(true);
+    setForceUpdate(prev => prev + 1);
   }, []);
 
   const hideModal = useCallback(() => {
@@ -92,6 +91,7 @@ export const useAppModal = () => {
   return {
     modalConfig,
     visible,
+    forceUpdate,
     showModal,
     hideModal,
     showSuccess,

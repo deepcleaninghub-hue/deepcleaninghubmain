@@ -21,7 +21,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { user, signOut, isAuthenticated, loading } = useAuth();
   const { t } = useLanguage();
-  const { modalConfig, visible, hideModal, showError, showSuccess, showConfirm } = useAppModal();
+  const { modalConfig, visible, forceUpdate, hideModal, showError, showSuccess, showConfirm } = useAppModal();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false);
@@ -132,14 +132,19 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
       if (result.success) {
         console.log('Password change successful, showing success modal');
-        showSuccess(t('common.success'), t('profile.passwordChangeSuccess'), () => {
-          console.log('Success modal callback executed');
-          setChangePasswordModalVisible(false);
-          setCurrentPassword('');
-          setNewPassword('');
-          setConfirmPassword('');
-          hideModal();
-        });
+        // Close the password change modal first
+        setChangePasswordModalVisible(false);
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        
+        // Show success modal with a small delay for iOS
+        setTimeout(() => {
+          showSuccess(t('common.success'), t('profile.passwordChangeSuccess'), () => {
+            console.log('Success modal callback executed');
+            hideModal();
+          });
+        }, 100);
       } else {
         console.log('Password change failed:', result.error);
         showError(t('common.error'), result.error || t('profile.passwordChangeError'));
@@ -450,6 +455,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
        {/* App Modal */}
        <AppModal
+         key={`modal-${forceUpdate}`}
          visible={visible}
          onDismiss={hideModal}
          title={modalConfig?.title || ''}
