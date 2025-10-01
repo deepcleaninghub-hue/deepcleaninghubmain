@@ -34,7 +34,7 @@ type Props = AuthStackScreenProps<'Login'>;
 export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { signIn, loading } = useAuth();
-  const { t } = useLanguage();
+  const { t, languageChangeKey } = useLanguage();
   const { modalConfig, visible, hideModal, showError } = useAppModal();
 
   const [formData, setFormData] = useState({
@@ -117,7 +117,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   }, [showError, t]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView key={`login-${languageChangeKey}`} style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}

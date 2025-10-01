@@ -43,6 +43,9 @@ export const EnhancedLanguageSelector: React.FC<LanguageSelectorProps> = ({
       return;
     }
 
+    // Dismiss the modal immediately to prevent flash
+    onDismiss();
+    
     setSelectedLanguage(language);
     setIsTranslatingLanguage(true);
     setTranslationProgress(0);
@@ -70,8 +73,7 @@ export const EnhancedLanguageSelector: React.FC<LanguageSelectorProps> = ({
       setTimeout(() => {
         setIsTranslatingLanguage(false);
         setTranslationProgress(0);
-        onDismiss();
-      }, 500);
+      }, 200);
 
     } catch (error) {
       console.error('Language change error:', error);

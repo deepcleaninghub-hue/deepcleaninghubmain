@@ -32,7 +32,7 @@ type Props = AuthStackScreenProps<'SignUp'>;
 export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { signUp, loading } = useAuth();
-  const { t } = useLanguage();
+  const { t, languageChangeKey } = useLanguage();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -164,7 +164,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
   }, [navigation]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView key={`signup-${languageChangeKey}`} style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}

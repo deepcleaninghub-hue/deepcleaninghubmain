@@ -1,6 +1,6 @@
 // Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
-import React, { useState, useRef } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Platform, Linking, Dimensions, Modal } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity, Platform, Linking, Dimensions, Modal } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Card, Button, Avatar, Divider, useTheme, IconButton, Badge, ActivityIndicator, TextInput, Portal } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,10 +20,22 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const { height: screenHeight } = Dimensions.get('window');
   const insets = useSafeAreaInsets();
   const { user, signOut, isAuthenticated, loading } = useAuth();
-  const { t } = useLanguage();
+  const { t, languageChangeKey } = useLanguage();
+  
+  // Debug language change key and force re-render
+  const [forceRender, setForceRender] = useState(0);
+  
+  useEffect(() => {
+    console.log('ProfileScreen languageChangeKey updated:', languageChangeKey);
+    setForceRender(prev => prev + 1);
+  }, [languageChangeKey]);
+  
+  // Debug component re-renders
+  useEffect(() => {
+    console.log('ProfileScreen re-rendered, forceRender:', forceRender, 'languageChangeKey:', languageChangeKey);
+  });
   const { modalConfig, visible, forceUpdate, hideModal, showError, showSuccess, showConfirm } = useAppModal();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false);
   const [languageSelectorVisible, setLanguageSelectorVisible] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -81,12 +93,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     setNotificationsEnabled(!notificationsEnabled);
   };
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    // Simulate refresh delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setRefreshing(false);
-  };
 
   const handleChangePassword = () => {
     setChangePasswordModalVisible(true);
@@ -287,16 +293,9 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView key={`profile-${languageChangeKey}-${forceRender}`} style={styles.container}>
       <AppHeader title={t('profile.title')}/>
-      <ScrollView 
-        style={styles.scrollContainer} 
-        contentContainerStyle={[styles.scrollContent, { minHeight: screenHeight }]}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+      <View style={styles.scrollContainer}>
         
         {/* Enhanced Profile Section */}
         <View style={styles.profileSection}>
@@ -368,23 +367,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           </Card>
         </View>
 
-        {/* Account Actions removed */}
-
-        {/* Temporary Debug Section - Remove in production */}
-        <View style={styles.sectionContainer}>
-          <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surface }]}>
-            <Card.Content>
-              <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '700', marginBottom: 8 }}>Debug (iOS Testing)</Text>
-              <Button mode="outlined" onPress={testErrorModal} style={{ marginBottom: 8 }}>
-                Test Error Modal
-              </Button>
-              <Button mode="outlined" onPress={() => showSuccess(t('common.success'), 'Test success modal')}>
-                Test Success Modal
-              </Button>
-            </Card.Content>
-          </Card>
-        </View>
-
         {/* Logout Section */}
         <View style={styles.logoutSection}>
           <Card style={[styles.logoutCard, { backgroundColor: theme.colors.errorContainer }]}>
@@ -402,7 +384,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
             </Card.Content>
           </Card>
         </View>
-      </ScrollView>
+      </View>
 
       {/* Change Password Modal */}
       <AppModal
@@ -480,6 +462,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
        {/* Language Selector Modal */}
           <EnhancedLanguageSelector
+            key={`language-selector-${languageChangeKey}`}
             visible={languageSelectorVisible}
             onDismiss={() => setLanguageSelectorVisible(false)}
           />
@@ -510,9 +493,6 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    marginTop: 0,
-  },
-  scrollContent: {
     paddingTop: 10,
     paddingBottom: 24,
   },

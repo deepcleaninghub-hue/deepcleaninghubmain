@@ -12,6 +12,7 @@ export interface LanguageContextType {
   translateObject: (obj: any) => Promise<any>;
   detectLanguage: (text: string) => Promise<string>;
   isTranslating: boolean;
+  languageChangeKey: number; // Force update key for screens
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -31,6 +32,7 @@ interface LanguageProviderProps {
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('en');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [languageChangeKey, setLanguageChangeKey] = useState(0);
 
   useEffect(() => {
     loadLanguage();
@@ -49,7 +51,13 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   const setLanguage = async (language: SupportedLanguage) => {
     try {
+      console.log('Setting language to:', language);
       setCurrentLanguage(language);
+      setLanguageChangeKey(prev => {
+        const newKey = prev + 1;
+        console.log('Language change key updated to:', newKey);
+        return newKey;
+      });
       await AsyncStorage.setItem('selectedLanguage', language);
     } catch (error) {
       console.error('Error saving language:', error);
@@ -165,6 +173,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     translateObject,
     detectLanguage,
     isTranslating,
+    languageChangeKey,
   };
 
   return (

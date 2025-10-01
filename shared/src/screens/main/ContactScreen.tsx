@@ -40,7 +40,7 @@ type ContactFormData = z.infer<ReturnType<typeof createContactSchema>>;
 
 const ContactScreen = () => {
   const theme = useTheme();
-  const { t } = useLanguage();
+  const { t, languageChangeKey } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showServicePicker, setShowServicePicker] = useState(false);
   const { modalConfig, visible, hideModal, showError, showSuccess } = useAppModal();
@@ -154,7 +154,7 @@ const ContactScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView key={`contact-${languageChangeKey}`} style={styles.container}>
       <AppHeader title={t('contact.title')} showBack />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
