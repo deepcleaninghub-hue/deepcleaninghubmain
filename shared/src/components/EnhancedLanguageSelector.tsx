@@ -104,6 +104,7 @@ export const EnhancedLanguageSelector: React.FC<LanguageSelectorProps> = ({
         onDismiss={onDismiss}
         animationType="slide"
         presentationStyle="pageSheet"
+        transparent={true}
       >
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
           <View style={[styles.header, { borderBottomColor: theme.colors.outline }]}>
@@ -303,6 +304,11 @@ export const EnhancedLanguageSelector: React.FC<LanguageSelectorProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 100,
+    marginHorizontal: 20,
+    marginBottom: 100,
+    borderRadius: 20,
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',

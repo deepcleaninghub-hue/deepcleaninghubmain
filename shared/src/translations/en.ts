@@ -26,6 +26,7 @@ export const en = {
     none: 'None',
     yes: 'Yes',
     no: 'No',
+    logout: 'Logout',
     germany: 'Germany',
   },
   auth: {

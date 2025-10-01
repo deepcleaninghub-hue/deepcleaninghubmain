@@ -61,18 +61,18 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       const keys = key.split('.');
       let value: any = translations[currentLanguage as keyof typeof translations];
       
+      // Try to find the key in current language
       for (const k of keys) {
         if (value && typeof value === 'object' && k in value) {
           value = value[k];
         } else {
           // Fallback to English if key not found
           value = translations.en;
-          for (const k of keys) {
-            if (value && typeof value === 'object' && k in value) {
-              value = value[k];
+          for (const fallbackKey of keys) {
+            if (value && typeof value === 'object' && fallbackKey in value) {
+              value = value[fallbackKey];
             } else {
               // If not found in static translations, return the key as-is
-              // This will be handled by the AutoTranslateText component
               return key;
             }
           }

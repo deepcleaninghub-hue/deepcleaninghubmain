@@ -17,19 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.deepcleanhub.mobile",
-      "buildNumber": "1",
-      "infoPlist": {
-        "UIBackgroundModes": ["background-fetch", "background-processing"],
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true,
-          "NSExceptionDomains": {
-            "13.211.76.43": {
-              "NSExceptionAllowsInsecureHTTPLoads": true,
-              "NSExceptionMinimumTLSVersion": "1.0"
-            }
-          }
-        }
-      }
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {

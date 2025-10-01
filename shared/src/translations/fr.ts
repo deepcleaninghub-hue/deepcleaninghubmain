@@ -26,6 +26,7 @@ export const fr = {
     none: 'Aucun',
     yes: 'Oui',
     no: 'Non',
+    logout: 'Déconnexion',
   },
   auth: {
     login: 'Connexion',

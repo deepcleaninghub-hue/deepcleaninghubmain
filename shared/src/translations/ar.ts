@@ -26,6 +26,7 @@ export const ar = {
     none: 'لا شيء',
     yes: 'نعم',
     no: 'لا',
+    logout: 'تسجيل الخروج',
   },
   auth: {
     login: 'تسجيل الدخول',

@@ -26,6 +26,7 @@ export const de = {
     none: 'Keine',
     yes: 'Ja',
     no: 'Nein',
+    logout: 'Abmelden',
   },
   auth: {
     login: 'Anmelden',

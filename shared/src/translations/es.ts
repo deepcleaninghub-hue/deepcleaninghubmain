@@ -27,6 +27,7 @@ export const es = {
     none: 'Ninguno',
     yes: 'Sí',
     no: 'No',
+    logout: 'Cerrar sesión',
   },
   auth: {
     login: 'Iniciar sesión',

@@ -26,6 +26,7 @@ export const hi = {
     none: 'कोई नहीं',
     yes: 'हाँ',
     no: 'नहीं',
+    logout: 'लॉग आउट',
   },
   auth: {
     login: 'लॉग इन',

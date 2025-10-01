@@ -471,10 +471,12 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   scrollContent: {
+    paddingTop: 10,
     paddingBottom: 24,
   },
   profileSection: {
     paddingHorizontal: 20,
+    marginTop: 20,
     marginBottom: 20,
   },
   profileCard: {
@@ -629,6 +631,7 @@ const styles = StyleSheet.create({
   },
   menuSection: {
     paddingHorizontal: 20,
+    marginTop: 10,
     marginBottom: 20,
   },
   menuCard: {
@@ -689,6 +692,7 @@ const styles = StyleSheet.create({
   },
   logoutSection: {
     paddingHorizontal: 20,
+    marginTop: 10,
     marginBottom: 32,
   },
   sectionContainer: {
