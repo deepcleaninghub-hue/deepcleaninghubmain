@@ -42,6 +42,7 @@ const ContactScreen = () => {
   const theme = useTheme();
   const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showServicePicker, setShowServicePicker] = useState(false);
   const { modalConfig, visible, hideModal, showError, showSuccess } = useAppModal();
   
   // Refs for focusing next field
@@ -114,7 +115,10 @@ const ContactScreen = () => {
       const response = await inquiriesAPI.submitInquiry(inquiryData);
       
       if (response.success) {
-        showSuccess(t('cta.success'), t('cta.thankYouInquiry'), () => reset());
+        showSuccess(t('cta.success'), t('cta.thankYouInquiry'), () => {
+          reset();
+          hideModal();
+        });
       } else {
         showError(t('cta.error'), response.error || t('cta.failedToSubmitInquiry'));
       }
@@ -124,6 +128,11 @@ const ContactScreen = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleServiceSelect = (service: any, onChange: (value: string) => void) => {
+    onChange(service.name);
+    setShowServicePicker(false);
   };
 
   const handleCallNow = () => {
@@ -269,13 +278,11 @@ const ContactScreen = () => {
                     right={
                       <TextInput.Icon 
                         icon="chevron-down" 
-                        onPress={() => {
-                          // Show service picker - for now, just select the first service
-                          // TODO: Implement proper service picker modal
-                          onChange(services[0]?.name || '');
-                        }}
+                        onPress={() => setShowServicePicker(true)}
                       />
                     }
+                    onFocus={() => setShowServicePicker(true)}
+                    showSoftInputOnFocus={false}
                   />
                 )}
               />
@@ -488,6 +495,45 @@ const ContactScreen = () => {
           icon={modalConfig.icon}
         />
       )}
+
+      {/* Service Picker Modal */}
+      <AppModal
+        visible={showServicePicker}
+        onDismiss={() => setShowServicePicker(false)}
+        title={t('cta.selectServiceTitle')}
+        message=""
+        showCloseButton={true}
+        maxHeight={500}
+        children={
+          <ScrollView style={styles.servicePickerContent} showsVerticalScrollIndicator={true}>
+            {services.map((service) => (
+              <Controller
+                key={service.id}
+                control={control}
+                name="service"
+                render={({ field: { onChange } }) => (
+                  <Button
+                    mode="outlined"
+                    onPress={() => handleServiceSelect(service, onChange)}
+                    style={[styles.serviceOption, { borderColor: theme.colors.outline }]}
+                    contentStyle={styles.serviceOptionContent}
+                    textColor={theme.colors.onSurface}
+                  >
+                    <View style={styles.serviceOptionText}>
+                      <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, fontWeight: '500' }}>
+                        {service.name}
+                      </Text>
+                      <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                        {service.price}
+                      </Text>
+                    </View>
+                  </Button>
+                )}
+              />
+            ))}
+          </ScrollView>
+        }
+      />
     </SafeAreaView>
   );
 };
@@ -629,6 +675,24 @@ const styles = StyleSheet.create({
   contactButtonContent: {
     paddingHorizontal: 12,
     paddingVertical: 6,
+  },
+  servicePickerContent: {
+    maxHeight: 400,
+    paddingVertical: 8,
+  },
+  serviceOption: {
+    marginBottom: 8,
+    borderRadius: 8,
+    marginHorizontal: 4,
+  },
+  serviceOptionContent: {
+    justifyContent: 'flex-start',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  serviceOptionText: {
+    alignItems: 'flex-start',
+    width: '100%',
   },
 });
 
