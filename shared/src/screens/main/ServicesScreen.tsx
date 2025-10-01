@@ -229,7 +229,7 @@ const ServicesScreen = ({ navigation }: Props) => {
         }
       >
         {/* Header Section */}
-        <View style={styles.headerSection}>
+        {/* <View style={styles.headerSection}>
           <View style={styles.headerRow}>
             <Text variant="titleMedium" style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{t('services.title')}</Text>
           </View>
@@ -239,7 +239,7 @@ const ServicesScreen = ({ navigation }: Props) => {
           >
             {filteredServiceOptions.length} {t('services.options')} • {selectedCategory ? (translatedCategories[selectedCategory] || selectedCategory) : t('services.all')}
           </Text>
-        </View>
+        </View> */}
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
@@ -262,14 +262,6 @@ const ServicesScreen = ({ navigation }: Props) => {
           />
         </View>
 
-        {/* Quick actions */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsRowScroll}>
-          <View style={styles.quickActionsRow}>
-            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="refresh" size={size} color={color} />)} onPress={() => showError(t('services.repeat'), t('services.repeatLastBookingComingSoon'))} style={[styles.quickChip, styles.quickChipMargin]}>{t('services.repeatLastBooking')}</Button>
-            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="today" size={size} color={color} />)} onPress={() => showError(t('services.schedule'), t('services.todaySchedulingComingSoon'))} style={[styles.quickChip, styles.quickChipMargin]}>{t('services.today')}</Button>
-            <Button mode="outlined" icon={({size,color}) => (<Ionicons name="calendar" size={size} color={color} />)} onPress={() => showError(t('services.schedule'), t('services.tomorrowSchedulingComingSoon'))} style={styles.quickChip}>{t('services.tomorrow')}</Button>
-          </View>
-        </ScrollView>
 
 
         
@@ -585,19 +577,6 @@ const styles = StyleSheet.create({
   },
   heroBtn: {
     borderRadius: 10,
-  },
-  quickActionsRow: {
-    flexDirection: 'row',
-    paddingBottom: 8,
-  },
-  quickActionsRowScroll: {
-    paddingHorizontal: 16,
-  },
-  quickChip: {
-    borderRadius: 16,
-  },
-  quickChipMargin: {
-    marginRight: 4,
   },
   badgesRow: {
     flexDirection: 'row',
