@@ -530,6 +530,7 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
         onConfirm={modalConfig?.onConfirm}
         onCancel={modalConfig?.onCancel}
         icon={modalConfig?.icon}
+        showCloseButton={modalConfig?.showCloseButton}
       />
     </SafeAreaView>
   );

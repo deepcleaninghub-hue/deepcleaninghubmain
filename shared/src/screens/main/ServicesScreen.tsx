@@ -448,6 +448,7 @@ const ServicesScreen = ({ navigation }: Props) => {
         onConfirm={modalConfig?.onConfirm}
         onCancel={modalConfig?.onCancel}
         icon={modalConfig?.icon}
+        showCloseButton={modalConfig?.showCloseButton}
       />
     </SafeAreaView>
   );

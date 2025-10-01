@@ -1,6 +1,6 @@
 import React from 'react';
-import { Modal, StyleSheet, View } from 'react-native';
-import { Text, Button, Card, useTheme, Portal } from 'react-native-paper';
+import { Modal, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Text, Button, Card, useTheme, Portal, IconButton } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 
 export interface AppModalProps {
@@ -15,6 +15,7 @@ export interface AppModalProps {
   onConfirm?: (() => void) | undefined;
   onCancel?: (() => void) | undefined;
   icon?: string | undefined;
+  showCloseButton?: boolean | undefined;
 }
 
 const AppModal: React.FC<AppModalProps> = ({
@@ -29,6 +30,7 @@ const AppModal: React.FC<AppModalProps> = ({
   onConfirm,
   onCancel,
   icon,
+  showCloseButton = true,
 }) => {
   const theme = useTheme();
 
@@ -82,53 +84,76 @@ const AppModal: React.FC<AppModalProps> = ({
         onDismiss={onDismiss}
         transparent
         animationType="fade"
+        statusBarTranslucent={false}
       >
-        <View style={styles.overlay}>
-          <Card style={[styles.modal, { backgroundColor: theme.colors.surface }]}>
-            <Card.Content style={styles.content}>
-              {/* Icon */}
-              <View style={styles.iconContainer}>
-                <Ionicons 
-                  name={getIconName() as any} 
-                  size={48} 
-                  color={getIconColor()} 
-                />
-              </View>
+        <TouchableOpacity 
+          style={styles.overlay} 
+          activeOpacity={1} 
+          onPress={onDismiss}
+        >
+          <TouchableOpacity 
+            activeOpacity={1} 
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Card style={[styles.modal, { backgroundColor: theme.colors.surface }]}>
+              {/* Close Button */}
+              {showCloseButton && (
+                <View style={styles.closeButtonContainer}>
+                  <IconButton
+                    icon="close"
+                    size={20}
+                    onPress={onDismiss}
+                    iconColor={theme.colors.onSurfaceVariant}
+                    style={styles.closeButton}
+                  />
+                </View>
+              )}
 
-              {/* Title */}
-              <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
-                {title}
-              </Text>
+              <Card.Content style={styles.content}>
+                {/* Icon */}
+                <View style={styles.iconContainer}>
+                  <Ionicons 
+                    name={getIconName() as any} 
+                    size={40} 
+                    color={getIconColor()} 
+                  />
+                </View>
 
-              {/* Message */}
-              <Text variant="bodyMedium" style={[styles.message, { color: theme.colors.onSurfaceVariant }]}>
-                {message}
-              </Text>
+                {/* Title */}
+                <Text variant="titleLarge" style={[styles.title, { color: theme.colors.onSurface }]}>
+                  {title}
+                </Text>
 
-              {/* Buttons */}
-              <View style={styles.buttonContainer}>
-                {showCancel && (
+                {/* Message */}
+                <Text variant="bodyMedium" style={[styles.message, { color: theme.colors.onSurfaceVariant }]}>
+                  {message}
+                </Text>
+
+                {/* Buttons */}
+                <View style={styles.buttonContainer}>
+                  {showCancel && (
+                    <Button
+                      mode="outlined"
+                      onPress={handleCancel}
+                      style={[styles.button, styles.cancelButton]}
+                      textColor={theme.colors.onSurface}
+                    >
+                      {cancelText}
+                    </Button>
+                  )}
                   <Button
-                    mode="outlined"
-                    onPress={handleCancel}
-                    style={[styles.button, styles.cancelButton]}
-                    textColor={theme.colors.onSurface}
+                    mode="contained"
+                    onPress={handleConfirm}
+                    style={[styles.button, styles.confirmButton]}
+                    buttonColor={type === 'error' ? theme.colors.error : theme.colors.primary}
                   >
-                    {cancelText}
+                    {confirmText}
                   </Button>
-                )}
-                <Button
-                  mode="contained"
-                  onPress={handleConfirm}
-                  style={[styles.button, styles.confirmButton]}
-                  buttonColor={type === 'error' ? theme.colors.error : theme.colors.primary}
-                >
-                  {confirmText}
-                </Button>
-              </View>
-            </Card.Content>
-          </Card>
-        </View>
+                </View>
+              </Card.Content>
+            </Card>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </Portal>
   );
@@ -143,8 +168,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modal: {
-    width: '100%',
-    maxWidth: 400,
+    width: '90%',
+    maxWidth: 350,
     borderRadius: 16,
     elevation: 8,
     shadowColor: '#000',
@@ -154,23 +179,37 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 8,
+    position: 'relative',
+  },
+  closeButtonContainer: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 1,
+  },
+  closeButton: {
+    margin: 0,
+    backgroundColor: 'transparent',
   },
   content: {
-    padding: 24,
+    padding: 20,
     alignItems: 'center',
+    paddingTop: 40, // Extra space for close button
   },
   iconContainer: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   title: {
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
     fontWeight: '600',
+    fontSize: 18,
   },
   message: {
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
     lineHeight: 20,
+    fontSize: 14,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -180,6 +219,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     borderRadius: 8,
+    minHeight: 40,
   },
   cancelButton: {
     // Additional styles if needed

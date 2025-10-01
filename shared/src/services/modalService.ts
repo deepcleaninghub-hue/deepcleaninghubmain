@@ -33,6 +33,7 @@ class ModalService {
       title,
       message,
       type: 'error',
+      showCloseButton: false, // Hide close button for errors
     });
   }
 
@@ -41,6 +42,7 @@ class ModalService {
       title,
       message,
       type: 'success',
+      showCloseButton: true,
     });
   }
 
@@ -49,6 +51,7 @@ class ModalService {
       title,
       message,
       type: 'warning',
+      showCloseButton: true,
     });
   }
 
@@ -57,6 +60,7 @@ class ModalService {
       title,
       message,
       type: 'info',
+      showCloseButton: true,
     });
   }
 }
