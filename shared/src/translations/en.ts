@@ -191,6 +191,8 @@ export const en = {
     orderConfirmation: 'Order Confirmation',
     scheduled: 'Scheduled',
     completed: 'Completed',
+    cancelled: 'Cancelled',
+    inProgress: 'In Progress',
     noOrders: 'No orders found',
     loadingOrders: 'Loading orders...',
     // Additional missing keys for OrdersScreen

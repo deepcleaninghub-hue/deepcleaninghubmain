@@ -124,6 +124,8 @@ export const ar = {
     orderConfirmation: 'تأكيد الطلب',
     scheduled: 'مجدول',
     completed: 'مكتمل',
+    cancelled: 'ملغي',
+    inProgress: 'قيد التنفيذ',
     noOrders: 'لا توجد طلبات',
     loadingOrders: 'جارٍ تحميل الطلبات...',
     failedToLoadBookings: 'فشل في تحميل الحجوزات',

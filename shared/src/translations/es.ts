@@ -124,6 +124,8 @@ export const es = {
     orderConfirmation: 'Confirmación del Pedido',
     scheduled: 'Programado',
     completed: 'Completado',
+    cancelled: 'Cancelado',
+    inProgress: 'En Progreso',
     noOrders: 'No se encontraron pedidos',
     loadingOrders: 'Cargando pedidos...',
     failedToLoadBookings: 'Error al cargar reservas',

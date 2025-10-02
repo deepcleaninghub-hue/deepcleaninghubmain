@@ -78,6 +78,16 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'scheduled': return t('orders.scheduled');
+      case 'completed': return t('orders.completed');
+      case 'cancelled': return t('orders.cancelled');
+      case 'in_progress': return t('orders.inProgress');
+      default: return status.replace('_', ' ').toUpperCase();
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'short',
@@ -282,7 +292,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
                         />
                       )}
                     >
-                      {booking.status.replace('_', ' ').toUpperCase()}
+                      {getStatusText(booking.status)}
                     </Chip>
                   </View>
 

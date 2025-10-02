@@ -124,6 +124,8 @@ export const fr = {
     orderConfirmation: 'Confirmation de commande',
     scheduled: 'Planifiée',
     completed: 'Terminée',
+    cancelled: 'Annulée',
+    inProgress: 'En Cours',
     noOrders: 'Aucune commande trouvée',
     loadingOrders: 'Chargement des commandes...',
     failedToLoadBookings: 'Échec du chargement des réservations',
