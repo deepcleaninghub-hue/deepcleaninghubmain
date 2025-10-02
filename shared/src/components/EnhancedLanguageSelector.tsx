@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, Card, Button, useTheme, Portal, Searchbar, Chip, ProgressBar } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supportedLanguages, SupportedLanguage } from '../translations';
@@ -105,10 +106,11 @@ export const EnhancedLanguageSelector: React.FC<LanguageSelectorProps> = ({
         visible={visible}
         onDismiss={onDismiss}
         animationType="slide"
-        presentationStyle="formSheet"
-        transparent={false}
+        presentationStyle="pageSheet"
+        transparent={true}
       >
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
           <View style={[styles.header, { borderBottomColor: theme.colors.outline }]}>
             <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
               {t('language.selectLanguage')}
@@ -297,6 +299,7 @@ export const EnhancedLanguageSelector: React.FC<LanguageSelectorProps> = ({
               ))}
             </View>
           </ScrollView>
+          </View>
         </View>
       </Modal>
     </Portal>
@@ -304,15 +307,28 @@ export const EnhancedLanguageSelector: React.FC<LanguageSelectorProps> = ({
 };
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: '15%',
+    paddingBottom: '15%',
+    paddingHorizontal: 20,
+  },
   container: {
     flex: 1,
+    maxHeight: '85%',
+    width: '100%',
+    borderRadius: 16,
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 8,
     borderBottomWidth: 1,
   },
   title: {
@@ -320,7 +336,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   searchBar: {
     elevation: 0,

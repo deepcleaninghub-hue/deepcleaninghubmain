@@ -9,10 +9,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet } from 'react-native';
 
 import { MainTabParamList, ServicesStackParamList, CartStackParamList, OrdersStackParamList, ProfileStackParamList } from './types';
 import { theme } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useCart } from '../contexts/CartContext';
 
 // Import screens (we'll create these next)
 import ServicesScreen from '../screens/main/ServicesScreen';
@@ -30,6 +32,29 @@ const ServicesStackNavigator = createStackNavigator<ServicesStackParamList>();
 const CartStackNavigator = createStackNavigator<CartStackParamList>();
 const OrdersStackNavigator = createStackNavigator<OrdersStackParamList>();
 const ProfileStackNavigator = createStackNavigator<ProfileStackParamList>();
+
+// Custom Cart Icon with Badge
+const CartIconWithBadge: React.FC<{ focused: boolean; color: string; size: number }> = ({ focused, color, size }) => {
+  const { cartSummary } = useCart();
+  const itemCount = cartSummary.totalItems;
+
+  return (
+    <View style={styles.iconContainer}>
+      <Ionicons 
+        name={focused ? 'cart' : 'cart-outline'} 
+        size={size} 
+        color={color} 
+      />
+      {itemCount > 0 && (
+        <View style={[styles.badge, { backgroundColor: theme.colors.error }]}>
+          <Text style={[styles.badgeText, { color: theme.colors.onError }]}>
+            {itemCount > 99 ? '99+' : itemCount.toString()}
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+};
 
 // Services Stack
 const ServicesStack = () => {
@@ -79,26 +104,18 @@ export const AppNavigator: React.FC = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap;
-
           switch (route.name) {
             case 'Services':
-              iconName = focused ? 'briefcase' : 'briefcase-outline';
-              break;
+              return <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={size} color={color} />;
             case 'Cart':
-              iconName = focused ? 'cart' : 'cart-outline';
-              break;
+              return <CartIconWithBadge focused={focused} color={color} size={size} />;
             case 'Orders':
-              iconName = focused ? 'receipt' : 'receipt-outline';
-              break;
+              return <Ionicons name={focused ? 'receipt' : 'receipt-outline'} size={size} color={color} />;
             case 'Profile':
-              iconName = focused ? 'person' : 'person-outline';
-              break;
+              return <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />;
             default:
-              iconName = 'help-outline';
+              return <Ionicons name="help-outline" size={size} color={color} />;
           }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
@@ -142,3 +159,25 @@ export const AppNavigator: React.FC = () => {
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: -6,
+    right: -8,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+});

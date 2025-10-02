@@ -26,7 +26,13 @@
         "foregroundImage": "./assets/AppIcons/appstore.png",
         "backgroundColor": "#2d5016"
       },
-      "package": "com.deepcleanhub.mobile"
+      "package": "com.deepcleanhub.mobile",
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/AppIcons/appstore.png"
