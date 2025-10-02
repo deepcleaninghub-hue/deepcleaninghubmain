@@ -124,6 +124,7 @@ export const pt = {
     orderConfirmation: 'Confirmação do Pedido',
     scheduled: 'Agendado',
     completed: 'Concluído',
+    cancelled: 'Cancelado',
     noOrders: 'Nenhum pedido encontrado',
     loadingOrders: 'Carregando pedidos...',
     failedToLoadBookings: 'Falha ao carregar agendamentos',

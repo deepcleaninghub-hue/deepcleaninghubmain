@@ -124,6 +124,7 @@ export const ko = {
     orderConfirmation: '주문 확인',
     scheduled: '예정됨',
     completed: '완료됨',
+    cancelled: '취소됨',
     noOrders: '주문이 없습니다',
     loadingOrders: '주문을 불러오는 중...',
     failedToLoadBookings: '예약을 불러오지 못했습니다',

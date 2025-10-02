@@ -124,6 +124,7 @@ export const ru = {
     orderConfirmation: 'Подтверждение заказа',
     scheduled: 'Запланировано',
     completed: 'Выполнено',
+    cancelled: 'Отменено',
     noOrders: 'Заказы не найдены',
     loadingOrders: 'Загрузка заказов...',
     failedToLoadBookings: 'Не удалось загрузить бронирования',

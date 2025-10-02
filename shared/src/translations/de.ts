@@ -124,6 +124,7 @@ export const de = {
     orderConfirmation: 'Bestellbestätigung',
     scheduled: 'Geplant',
     completed: 'Abgeschlossen',
+    cancelled: 'Storniert',
     noOrders: 'Keine Bestellungen gefunden',
     loadingOrders: 'Lade Bestellungen...',
     failedToLoadBookings: 'Fehler beim Laden der Buchungen',

@@ -124,6 +124,7 @@ export const it = {
     orderConfirmation: 'Conferma ordine',
     scheduled: 'Programmato',
     completed: 'Completato',
+    cancelled: 'Annullato',
     noOrders: 'Nessun ordine trovato',
     loadingOrders: 'Caricamento ordini...',
     failedToLoadBookings: 'Impossibile caricare le prenotazioni',

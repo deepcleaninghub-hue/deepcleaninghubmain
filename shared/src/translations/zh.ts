@@ -124,6 +124,7 @@ export const zh = {
     orderConfirmation: '订单确认',
     scheduled: '已安排',
     completed: '已完成',
+    cancelled: '已取消',
     noOrders: '未找到订单',
     loadingOrders: '正在加载订单...',
     failedToLoadBookings: '加载预订失败',

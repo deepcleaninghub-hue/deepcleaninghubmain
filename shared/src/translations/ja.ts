@@ -124,6 +124,7 @@ export const ja = {
     orderConfirmation: '注文確認',
     scheduled: '予定済み',
     completed: '完了',
+    cancelled: 'キャンセル済み',
     noOrders: '注文が見つかりません',
     loadingOrders: '注文を読み込み中...',
     failedToLoadBookings: '予約を読み込めませんでした',

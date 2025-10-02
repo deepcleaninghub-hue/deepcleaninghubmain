@@ -159,7 +159,6 @@ export const es = {
     bookingPlaced: 'Reserva Realizada',
     orderPlaced: 'Pedido Realizado',
     confirmed: 'Confirmado',
-    inProgress: 'En Progreso',
     serviceProvider: 'Proveedor de Servicios',
     call: 'Llamar',
     orderInformation: 'Información del Pedido',

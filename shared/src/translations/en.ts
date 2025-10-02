@@ -108,82 +108,16 @@ export const en = {
     updateQuantity: 'Update Quantity',
     continueShopping: 'Continue Shopping',
       loginToAddItems: 'Please login to add items to cart',
-
       alreadyInCart: 'Already in Cart',
-
-
       alreadyInCartMessage: 'is already in your cart.',
-
-
-
       addedToCart: 'added to cart!',
-
-
-
-
       failedToAddItem: 'Failed to add item to cart',
-
-
-
-
-
       failedToRemoveItem: 'Failed to remove item from cart',
-
-
-
-
-
-
       failedToUpdateQuantity: 'Failed to update quantity',
-
-
-
-
-
-
-
       clearedSuccessfully: 'Cart cleared successfully',
-
-
-
-
-
-
-
-
       failedToClearCart: 'Failed to clear cart',
-
-
-
-
-
-
-
-
-
       twoHours: '2 hours',
-
-
-
-
-
-
-
-
-
-
       qty: 'Qty',
-
-
-
-
-
-
-
-
-
-
-
   },
   orders: {
     title: 'My Orders',
@@ -228,7 +162,6 @@ export const en = {
     bookingPlaced: 'Booking Placed',
     orderPlaced: 'Order Placed',
     confirmed: 'Confirmed',
-    inProgress: 'In Progress',
     serviceProvider: 'Service Provider',
     call: 'Call',
     orderInformation: 'Order Information',

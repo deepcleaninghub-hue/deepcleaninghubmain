@@ -159,7 +159,6 @@ export const ar = {
     bookingPlaced: 'تم تقديم الحجز',
     orderPlaced: 'تم تقديم الطلب',
     confirmed: 'تم التأكيد',
-    inProgress: 'قيد التنفيذ',
     serviceProvider: 'مزود الخدمة',
     call: 'اتصال',
     orderInformation: 'معلومات الطلب',

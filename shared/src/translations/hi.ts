@@ -124,6 +124,7 @@ export const hi = {
     orderConfirmation: 'ऑर्डर पुष्टि',
     scheduled: 'निर्धारित',
     completed: 'पूरा हुआ',
+    cancelled: 'रद्द',
     noOrders: 'कोई ऑर्डर नहीं मिला',
     loadingOrders: 'ऑर्डर लोड हो रहे हैं...',
     failedToLoadBookings: 'बुकिंग लोड करने में विफल',
