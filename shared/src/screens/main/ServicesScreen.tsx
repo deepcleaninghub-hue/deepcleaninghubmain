@@ -8,7 +8,7 @@ import {
   Linking,
 } from 'react-native';
 import { Text, Card, Button, Chip, useTheme, ActivityIndicator, TextInput, FAB } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ServiceCard from '../../components/Service/ServiceCard';
@@ -27,6 +27,7 @@ type Props = ServicesStackScreenProps<'ServicesMain'>;
 
 const ServicesScreen = ({ navigation }: Props) => {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { t, translateDynamicText } = useLanguage();
   const { modalConfig, visible, hideModal, showError } = useAppModal();
   const [services, setServices] = useState<any[]>([]);
@@ -408,7 +409,7 @@ const ServicesScreen = ({ navigation }: Props) => {
       <FAB
         icon="message"
         label={t('services.help')}
-        style={styles.supportFab}
+        style={[styles.supportFab, { bottom: 24 + insets.bottom + 60 }]}
         onPress={openWhatsAppSupport}
       />
 
@@ -586,7 +587,7 @@ const styles = StyleSheet.create({
   supportFab: {
     position: 'absolute',
     right: 16,
-    bottom: 24,
+    // bottom is now dynamically calculated using safe area insets
   },
   loadingContainer: {
     flex: 1,
