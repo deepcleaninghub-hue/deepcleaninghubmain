@@ -129,7 +129,7 @@ export const EnhancedLanguageSelector: React.FC<LanguageSelectorProps> = ({
           {/* Search Bar */}
           <View style={styles.searchContainer}>
             <Searchbar
-              placeholder="Search languages..."
+              placeholder={t('language.searchLanguages')}
               value={searchQuery}
               onChangeText={setSearchQuery}
               style={styles.searchBar}
