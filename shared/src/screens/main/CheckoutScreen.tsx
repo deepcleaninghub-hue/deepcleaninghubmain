@@ -62,6 +62,19 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
   const [isMultiDay, setIsMultiDay] = useState(false);
   const [selectedDates, setSelectedDates] = useState<BookingDate[]>([]);
   
+  // Check if multi-day booking is allowed for current cart items
+  const isMultiDayAllowed = () => {
+    if (!cartItems || cartItems.length === 0) return false;
+    
+    // Only allow multi-day for deep cleaning and kitchen cleaning services
+    const allowedServiceIds = ['deep-cleaning', 'kitchen-cleaning'];
+    
+    return cartItems.every(item => {
+      const serviceId = item.service_id || item.serviceId;
+      return allowedServiceIds.includes(serviceId);
+    });
+  };
+  
   // Refs for focusing next field
   const cityRef = useRef<any>(null);
   const postalCodeRef = useRef<any>(null);
@@ -117,6 +130,14 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
 
     loadUserProfile();
   }, [user]);
+
+  // Reset multi-day state when cart changes and multi-day is no longer allowed
+  useEffect(() => {
+    if (!isMultiDayAllowed() && isMultiDay) {
+      setIsMultiDay(false);
+      setSelectedDates([]);
+    }
+  }, [cartItems, isMultiDay]);
 
   // Date picker handlers
   const handleDateChange = (event: any, selectedDate?: Date) => {
@@ -381,16 +402,18 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               <Text variant="titleLarge" style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
                 {t('checkout.serviceDetails')}
               </Text>
-              <View style={styles.multiDayToggle}>
-                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                  {t('checkout.multipleDays')}
-                </Text>
-                <Switch
-                  value={isMultiDay}
-                  onValueChange={setIsMultiDay}
-                  color={theme.colors.primary}
-                />
-              </View>
+              {isMultiDayAllowed() && (
+                <View style={styles.multiDayToggle}>
+                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                    {t('checkout.multipleDays')}
+                  </Text>
+                  <Switch
+                    value={isMultiDay}
+                    onValueChange={setIsMultiDay}
+                    color={theme.colors.primary}
+                  />
+                </View>
+              )}
             </View>
             <Divider style={styles.divider} />
             
@@ -429,6 +452,15 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                     {formatTime(serviceTime)}
                   </Button>
                 </View>
+              </View>
+            )}
+            
+            {/* Multi-day availability info */}
+            {!isMultiDayAllowed() && cartItems.length > 0 && (
+              <View style={styles.multiDayInfo}>
+                <Text variant="bodySmall" style={[styles.multiDayInfoText, { color: theme.colors.onSurfaceVariant }]}>
+                  {t('checkout.multiDayOnlyForCleaning')}
+                </Text>
               </View>
             )}
           </Card.Content>
@@ -678,6 +710,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  multiDayInfo: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: 'rgba(63, 114, 175, 0.1)',
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#3F72AF',
+  },
+  multiDayInfoText: {
+    fontStyle: 'italic',
+    textAlign: 'center',
   },
   dateTimeRow: {
     flexDirection: 'row',

@@ -241,6 +241,7 @@ export const ar = {
     dateAlreadyAdded: 'تم إضافة هذا التاريخ بالفعل إلى حجزك.',
     selectServiceDates: 'اختر تواريخ الخدمة',
     ofDaysSelected: 'من',
+    multiDayOnlyForCleaning: 'الحجز متعدد الأيام متاح فقط لخدمات التنظيف العميق وتنظيف المطبخ.',
     daysSelected: 'أيام مختارة',
     serviceTimeSameForAll: 'وقت الخدمة (نفس الوقت لجميع الأيام)',
     addServiceDate: 'إضافة تاريخ خدمة',

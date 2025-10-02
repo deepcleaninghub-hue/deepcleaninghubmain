@@ -241,6 +241,7 @@ export const pt = {
     dateAlreadyAdded: 'Esta data já foi adicionada ao seu agendamento.',
     selectServiceDates: 'Selecionar Datas do Serviço',
     ofDaysSelected: 'de',
+    multiDayOnlyForCleaning: 'Reservas de múltiplos dias estão disponíveis apenas para serviços de Limpeza Profunda e Limpeza de Cozinha.',
     daysSelected: 'dias selecionados',
     serviceTimeSameForAll: 'Hora do Serviço (a mesma para todos os dias)',
     addServiceDate: 'Adicionar Data do Serviço',

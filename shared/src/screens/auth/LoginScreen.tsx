@@ -28,6 +28,9 @@ import { validateEmail, validatePassword } from '../../utils/validation';
 import { AuthStackScreenProps } from '../../navigation/types';
 import AppModal from '../../components/common/AppModal';
 import { useAppModal } from '../../hooks/useAppModal';
+import { ForgotPasswordModal } from '../../components/ForgotPasswordModal';
+import { OTPVerificationModal } from '../../components/OTPVerificationModal';
+import { NewPasswordModal } from '../../components/NewPasswordModal';
 
 type Props = AuthStackScreenProps<'Login'>;
 
@@ -47,6 +50,12 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoginFailed, setIsLoginFailed] = useState(false);
+  
+  // Forgot password flow states
+  const [forgotPasswordVisible, setForgotPasswordVisible] = useState(false);
+  const [otpVerificationVisible, setOtpVerificationVisible] = useState(false);
+  const [newPasswordVisible, setNewPasswordVisible] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   
   // Refs for focusing next field
   const passwordInputRef = useRef<any>(null);
@@ -93,7 +102,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
     setIsLoginFailed(false); // Reset login failed state
     setErrors({ email: '', password: '' }); // Clear any existing errors
-    
+
     const success = await signIn(formData.email.trim(), formData.password);
     if (success) {
       // Navigation will be handled by the auth context
@@ -102,21 +111,56 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
     } else {
       setIsLoginFailed(true);
       // Set authentication error message
-      setErrors(prev => ({ 
-        ...prev, 
-        password: t('auth.wrongCredentials') 
+      setErrors(prev => ({
+        ...prev,
+        password: t('auth.wrongCredentials')
       }));
     }
   }, [formData, validateForm, signIn, t]);
 
+  // Forgot password flow handlers
+  const handleForgotPassword = () => {
+    setForgotPasswordVisible(true);
+  };
+
+  const handleEmailSent = (email: string) => {
+    setForgotPasswordEmail(email);
+    setOtpVerificationVisible(true);
+  };
+
+  const handleOTPVerified = () => {
+    setNewPasswordVisible(true);
+  };
+
+  const handlePasswordReset = () => {
+    // Reset all modals
+    setForgotPasswordVisible(false);
+    setOtpVerificationVisible(false);
+    setNewPasswordVisible(false);
+    setForgotPasswordEmail('');
+    
+    // Show success message
+    showError(t('auth.success'), t('auth.passwordResetComplete'));
+  };
+
+  const handleCloseForgotPassword = () => {
+    setForgotPasswordVisible(false);
+    setForgotPasswordEmail('');
+  };
+
+  const handleCloseOTP = () => {
+    setOtpVerificationVisible(false);
+    setForgotPasswordEmail('');
+  };
+
+  const handleCloseNewPassword = () => {
+    setNewPasswordVisible(false);
+    setForgotPasswordEmail('');
+  };
+
   const handleSignUp = useCallback(() => {
     navigation.navigate('SignUp');
   }, [navigation]);
-
-  const handleForgotPassword = useCallback(() => {
-    // TODO: Implement forgot password flow
-    showError(t('auth.forgotPasswordTitle'), t('auth.passwordResetComingSoon'));
-  }, [showError, t]);
 
   return (
     <SafeAreaView key={`login-${languageChangeKey}`} style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -297,6 +341,27 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
         onConfirm={modalConfig?.onConfirm}
         onCancel={modalConfig?.onCancel}
         icon={modalConfig?.icon}
+      />
+
+      {/* Forgot Password Modals */}
+      <ForgotPasswordModal
+        visible={forgotPasswordVisible}
+        onDismiss={handleCloseForgotPassword}
+        onEmailSent={handleEmailSent}
+      />
+
+      <OTPVerificationModal
+        visible={otpVerificationVisible}
+        onDismiss={handleCloseOTP}
+        onOTPVerified={handleOTPVerified}
+        email={forgotPasswordEmail}
+      />
+
+      <NewPasswordModal
+        visible={newPasswordVisible}
+        onDismiss={handleCloseNewPassword}
+        onPasswordReset={handlePasswordReset}
+        email={forgotPasswordEmail}
       />
     </SafeAreaView>
   );

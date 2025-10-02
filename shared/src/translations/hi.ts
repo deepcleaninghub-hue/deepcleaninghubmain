@@ -241,6 +241,7 @@ export const hi = {
     dateAlreadyAdded: 'यह दिनांक पहले ही आपकी बुकिंग में जोड़ा गया है।',
     selectServiceDates: 'सेवा दिनांक चुनें',
     ofDaysSelected: 'में से',
+    multiDayOnlyForCleaning: 'बहु-दिवसीय बुकिंग केवल डीप क्लीनिंग और किचन क्लीनिंग सेवाओं के लिए उपलब्ध है।',
     daysSelected: 'दिन चुने गए',
     serviceTimeSameForAll: 'सेवा समय (सभी दिनों के लिए समान)',
     addServiceDate: 'सेवा दिनांक जोड़ें',

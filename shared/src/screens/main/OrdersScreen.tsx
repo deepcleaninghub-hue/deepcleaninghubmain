@@ -6,7 +6,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Text, Card, Button, Chip, useTheme, Divider, FAB, SegmentedButtons } from 'react-native-paper';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,7 +20,6 @@ type Props = OrdersStackScreenProps<'OrdersMain'>;
 
 export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { t } = useLanguage();
   const { modalConfig, visible, hideModal, showError, showSuccess, showConfirm } = useAppModal();
@@ -351,7 +350,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
 
       <FAB
         icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary, bottom: 24 + insets.bottom + 60 }]}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => navigation.navigate('Services' as any)}
       />
 
@@ -490,7 +489,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: 16,
     right: 0,
-    // bottom is now dynamically calculated using safe area insets
+    bottom: 0,
   },
 });
 

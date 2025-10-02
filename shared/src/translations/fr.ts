@@ -241,6 +241,7 @@ export const fr = {
     dateAlreadyAdded: 'Cette date a déjà été ajoutée à votre réservation.',
     selectServiceDates: 'Sélectionner les dates de service',
     ofDaysSelected: 'sur',
+    multiDayOnlyForCleaning: 'La réservation multi-jours n\'est disponible que pour les services de Nettoyage en Profondeur et Nettoyage de Cuisine.',
     daysSelected: 'jours sélectionnés',
     serviceTimeSameForAll: 'Heure du service (identique pour tous les jours)',
     addServiceDate: 'Ajouter une date de service',

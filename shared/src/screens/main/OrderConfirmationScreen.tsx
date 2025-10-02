@@ -16,6 +16,7 @@ import { CartStackScreenProps } from '../../navigation/types';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useNotifications } from '../../hooks/useNotifications';
+import { WhatsAppTest } from '../../components/WhatsAppTest';
 
 type Props = CartStackScreenProps<'OrderConfirmation'>;
 
@@ -220,6 +221,9 @@ const OrderConfirmationScreen: React.FC<Props> = ({ navigation, route }) => {
             </Card.Content>
           </Card>
         )}
+
+        {/* WhatsApp Integration Test */}
+        <WhatsAppTest />
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>

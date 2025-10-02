@@ -8,7 +8,7 @@ import {
   Linking,
 } from 'react-native';
 import { Text, Card, Button, Chip, useTheme, ActivityIndicator, TextInput, FAB } from 'react-native-paper';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ServiceCard from '../../components/Service/ServiceCard';
@@ -17,6 +17,7 @@ import { serviceOptionsAPI } from '../../services/serviceOptionsAPI';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { whatsappAPI } from '../../services/whatsappAPI';
 import AutoTranslateText from '../../components/AutoTranslateText';
 import { ServicesStackScreenProps } from '../../navigation/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,7 +28,6 @@ type Props = ServicesStackScreenProps<'ServicesMain'>;
 
 const ServicesScreen = ({ navigation }: Props) => {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { t, translateDynamicText } = useLanguage();
   const { modalConfig, visible, hideModal, showError } = useAppModal();
   const [services, setServices] = useState<any[]>([]);
@@ -40,6 +40,7 @@ const ServicesScreen = ({ navigation }: Props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [showServiceOptions, setShowServiceOptions] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [whatsappStatus, setWhatsappStatus] = useState<boolean | null>(null);
   const [debouncedSearch, setDebouncedSearch] = useState<string>('');
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   
@@ -62,6 +63,7 @@ const ServicesScreen = ({ navigation }: Props) => {
   useEffect(() => {
     fetchData();
     restoreUIState();
+    checkWhatsAppStatus();
   }, []);
 
   useEffect(() => {
@@ -189,6 +191,16 @@ const ServicesScreen = ({ navigation }: Props) => {
 
   const handleGetInTouch = () => {
     navigation.navigate('Contact');
+  };
+
+  const checkWhatsAppStatus = async () => {
+    try {
+      const result = await whatsappAPI.testConnection();
+      setWhatsappStatus(result.status?.configured || false);
+    } catch (error) {
+      console.error('Error checking WhatsApp status:', error);
+      setWhatsappStatus(false);
+    }
   };
 
   const openWhatsAppSupport = async () => {
@@ -408,8 +420,8 @@ const ServicesScreen = ({ navigation }: Props) => {
       </ScrollView>
       <FAB
         icon="message"
-        label={t('services.help')}
-        style={[styles.supportFab, { bottom: 24 + insets.bottom + 60 }]}
+        style={styles.supportFab}
+        size="small"
         onPress={openWhatsAppSupport}
       />
 
@@ -587,7 +599,11 @@ const styles = StyleSheet.create({
   supportFab: {
     position: 'absolute',
     right: 16,
-    // bottom is now dynamically calculated using safe area insets
+    bottom: 24,
+    width: 48,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loadingContainer: {
     flex: 1,

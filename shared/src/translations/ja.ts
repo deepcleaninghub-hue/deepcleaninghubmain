@@ -241,6 +241,7 @@ export const ja = {
     dateAlreadyAdded: 'この日付は既に予約に追加されています。',
     selectServiceDates: 'サービス日を選択',
     ofDaysSelected: '選択済み日数:',
+    multiDayOnlyForCleaning: '複数日予約は、ディープクリーニングとキッチンクリーニングサービスのみ利用可能です。',
     daysSelected: '日選択済み',
     serviceTimeSameForAll: '全日共通のサービス時間',
     addServiceDate: 'サービス日を追加',

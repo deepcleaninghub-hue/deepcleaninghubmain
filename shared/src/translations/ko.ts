@@ -241,6 +241,7 @@ export const ko = {
     dateAlreadyAdded: '이 날짜는 이미 예약에 추가되었습니다.',
     selectServiceDates: '서비스 날짜 선택',
     ofDaysSelected: '중',
+    multiDayOnlyForCleaning: '다중일 예약은 딥 클리닝과 주방 클리닝 서비스에서만 이용 가능합니다.',
     daysSelected: '일 선택됨',
     serviceTimeSameForAll: '서비스 시간 (모든 날짜 동일)',
     addServiceDate: '서비스 날짜 추가',

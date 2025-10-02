@@ -241,6 +241,7 @@ export const de = {
     dateAlreadyAdded: 'Dieses Datum wurde bereits zu Ihrer Buchung hinzugefügt.',
     selectServiceDates: 'Dienstleistungsdaten auswählen',
     ofDaysSelected: 'von',
+    multiDayOnlyForCleaning: 'Mehrtägige Buchungen sind nur für Tiefenreinigung und Küchenreinigung verfügbar.',
     daysSelected: 'ausgewählte Tage',
     serviceTimeSameForAll: 'Uhrzeit der Dienstleistung (für alle Tage gleich)',
     addServiceDate: 'Dienstleistungsdatum hinzufügen',

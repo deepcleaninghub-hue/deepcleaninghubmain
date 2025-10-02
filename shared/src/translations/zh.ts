@@ -241,6 +241,7 @@ export const zh = {
     dateAlreadyAdded: '此日期已添加到您的预订中。',
     selectServiceDates: '选择服务日期',
     ofDaysSelected: '已选',
+    multiDayOnlyForCleaning: '多日预订仅适用于深度清洁和厨房清洁服务。',
     daysSelected: '天',
     serviceTimeSameForAll: '服务时间 (所有日期相同)',
     addServiceDate: '添加服务日期',

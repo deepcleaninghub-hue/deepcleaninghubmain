@@ -108,6 +108,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', require('./routes/forgotPassword'));
 app.use('/api/mobile-auth', mobileAuthRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/inquiries', inquiryRoutes);
