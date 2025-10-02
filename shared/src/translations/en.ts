@@ -1,4 +1,7 @@
 export const en = {
+  app: {
+    title: 'Deep Cleaning Hub',
+  },
   common: {
     loading: 'Loading...',
     error: 'Error',

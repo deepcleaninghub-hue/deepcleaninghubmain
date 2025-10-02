@@ -1,4 +1,7 @@
 export const de = {
+  app: {
+    title: 'Tiefreinigungszentrum',
+  },
   common: {
     loading: 'Laden...',
     error: 'Fehler',
@@ -513,6 +516,23 @@ export const de = {
     currentLanguage: 'Aktuelle Sprache',
     changeLanguage: 'Sprache ändern',
     languageChanged: 'Sprache erfolgreich geändert',
+    translating: 'Wird übersetzt...',
+    translationComplete: 'Übersetzung abgeschlossen',
+    translationFailed: 'Übersetzung fehlgeschlagen',
+    retryTranslation: 'Übersetzung erneut versuchen',
+    cancelTranslation: 'Übersetzung abbrechen',
+    translationProgress: 'Übersetzungsfortschritt',
+    translatingLanguages: 'Sprachen werden übersetzt',
+    pleaseWait: 'Bitte warten Sie, während wir die App in die ausgewählte Sprache übersetzen.',
+    thisMayTake: 'Dies kann je nach Anzahl der Sprachen einige Minuten dauern.',
+    doNotClose: 'Schließen Sie die App während der Übersetzung nicht.',
+    translationSuccess: 'Übersetzung erfolgreich abgeschlossen!',
+    translationError: 'Übersetzung fehlgeschlagen. Bitte versuchen Sie es erneut.',
+    regionalLanguages: 'Regionale Sprachen',
+    allLanguages: 'Alle Sprachen',
+    popularLanguages: 'Beliebte Sprachen',
+    recentlyUsed: 'Zuletzt verwendet',
+    searchLanguages: 'Sprachen suchen...'
   },
 };
 

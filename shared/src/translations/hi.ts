@@ -1,4 +1,7 @@
 export const hi = {
+  app: {
+    title: 'डीप क्लीनिंग हब',
+  },
   common: {
     loading: 'लोड हो रहा है...',
     error: 'त्रुटि',
@@ -513,5 +516,22 @@ export const hi = {
     currentLanguage: 'वर्तमान भाषा',
     changeLanguage: 'भाषा बदलें',
     languageChanged: 'भाषा सफलतापूर्वक बदल गई',
+    translating: 'अनुवाद हो रहा है...',
+    translationComplete: 'अनुवाद पूरा हुआ',
+    translationFailed: 'अनुवाद विफल रहा',
+    retryTranslation: 'पुनः प्रयास करें',
+    cancelTranslation: 'अनुवाद रद्द करें',
+    translationProgress: 'अनुवाद प्रगति',
+    translatingLanguages: 'भाषाओं का अनुवाद हो रहा है',
+    pleaseWait: 'कृपया प्रतीक्षा करें जबकि हम ऐप को आपकी चयनित भाषा में अनुवादित कर रहे हैं।',
+    thisMayTake: 'भाषाओं की संख्या के आधार पर इसमें कुछ मिनट लग सकते हैं।',
+    doNotClose: 'अनुवाद के दौरान ऐप को बंद न करें।',
+    translationSuccess: 'अनुवाद सफलतापूर्वक पूरा हुआ!',
+    translationError: 'अनुवाद विफल रहा। कृपया फिर से प्रयास करें।',
+    regionalLanguages: 'क्षेत्रीय भाषाएँ',
+    allLanguages: 'सभी भाषाएँ',
+    popularLanguages: 'लोकप्रिय भाषाएँ',
+    recentlyUsed: 'हाल ही में उपयोग की गई',
+    searchLanguages: 'भाषाएँ खोजें...'
   },
 };

@@ -1,4 +1,7 @@
 export const ja = {
+  app: {
+    title: 'ディープクリーニングハブ',
+  },
   common: {
     loading: '読み込み中...',
     error: 'エラー',
@@ -513,5 +516,22 @@ export const ja = {
     currentLanguage: '現在の言語',
     changeLanguage: '言語を変更',
     languageChanged: '言語が正常に変更されました',
+    translating: '翻訳中...',
+    translationComplete: '翻訳完了',
+    translationFailed: '翻訳失敗',
+    retryTranslation: '翻訳を再試行',
+    cancelTranslation: '翻訳をキャンセル',
+    translationProgress: '翻訳の進捗',
+    translatingLanguages: '言語を翻訳中',
+    pleaseWait: '選択された言語にアプリを翻訳しています。しばらくお待ちください。',
+    thisMayTake: '言語の数によって、数分かかる場合があります。',
+    doNotClose: '翻訳中はアプリを閉じないでください。',
+    translationSuccess: '翻訳が正常に完了しました！',
+    translationError: '翻訳に失敗しました。もう一度お試しください。',
+    regionalLanguages: '地域言語',
+    allLanguages: 'すべての言語',
+    popularLanguages: '人気の言語',
+    recentlyUsed: '最近使用した言語',
+    searchLanguages: '言語を検索...'
   },
 };

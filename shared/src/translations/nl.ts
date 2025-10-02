@@ -1,4 +1,7 @@
 export const nl = {
+  app: {
+    title: 'Diepe Schoonmaak Hub',
+  },
   common: {
     loading: 'Laden...',
     error: 'Fout',
@@ -509,10 +512,27 @@ export const nl = {
     maximumAreaAllowed: 'Maximum toegestane oppervlakte is',
   },
   language: {
-    selectLanguage: 'Selecteer Taal',
-    currentLanguage: 'Huidige Taal',
-    changeLanguage: 'Taal Wijzigen',
+    selectLanguage: 'Taal selecteren',
+    currentLanguage: 'Huidige taal',
+    changeLanguage: 'Taal wijzigen',
     languageChanged: 'Taal succesvol gewijzigd',
+    translating: 'Vertalen...',
+    translationComplete: 'Vertaling voltooid',
+    translationFailed: 'Vertaling mislukt',
+    retryTranslation: 'Vertaling opnieuw proberen',
+    cancelTranslation: 'Vertaling annuleren',
+    translationProgress: 'Voortgang vertaling',
+    translatingLanguages: 'Talen vertalen',
+    pleaseWait: 'Even geduld a.u.b. terwijl we de app naar de geselecteerde taal vertalen.',
+    thisMayTake: 'Dit kan enkele minuten duren, afhankelijk van het aantal talen.',
+    doNotClose: 'Sluit de app niet tijdens het vertalen.',
+    translationSuccess: 'Vertaling succesvol voltooid!',
+    translationError: 'Vertaling mislukt. Probeer het opnieuw.',
+    regionalLanguages: 'Regionale talen',
+    allLanguages: 'Alle talen',
+    popularLanguages: 'Populaire talen',
+    recentlyUsed: 'Recent gebruikt',
+    searchLanguages: 'Talen zoeken...'
   },
 };
 

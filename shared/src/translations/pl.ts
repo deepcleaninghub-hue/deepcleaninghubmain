@@ -1,4 +1,7 @@
 export const pl = {
+  app: {
+    title: 'Centrum Głębokiego Czyszczenia',
+  },
   common: {
     loading: 'Ładowanie...',
     error: 'Błąd',
@@ -509,9 +512,26 @@ export const pl = {
     maximumAreaAllowed: 'Maksymalna dozwolona powierzchnia to',
   },
   language: {
-    selectLanguage: 'Wybierz Język',
-    currentLanguage: 'Aktualny Język',
-    changeLanguage: 'Zmień Język',
+    selectLanguage: 'Wybierz język',
+    currentLanguage: 'Obecny język',
+    changeLanguage: 'Zmień język',
     languageChanged: 'Język zmieniony pomyślnie',
+    translating: 'Tłumaczenie...',
+    translationComplete: 'Tłumaczenie zakończone',
+    translationFailed: 'Tłumaczenie nie powiodło się',
+    retryTranslation: 'Ponów próbę tłumaczenia',
+    cancelTranslation: 'Anuluj tłumaczenie',
+    translationProgress: 'Postęp tłumaczenia',
+    translatingLanguages: 'Tłumaczenie języków',
+    pleaseWait: 'Proszę czekać, podczas gdy tłumaczymy aplikację na wybrany język.',
+    thisMayTake: 'Może to zająć kilka minut, w zależności od liczby języków.',
+    doNotClose: 'Nie zamykaj aplikacji podczas tłumaczenia.',
+    translationSuccess: 'Tłumaczenie zakończone pomyślnie!',
+    translationError: 'Tłumaczenie nie powiodło się. Spróbuj ponownie.',
+    regionalLanguages: 'Języki regionalne',
+    allLanguages: 'Wszystkie języki',
+    popularLanguages: 'Popularne języki',
+    recentlyUsed: 'Ostatnio używane',
+    searchLanguages: 'Szukaj języków...'
   },
 };

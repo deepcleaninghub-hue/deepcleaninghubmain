@@ -1,4 +1,7 @@
 export const zh = {
+  app: {
+    title: '深度清洁中心',
+  },
   common: {
     loading: '加载中...',
     error: '错误',
@@ -512,6 +515,23 @@ export const zh = {
     selectLanguage: '选择语言',
     currentLanguage: '当前语言',
     changeLanguage: '更改语言',
-    languageChanged: '语言更改成功',
+    languageChanged: '语言已成功更改',
+    translating: '正在翻译...',
+    translationComplete: '翻译完成',
+    translationFailed: '翻译失败',
+    retryTranslation: '重试翻译',
+    cancelTranslation: '取消翻译',
+    translationProgress: '翻译进度',
+    translatingLanguages: '正在翻译语言',
+    pleaseWait: '请稍候，我们正在将应用翻译成您选择的语言。',
+    thisMayTake: '根据语言数量，这可能需要几分钟。',
+    doNotClose: '翻译过程中请勿关闭应用。',
+    translationSuccess: '翻译成功完成！',
+    translationError: '翻译失败。请重试。',
+    regionalLanguages: '区域语言',
+    allLanguages: '所有语言',
+    popularLanguages: '热门语言',
+    recentlyUsed: '最近使用',
+    searchLanguages: '搜索语言...'
   },
 };

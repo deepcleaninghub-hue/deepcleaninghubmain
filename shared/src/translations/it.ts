@@ -1,4 +1,7 @@
 export const it = {
+  app: {
+    title: 'Centro di Pulizia Profonda',
+  },
   common: {
     loading: 'Caricamento...',
     error: 'Errore',
@@ -509,9 +512,26 @@ export const it = {
     maximumAreaAllowed: 'L\'area massima consentita è',
   },
   language: {
-    selectLanguage: 'Seleziona lingua',
-    currentLanguage: 'Lingua corrente',
-    changeLanguage: 'Cambia lingua',
+    selectLanguage: 'Seleziona Lingua',
+    currentLanguage: 'Lingua Attuale',
+    changeLanguage: 'Cambia Lingua',
     languageChanged: 'Lingua cambiata con successo',
+    translating: 'Traduzione in corso...',
+    translationComplete: 'Traduzione completata',
+    translationFailed: 'Traduzione fallita',
+    retryTranslation: 'Riprova Traduzione',
+    cancelTranslation: 'Annulla Traduzione',
+    translationProgress: 'Avanzamento Traduzione',
+    translatingLanguages: 'Traduzione delle Lingue',
+    pleaseWait: 'Attendi mentre traduciamo l\'app nella lingua selezionata.',
+    thisMayTake: 'Potrebbe richiedere alcuni minuti a seconda del numero di lingue.',
+    doNotClose: 'Non chiudere l\'app durante la traduzione.',
+    translationSuccess: 'Traduzione completata con successo!',
+    translationError: 'Traduzione fallita. Riprova per favore.',
+    regionalLanguages: 'Lingue Regionali',
+    allLanguages: 'Tutte le Lingue',
+    popularLanguages: 'Lingue Popolari',
+    recentlyUsed: 'Usate di Recente',
+    searchLanguages: 'Cerca lingue...'
   },
 };

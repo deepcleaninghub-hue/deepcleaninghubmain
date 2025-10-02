@@ -1,4 +1,7 @@
 export const fr = {
+  app: {
+    title: 'Centre de Nettoyage en Profondeur',
+  },
   common: {
     loading: 'Chargement...',
     error: 'Erreur',

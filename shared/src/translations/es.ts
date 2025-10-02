@@ -1,4 +1,7 @@
 export const es = {
+  app: {
+    title: 'Centro de Limpieza Profunda',
+  },
   common: {
     loading: 'Cargando...',
     error: 'Error',

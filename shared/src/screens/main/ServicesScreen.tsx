@@ -219,7 +219,7 @@ const ServicesScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="Deep Cleaning Hub" />
+      <AppHeader title={t('app.title')} />
       
       <ScrollView 
         style={styles.scrollView} 

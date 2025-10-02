@@ -1,4 +1,7 @@
 export const ru = {
+  app: {
+    title: 'Центр Глубокой Очистки',
+  },
   common: {
     loading: 'Загрузка...',
     error: 'Ошибка',
@@ -509,9 +512,26 @@ export const ru = {
     maximumAreaAllowed: 'Максимально разрешенная площадь',
   },
   language: {
-    selectLanguage: 'Выбрать язык',
+    selectLanguage: 'Выберите язык',
     currentLanguage: 'Текущий язык',
     changeLanguage: 'Сменить язык',
     languageChanged: 'Язык успешно изменен',
+    translating: 'Перевод...',
+    translationComplete: 'Перевод завершен',
+    translationFailed: 'Ошибка перевода',
+    retryTranslation: 'Повторить перевод',
+    cancelTranslation: 'Отменить перевод',
+    translationProgress: 'Ход перевода',
+    translatingLanguages: 'Перевод языков',
+    pleaseWait: 'Пожалуйста, подождите, пока мы переводим приложение на выбранный вами язык.',
+    thisMayTake: 'Это может занять несколько минут, в зависимости от количества языков.',
+    doNotClose: 'Не закрывайте приложение во время перевода.',
+    translationSuccess: 'Перевод успешно завершен!',
+    translationError: 'Ошибка перевода. Пожалуйста, попробуйте снова.',
+    regionalLanguages: 'Региональные языки',
+    allLanguages: 'Все языки',
+    popularLanguages: 'Популярные языки',
+    recentlyUsed: 'Недавно использованные',
+    searchLanguages: 'Поиск языков...'
   },
 };

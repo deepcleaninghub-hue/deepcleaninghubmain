@@ -1,4 +1,7 @@
 export const ar = {
+  app: {
+    title: 'مركز التنظيف العميق',
+  },
   common: {
     loading: 'جاري التحميل...',
     error: 'خطأ',

@@ -1,4 +1,7 @@
 export const ko = {
+  app: {
+    title: '딥 클리닝 허브',
+  },
   common: {
     loading: '로딩 중...',
     error: '오류',
@@ -513,5 +516,22 @@ export const ko = {
     currentLanguage: '현재 언어',
     changeLanguage: '언어 변경',
     languageChanged: '언어가 성공적으로 변경되었습니다',
+    translating: '번역 중...',
+    translationComplete: '번역 완료',
+    translationFailed: '번역 실패',
+    retryTranslation: '다시 번역 시도',
+    cancelTranslation: '번역 취소',
+    translationProgress: '번역 진행 상황',
+    translatingLanguages: '언어 번역 중',
+    pleaseWait: '선택하신 언어로 앱을 번역하는 중입니다. 잠시 기다려 주십시오.',
+    thisMayTake: '언어 수에 따라 몇 분이 소요될 수 있습니다.',
+    doNotClose: '번역 중에는 앱을 닫지 마십시오.',
+    translationSuccess: '번역이 성공적으로 완료되었습니다!',
+    translationError: '번역에 실패했습니다. 다시 시도해 주십시오.',
+    regionalLanguages: '지역 언어',
+    allLanguages: '모든 언어',
+    popularLanguages: '인기 있는 언어',
+    recentlyUsed: '최근 사용',
+    searchLanguages: '언어 검색...'
   },
 };
