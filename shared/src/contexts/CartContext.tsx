@@ -218,13 +218,16 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       return false;
     }
 
+    if (isServiceInCart(service.id)) {
+      modalService.showError(t('cart.alreadyInCart'), `${service.title} ${t('cart.alreadyInCartMessage')}`);
+      return false;
+    }
+
     try {
       setLoading(true);
-
-      if (isServiceInCart(service.id)) {
-        modalService.showError(t('cart.alreadyInCart'), `${service.title} ${t('cart.alreadyInCartMessage')}`);
-        return false;
-      }
+      
+      // Add a small delay to make loading state visible
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const cartItemData = {
         service_id: service.id,

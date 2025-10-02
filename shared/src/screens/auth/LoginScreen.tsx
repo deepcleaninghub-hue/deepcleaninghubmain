@@ -64,17 +64,12 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
       isValid = false;
     }
 
-    // Password validation
+    // Password validation - only check if not empty for login
     if (!formData.password.trim()) {
       newErrors.password = t('auth.passwordRequired');
       isValid = false;
-    } else {
-      const passwordValidation = validatePassword(formData.password);
-      if (!passwordValidation.isValid) {
-        newErrors.password = passwordValidation.errors[0] || t('auth.invalidPassword');
-        isValid = false;
-      }
     }
+    // Remove password format validation for login - let authentication handle it
 
     setErrors(newErrors);
     return isValid;
@@ -97,6 +92,8 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
     if (!validateForm()) return;
 
     setIsLoginFailed(false); // Reset login failed state
+    setErrors({ email: '', password: '' }); // Clear any existing errors
+    
     const success = await signIn(formData.email.trim(), formData.password);
     if (success) {
       // Navigation will be handled by the auth context
@@ -104,8 +101,13 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
       setIsLoginFailed(false);
     } else {
       setIsLoginFailed(true);
+      // Set authentication error message
+      setErrors(prev => ({ 
+        ...prev, 
+        password: t('auth.wrongCredentials') 
+      }));
     }
-  }, [formData, validateForm, signIn]);
+  }, [formData, validateForm, signIn, t]);
 
   const handleSignUp = useCallback(() => {
     navigation.navigate('SignUp');
