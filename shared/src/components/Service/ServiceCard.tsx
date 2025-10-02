@@ -8,6 +8,7 @@ import {
   Modal,
   TextInput,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { Text, Card, Button, useTheme, Portal } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -296,14 +297,18 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 contentStyle={compact ? styles.buttonContentCompact : styles.buttonContent}
                 disabled={loading || isServiceInCart(id)}
                 icon={({ size, color }) => (
-                  <Ionicons 
-                    name={isServiceInCart(id) ? "checkmark" : "cart"} 
-                    size={size} 
-                    color={color} 
-                  />
+                  loading ? (
+                    <ActivityIndicator size="small" color={color} />
+                  ) : (
+                    <Ionicons 
+                      name={isServiceInCart(id) ? "checkmark" : "cart"} 
+                      size={size} 
+                      color={color} 
+                    />
+                  )
                 )}
               >
-                {isServiceInCart(id) ? t('serviceCard.inCart') : t('serviceCard.addToCart')}
+                {loading ? t('common.loading') : (isServiceInCart(id) ? t('serviceCard.inCart') : t('serviceCard.addToCart'))}
               </Button>
             )}
           </View>
