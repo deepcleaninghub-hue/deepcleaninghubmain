@@ -2,6 +2,37 @@ export const es = {
   app: {
     title: 'Centro de Limpieza Profunda',
   },
+  home: {
+    title: 'Inicio',
+    welcome: 'Bienvenido a DeepClean Hub',
+    subtitle: 'Su socio de confianza para servicios de limpieza profesional',
+    placeholder: 'Esta es su pantalla principal. El contenido se agregará aquí pronto.',
+    ourServices: 'Nuestros Servicios',
+    cta: {
+      title: '¿Listo para Limpiar?',
+      subtitle: 'Obtenga su cotización gratuita en minutos',
+      callNow: 'Llamar',
+      whatsapp: 'WhatsApp',
+      inquire: 'Consultar',
+    },
+    features: {
+      title: '¿Por qué Elegirnos?',
+      trusted: 'Confiable y Seguro',
+      quality: 'Calidad Garantizada',
+      onTime: 'Servicio Puntual',
+      customerFirst: 'Cliente Primero',
+    },
+    carousel: {
+      professional: 'Limpieza Profesional',
+      professionalDesc: 'Servicios de limpieza expertos para su hogar',
+      deepCleaning: 'Limpieza Profunda',
+      deepCleaningDesc: 'Limpieza exhaustiva para cada rincón',
+      reliable: 'Servicio Confiable',
+      reliableDesc: 'Confiado por miles de clientes',
+      quality: 'Calidad Garantizada',
+      qualityDesc: '100% garantía de satisfacción',
+    },
+  },
   common: {
     loading: 'Cargando...',
     error: 'Error',
@@ -31,6 +62,7 @@ export const es = {
     no: 'No',
     logout: 'Cerrar sesión',
     germany: 'Alemania',
+    changeLanguage: 'Cambiar idioma',
   },
   auth: {
     login: 'Iniciar sesión',

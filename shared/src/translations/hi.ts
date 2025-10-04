@@ -2,6 +2,27 @@ export const hi = {
   app: {
     title: 'डीप क्लीनिंग हब',
   },
+  home: {
+    title: 'होम',
+    welcome: 'DeepClean Hub में आपका स्वागत है',
+    subtitle: 'पेशेवर सफाई सेवाओं के लिए आपका भरोसेमंद साथी',
+    placeholder: 'यह आपकी मुख्य स्क्रीन है। जल्द ही यहाँ सामग्री जोड़ी जाएगी।',
+    ourServices: 'हमारी सेवाएं',
+    cta: {
+      title: 'सफाई के लिए तैयार हैं?',
+      subtitle: 'मिनटों में अपना मुफ्त कोटेशन प्राप्त करें',
+      callNow: 'कॉल करें',
+      whatsapp: 'WhatsApp',
+      inquire: 'पूछताछ करें',
+    },
+    features: {
+      title: 'हमें क्यों चुनें?',
+      trusted: 'भरोसेमंद और विश्वसनीय',
+      quality: 'गुणवत्ता की गारंटी',
+      onTime: 'समय पर सेवा',
+      customerFirst: 'ग्राहक पहले',
+    },
+  },
   common: {
     loading: 'लोड हो रहा है...',
     error: 'त्रुटि',
@@ -31,6 +52,7 @@ export const hi = {
     no: 'नहीं',
     logout: 'लॉग आउट',
     germany: 'जर्मनी',
+    changeLanguage: 'भाषा बदलें',
   },
   auth: {
     login: 'लॉग इन',
@@ -307,6 +329,7 @@ export const hi = {
     translating: 'अनुवाद हो रहा है...',
   },
   services: {
+    title: 'सेवाएं',
     kitchenDeepCleaning: 'किचन गहन सफाई',
     houseMoving: 'घर स्थानांतरण',
     deepCleaning: 'गहन सफाई',
@@ -314,7 +337,6 @@ export const hi = {
     carpetUpholsteryCleaning: 'कार्पेट और अपहोल्स्ट्री सफाई',
     windowGlassCleaning: 'खिड़की और काँच की सफाई',
     customService: 'कस्टम सेवा',
-    title: 'सेवाएँ',
     browseServices: 'सेवाएँ ब्राउज़ करें',
     allServices: 'सभी सेवाएँ',
     categories: 'श्रेणियाँ',

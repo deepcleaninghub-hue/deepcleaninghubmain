@@ -2,6 +2,37 @@ export const zh = {
   app: {
     title: '深度清洁中心',
   },
+  home: {
+    title: '首页',
+    welcome: '欢迎来到深度清洁中心',
+    subtitle: '您值得信赖的专业清洁服务合作伙伴',
+    placeholder: '这是您的主屏幕。内容将很快添加到这里。',
+    ourServices: '我们的服务',
+    cta: {
+      title: '准备清洁了吗？',
+      subtitle: '几分钟内获得免费报价',
+      callNow: '致电',
+      whatsapp: 'WhatsApp',
+      inquire: '咨询',
+    },
+    features: {
+      title: '为什么选择我们？',
+      trusted: '值得信赖和可靠',
+      quality: '质量保证',
+      onTime: '准时服务',
+      customerFirst: '客户至上',
+    },
+    carousel: {
+      professional: '专业清洁',
+      professionalDesc: '为您家庭提供专业清洁服务',
+      deepCleaning: '深度清洁',
+      deepCleaningDesc: '每个角落的彻底清洁',
+      reliable: '可靠服务',
+      reliableDesc: '数千客户信赖的服务',
+      quality: '质量保证',
+      qualityDesc: '100%满意度保证',
+    },
+  },
   common: {
     loading: '加载中...',
     error: '错误',
@@ -31,6 +62,7 @@ export const zh = {
     no: '否',
     logout: '退出登录',
     germany: '德国',
+    changeLanguage: '更改语言',
   },
   auth: {
     login: '登录',
@@ -307,6 +339,7 @@ export const zh = {
     translating: '正在翻译...',
   },
   services: {
+    title: '服务',
     kitchenDeepCleaning: '厨房深度清洁',
     houseMoving: '搬家服务',
     deepCleaning: '深度清洁',
@@ -314,7 +347,6 @@ export const zh = {
     carpetUpholsteryCleaning: '地毯和室内装潢清洁',
     windowGlassCleaning: '窗户和玻璃清洁',
     customService: '定制服务',
-    title: '服务',
     browseServices: '浏览服务',
     allServices: '所有服务',
     categories: '类别',

@@ -1,13 +1,18 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '../contexts/LanguageContext';
 
-interface Props { title?: string; showBack?: boolean; onBackPress?: () => void }
+interface Props { 
+  title?: string; 
+  showBack?: boolean; 
+  onBackPress?: () => void;
+  showLogo?: boolean;
+}
 
-const AppHeader: React.FC<Props> = ({ title, showBack, onBackPress }) => {
+const AppHeader: React.FC<Props> = ({ title, showBack, onBackPress, showLogo }) => {
   const theme = useTheme();
   const navigation = useNavigation<any>();
   const { t } = useLanguage();
@@ -24,7 +29,20 @@ const AppHeader: React.FC<Props> = ({ title, showBack, onBackPress }) => {
           <Ionicons name="chevron-back" size={24} color={theme.colors.onSurface} />
         </TouchableOpacity>
       ) : null}
-      {title ? (
+      {showLogo ? (
+        <View style={styles.logoContainer}>
+          <Image 
+            source={require('../../assets/AppIcons/playstore.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          {title ? (
+            <Text variant="titleLarge" style={[styles.titleWithLogo, { color: theme.colors.onSurface }]}>
+              {title}
+            </Text>
+          ) : null}
+        </View>
+      ) : title ? (
         <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>
           {title}
         </Text>
@@ -46,6 +64,19 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingRight: 8,
     paddingLeft: 0,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  logo: {
+    width: 56,
+    height: 56,
+    marginRight: 24,
+  },
+  titleWithLogo: {
+    flex: 1,
   },
 });
 

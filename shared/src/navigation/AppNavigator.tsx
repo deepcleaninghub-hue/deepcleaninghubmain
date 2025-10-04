@@ -11,12 +11,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet } from 'react-native';
 
-import { MainTabParamList, ServicesStackParamList, CartStackParamList, OrdersStackParamList, ProfileStackParamList } from './types';
+import { MainTabParamList, HomeStackParamList, ServicesStackParamList, CartStackParamList, OrdersStackParamList, ProfileStackParamList } from './types';
 import { theme } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 
-// Import screens (we'll create these next)
+// Import screens
+import HomeScreen from '../screens/main/HomeScreen';
 import ServicesScreen from '../screens/main/ServicesScreen';
 import { CartScreen } from '../screens/main/CartScreen';
 import CheckoutScreen from '../screens/main/CheckoutScreen';
@@ -28,6 +29,7 @@ import EditProfileScreen from '../screens/main/EditProfileScreen';
 import ContactScreen from '../screens/main/ContactScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const HomeStackNavigator = createStackNavigator<HomeStackParamList>();
 const ServicesStackNavigator = createStackNavigator<ServicesStackParamList>();
 const CartStackNavigator = createStackNavigator<CartStackParamList>();
 const OrdersStackNavigator = createStackNavigator<OrdersStackParamList>();
@@ -53,6 +55,15 @@ const CartIconWithBadge: React.FC<{ focused: boolean; color: string; size: numbe
         </View>
       )}
     </View>
+  );
+};
+
+// Home Stack
+const HomeStack = () => {
+  return (
+    <HomeStackNavigator.Navigator screenOptions={{ headerShown: false }}>
+      <HomeStackNavigator.Screen name="HomeMain" component={HomeScreen} />
+    </HomeStackNavigator.Navigator>
   );
 };
 
@@ -105,6 +116,8 @@ export const AppNavigator: React.FC = () => {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           switch (route.name) {
+            case 'Home':
+              return <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />;
             case 'Services':
               return <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={size} color={color} />;
             case 'Cart':
@@ -136,6 +149,11 @@ export const AppNavigator: React.FC = () => {
         headerShown: false,
       })}
     >
+      <Tab.Screen 
+        name="Home" 
+        component={HomeStack} 
+        options={{ title: t('home.title') }}
+      />
       <Tab.Screen 
         name="Services" 
         component={ServicesStack} 

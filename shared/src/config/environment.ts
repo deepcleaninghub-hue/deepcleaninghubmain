@@ -61,7 +61,7 @@ const developmentConfig: EnvironmentConfig = {
   ENABLE_ANALYTICS: getBooleanEnvVar('ENABLE_ANALYTICS', false),
   ENABLE_CRASH_REPORTING: getBooleanEnvVar('ENABLE_CRASH_REPORTING', false),
   CACHE_DURATION: getNumberEnvVar('CACHE_DURATION', 5 * 60 * 1000), // 5 minutes
-  SESSION_TIMEOUT: getNumberEnvVar('SESSION_TIMEOUT', 30 * 60 * 1000), // 30 minutes
+  SESSION_TIMEOUT: getNumberEnvVar('SESSION_TIMEOUT', 0), // Never timeout (0 = disabled)
   TOKEN_REFRESH_INTERVAL: getNumberEnvVar('TOKEN_REFRESH_INTERVAL', 25 * 60 * 1000), // 25 minutes
   MAX_RETRIES: getNumberEnvVar('MAX_RETRIES', 3),
   REQUEST_TIMEOUT: getNumberEnvVar('REQUEST_TIMEOUT', 10000), // 10 seconds
@@ -76,7 +76,7 @@ const stagingConfig: EnvironmentConfig = {
   ENABLE_ANALYTICS: getBooleanEnvVar('ENABLE_ANALYTICS', true),
   ENABLE_CRASH_REPORTING: getBooleanEnvVar('ENABLE_CRASH_REPORTING', true),
   CACHE_DURATION: getNumberEnvVar('CACHE_DURATION', 10 * 60 * 1000), // 10 minutes
-  SESSION_TIMEOUT: getNumberEnvVar('SESSION_TIMEOUT', 30 * 60 * 1000), // 30 minutes
+  SESSION_TIMEOUT: getNumberEnvVar('SESSION_TIMEOUT', 0), // Never timeout (0 = disabled)
   TOKEN_REFRESH_INTERVAL: getNumberEnvVar('TOKEN_REFRESH_INTERVAL', 25 * 60 * 1000), // 25 minutes
   MAX_RETRIES: getNumberEnvVar('MAX_RETRIES', 3),
   REQUEST_TIMEOUT: getNumberEnvVar('REQUEST_TIMEOUT', 15000), // 15 seconds
@@ -91,7 +91,7 @@ const productionConfig: EnvironmentConfig = {
   ENABLE_ANALYTICS: getBooleanEnvVar('ENABLE_ANALYTICS', true),
   ENABLE_CRASH_REPORTING: getBooleanEnvVar('ENABLE_CRASH_REPORTING', true),
   CACHE_DURATION: getNumberEnvVar('CACHE_DURATION', 15 * 60 * 1000), // 15 minutes
-  SESSION_TIMEOUT: getNumberEnvVar('SESSION_TIMEOUT', 30 * 60 * 1000), // 30 minutes
+  SESSION_TIMEOUT: getNumberEnvVar('SESSION_TIMEOUT', 0), // Never timeout (0 = disabled)
   TOKEN_REFRESH_INTERVAL: getNumberEnvVar('TOKEN_REFRESH_INTERVAL', 25 * 60 * 1000), // 25 minutes
   MAX_RETRIES: getNumberEnvVar('MAX_RETRIES', 2),
   REQUEST_TIMEOUT: getNumberEnvVar('REQUEST_TIMEOUT', 20000), // 20 seconds
@@ -121,7 +121,7 @@ const getConfig = (): EnvironmentConfig => {
       ENABLE_ANALYTICS: getBooleanEnvVar('ENABLE_ANALYTICS', false),
       ENABLE_CRASH_REPORTING: getBooleanEnvVar('ENABLE_CRASH_REPORTING', false),
       CACHE_DURATION: getNumberEnvVar('CACHE_DURATION', 5 * 60 * 1000), // 5 minutes
-      SESSION_TIMEOUT: getNumberEnvVar('SESSION_TIMEOUT', 30 * 60 * 1000), // 30 minutes
+      SESSION_TIMEOUT: getNumberEnvVar('SESSION_TIMEOUT', 0), // Never timeout (0 = disabled)
       TOKEN_REFRESH_INTERVAL: getNumberEnvVar('TOKEN_REFRESH_INTERVAL', 25 * 60 * 1000), // 25 minutes
       MAX_RETRIES: getNumberEnvVar('MAX_RETRIES', 3),
       REQUEST_TIMEOUT: getNumberEnvVar('REQUEST_TIMEOUT', 10000), // 10 seconds

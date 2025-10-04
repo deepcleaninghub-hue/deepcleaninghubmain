@@ -2,6 +2,27 @@ export const nl = {
   app: {
     title: 'Diepe Schoonmaak Hub',
   },
+  home: {
+    title: 'Home',
+    welcome: 'Welkom bij DeepClean Hub',
+    subtitle: 'Uw vertrouwde partner voor professionele schoonmaakdiensten',
+    placeholder: 'Dit is uw hoofdscherm. Inhoud wordt hier binnenkort toegevoegd.',
+    ourServices: 'Onze Diensten',
+    cta: {
+      title: 'Klaar om te Reinigen?',
+      subtitle: 'Krijg uw gratis offerte in minuten',
+      callNow: 'Bellen',
+      whatsapp: 'WhatsApp',
+      inquire: 'Informeer',
+    },
+    features: {
+      title: 'Waarom Ons Kiezen?',
+      trusted: 'Betrouwbaar en Veilig',
+      quality: 'Kwaliteit Gegarandeerd',
+      onTime: 'Tijdige Service',
+      customerFirst: 'Klant Eerst',
+    },
+  },
   common: {
     loading: 'Laden...',
     error: 'Fout',
@@ -31,6 +52,7 @@ export const nl = {
     no: 'Nee',
     logout: 'Uitloggen',
     germany: 'Duitsland',
+    changeLanguage: 'Taal wijzigen',
   },
   auth: {
     login: 'Inloggen',

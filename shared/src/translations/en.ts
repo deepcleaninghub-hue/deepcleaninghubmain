@@ -2,6 +2,37 @@ export const en = {
   app: {
     title: 'Deep Cleaning Hub',
   },
+  home: {
+    title: 'Home',
+    welcome: 'Welcome to DeepClean Hub',
+    subtitle: 'Your trusted partner for professional cleaning services',
+    placeholder: 'This is your main screen. Content will be added here soon.',
+    ourServices: 'Our Services',
+    cta: {
+      title: 'Ready to Clean?',
+      subtitle: 'Get your free quote in minutes',
+      callNow: 'Call',
+      whatsapp: 'WhatsApp',
+      inquire: 'Inquire',
+    },
+    features: {
+      title: 'Why Choose Us?',
+      trusted: 'Trusted & Reliable',
+      quality: 'Quality Guaranteed',
+      onTime: 'On-Time Service',
+      customerFirst: 'Customer First',
+    },
+    carousel: {
+      professional: 'Professional Cleaning',
+      professionalDesc: 'Expert cleaning services for your home',
+      deepCleaning: 'Deep Cleaning',
+      deepCleaningDesc: 'Thorough cleaning for every corner',
+      reliable: 'Reliable Service',
+      reliableDesc: 'Trusted by thousands of customers',
+      quality: 'Quality Guaranteed',
+      qualityDesc: '100% satisfaction guaranteed',
+    },
+  },
   common: {
     loading: 'Loading...',
     error: 'Error',
@@ -31,6 +62,7 @@ export const en = {
     no: 'No',
     logout: 'Logout',
     germany: 'Germany',
+    changeLanguage: 'Change Language',
   },
   auth: {
     login: 'Login',

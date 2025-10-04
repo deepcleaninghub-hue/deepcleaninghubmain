@@ -2,6 +2,37 @@ export const ko = {
   app: {
     title: '딥 클리닝 허브',
   },
+  home: {
+    title: '홈',
+    welcome: 'DeepClean Hub에 오신 것을 환영합니다',
+    subtitle: '전문적인 청소 서비스의 신뢰할 수 있는 파트너',
+    placeholder: '이것은 메인 화면입니다. 곧 여기에 콘텐츠가 추가될 예정입니다.',
+    ourServices: '우리 서비스',
+    cta: {
+      title: '청소할 준비가 되셨나요?',
+      subtitle: '몇 분 안에 무료 견적을 받으세요',
+      callNow: '전화',
+      whatsapp: 'WhatsApp',
+      inquire: '문의하기',
+    },
+    features: {
+      title: '왜 우리를 선택해야 할까요?',
+      trusted: '신뢰할 수 있고 안정적',
+      quality: '품질 보장',
+      onTime: '정시 서비스',
+      customerFirst: '고객 우선',
+    },
+    carousel: {
+      professional: '전문 청소',
+      professionalDesc: '귀하의 집을 위한 전문 청소 서비스',
+      deepCleaning: '딥 클리닝',
+      deepCleaningDesc: '모든 구석까지 철저한 청소',
+      reliable: '신뢰할 수 있는 서비스',
+      reliableDesc: '수천 명의 고객이 신뢰하는 서비스',
+      quality: '품질 보장',
+      qualityDesc: '100% 만족 보장',
+    },
+  },
   common: {
     loading: '로딩 중...',
     error: '오류',
@@ -31,6 +62,7 @@ export const ko = {
     no: '아니오',
     logout: '로그아웃',
     germany: '독일',
+    changeLanguage: '언어 변경',
   },
   auth: {
     login: '로그인',
@@ -307,6 +339,7 @@ export const ko = {
     translating: '번역 중...',
   },
   services: {
+    title: '서비스',
     kitchenDeepCleaning: '주방 딥 클리닝',
     houseMoving: '이사',
     deepCleaning: '딥 클리닝',
@@ -314,7 +347,6 @@ export const ko = {
     carpetUpholsteryCleaning: '카펫 및 실내 장식 청소',
     windowGlassCleaning: '창문 및 유리 청소',
     customService: '맞춤형 서비스',
-    title: '서비스',
     browseServices: '서비스 찾아보기',
     allServices: '모든 서비스',
     categories: '카테고리',

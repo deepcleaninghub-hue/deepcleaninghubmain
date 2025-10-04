@@ -64,9 +64,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => clearInterval(refreshInterval);
   }, [user]);
 
-  // Session timeout handling
+  // Session timeout handling (disabled if SESSION_TIMEOUT is 0)
   useEffect(() => {
-    if (!user) return;
+    if (!user || config.SESSION_TIMEOUT === 0) return;
 
     const timeout = setTimeout(() => {
       const timeSinceLastActivity = Date.now() - lastActivity;

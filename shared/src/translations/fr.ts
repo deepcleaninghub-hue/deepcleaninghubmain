@@ -2,6 +2,37 @@ export const fr = {
   app: {
     title: 'Centre de Nettoyage en Profondeur',
   },
+  home: {
+    title: 'Accueil',
+    welcome: 'Bienvenue chez DeepClean Hub',
+    subtitle: 'Votre partenaire de confiance pour les services de nettoyage professionnel',
+    placeholder: 'Ceci est votre écran principal. Le contenu sera ajouté ici bientôt.',
+    ourServices: 'Nos Services',
+    cta: {
+      title: 'Prêt à Nettoyer?',
+      subtitle: 'Obtenez votre devis gratuit en quelques minutes',
+      callNow: 'Appeler',
+      whatsapp: 'WhatsApp',
+      inquire: 'Demander',
+    },
+    features: {
+      title: 'Pourquoi Nous Choisir?',
+      trusted: 'Fiable et Sûr',
+      quality: 'Qualité Garantie',
+      onTime: 'Service Ponctuel',
+      customerFirst: 'Client d\'Abord',
+    },
+    carousel: {
+      professional: 'Nettoyage Professionnel',
+      professionalDesc: 'Services de nettoyage experts pour votre maison',
+      deepCleaning: 'Nettoyage en Profondeur',
+      deepCleaningDesc: 'Nettoyage approfondi pour chaque coin',
+      reliable: 'Service Fiable',
+      reliableDesc: 'Fait confiance par des milliers de clients',
+      quality: 'Qualité Garantie',
+      qualityDesc: '100% garantie de satisfaction',
+    },
+  },
   common: {
     loading: 'Chargement...',
     error: 'Erreur',
@@ -31,6 +62,7 @@ export const fr = {
     no: 'Non',
     logout: 'Se déconnecter',
     germany: 'Allemagne',
+    changeLanguage: 'Changer de langue',
   },
   auth: {
     login: 'Connexion',

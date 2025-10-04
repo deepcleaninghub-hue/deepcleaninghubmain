@@ -2,6 +2,27 @@ export const pl = {
   app: {
     title: 'Centrum Głębokiego Czyszczenia',
   },
+  home: {
+    title: 'Strona główna',
+    welcome: 'Witamy w DeepClean Hub',
+    subtitle: 'Twój zaufany partner w zakresie profesjonalnych usług czyszczenia',
+    placeholder: 'To jest Twoja główna strona. Treść zostanie dodana tutaj wkrótce.',
+    ourServices: 'Nasze Usługi',
+    cta: {
+      title: 'Gotowy do Sprzątania?',
+      subtitle: 'Otrzymaj darmową wycenę w kilka minut',
+      callNow: 'Zadzwoń',
+      whatsapp: 'WhatsApp',
+      inquire: 'Zapytaj',
+    },
+    features: {
+      title: 'Dlaczego Wybrać Nas?',
+      trusted: 'Godny Zaufania i Niezawodny',
+      quality: 'Gwarancja Jakości',
+      onTime: 'Usługa na Czas',
+      customerFirst: 'Klient na Pierwszym Miejscu',
+    },
+  },
   common: {
     loading: 'Ładowanie...',
     error: 'Błąd',
@@ -31,6 +52,7 @@ export const pl = {
     no: 'Nie',
     logout: 'Wyloguj',
     germany: 'Niemcy',
+    changeLanguage: 'Zmień język',
   },
   auth: {
     login: 'Zaloguj się',
@@ -306,6 +328,7 @@ export const pl = {
     translating: 'Tłumaczenie...',
   },
   services: {
+    title: 'Usługi',
     kitchenDeepCleaning: 'Głębokie Czyszczenie Kuchni',
     houseMoving: 'Przeprowadzka',
     deepCleaning: 'Głębokie Czyszczenie',
@@ -313,7 +336,6 @@ export const pl = {
     carpetUpholsteryCleaning: 'Czyszczenie Dywanów i Tapicerki',
     windowGlassCleaning: 'Czyszczenie Okien i Szyb',
     customService: 'Usługa Niestandardowa',
-    title: 'Usługi',
     browseServices: 'Przeglądaj Usługi',
     allServices: 'Wszystkie Usługi',
     categories: 'Kategorie',

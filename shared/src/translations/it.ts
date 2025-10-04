@@ -2,6 +2,27 @@ export const it = {
   app: {
     title: 'Centro di Pulizia Profonda',
   },
+  home: {
+    title: 'Home',
+    welcome: 'Benvenuto in DeepClean Hub',
+    subtitle: 'Il tuo partner di fiducia per i servizi di pulizia professionale',
+    placeholder: 'Questa è la tua schermata principale. Il contenuto verrà aggiunto qui presto.',
+    ourServices: 'I Nostri Servizi',
+    cta: {
+      title: 'Pronto a Pulire?',
+      subtitle: 'Ottieni il tuo preventivo gratuito in pochi minuti',
+      callNow: 'Chiama',
+      whatsapp: 'WhatsApp',
+      inquire: 'Inquire',
+    },
+    features: {
+      title: 'Perché Sceglierci?',
+      trusted: 'Affidabile e Sicuro',
+      quality: 'Qualità Garantita',
+      onTime: 'Servizio Puntuale',
+      customerFirst: 'Cliente Prima',
+    },
+  },
   common: {
     loading: 'Caricamento...',
     error: 'Errore',
@@ -31,6 +52,7 @@ export const it = {
     no: 'No',
     logout: 'Disconnetti',
     germany: 'Germania',
+    changeLanguage: 'Cambia lingua',
   },
   auth: {
     login: 'Accedi',
@@ -307,6 +329,7 @@ export const it = {
     translating: 'Traduzione in corso...',
   },
   services: {
+    title: 'Servizi',
     kitchenDeepCleaning: 'Pulizia profonda cucina',
     houseMoving: 'Trasloco casa',
     deepCleaning: 'Pulizia profonda',
@@ -314,7 +337,6 @@ export const it = {
     carpetUpholsteryCleaning: 'Pulizia tappeti e tappezzeria',
     windowGlassCleaning: 'Pulizia finestre e vetri',
     customService: 'Servizio personalizzato',
-    title: 'Servizi',
     browseServices: 'Sfoglia servizi',
     allServices: 'Tutti i servizi',
     categories: 'Categorie',

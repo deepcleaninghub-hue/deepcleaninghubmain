@@ -2,6 +2,27 @@ export const ar = {
   app: {
     title: 'مركز التنظيف العميق',
   },
+  home: {
+    title: 'الرئيسية',
+    welcome: 'مرحباً بك في مركز التنظيف العميق',
+    subtitle: 'شريكك الموثوق لخدمات التنظيف المهنية',
+    placeholder: 'هذه هي شاشتك الرئيسية. سيتم إضافة المحتوى هنا قريباً.',
+    ourServices: 'خدماتنا',
+    cta: {
+      title: 'مستعد للتنظيف؟',
+      subtitle: 'احصل على عرض أسعار مجاني في دقائق',
+      callNow: 'اتصل',
+      whatsapp: 'واتساب',
+      inquire: 'استفسر',
+    },
+    features: {
+      title: 'لماذا تختارنا؟',
+      trusted: 'موثوق وآمن',
+      quality: 'جودة مضمونة',
+      onTime: 'خدمة في الوقت المحدد',
+      customerFirst: 'العميل أولاً',
+    },
+  },
   common: {
     loading: 'جاري التحميل...',
     error: 'خطأ',
@@ -31,6 +52,7 @@ export const ar = {
     no: 'لا',
     logout: 'تسجيل الخروج',
     germany: 'ألمانيا',
+    changeLanguage: 'تغيير اللغة',
   },
   auth: {
     login: 'تسجيل الدخول',
@@ -307,6 +329,7 @@ export const ar = {
     translating: 'جارٍ الترجمة...',
   },
   services: {
+    title: 'الخدمات',
     kitchenDeepCleaning: 'تنظيف المطبخ بعمق',
     houseMoving: 'نقل المنزل',
     deepCleaning: 'تنظيف عميق',
@@ -314,7 +337,6 @@ export const ar = {
     carpetUpholsteryCleaning: 'تنظيف السجاد والأثاث',
     windowGlassCleaning: 'تنظيف النوافذ والزجاج',
     customService: 'خدمة مخصصة',
-    title: 'الخدمات',
     browseServices: 'تصفح الخدمات',
     allServices: 'جميع الخدمات',
     categories: 'الفئات',

@@ -2,6 +2,37 @@ export const de = {
   app: {
     title: 'Tiefreinigungszentrum',
   },
+  home: {
+    title: 'Startseite',
+    welcome: 'Willkommen bei DeepClean Hub',
+    subtitle: 'Ihr vertrauensvoller Partner für professionelle Reinigungsdienstleistungen',
+    placeholder: 'Dies ist Ihr Hauptbildschirm. Inhalt wird bald hier hinzugefügt.',
+    ourServices: 'Unsere Dienstleistungen',
+    cta: {
+      title: 'Bereit zum Reinigen?',
+      subtitle: 'Holen Sie sich Ihr kostenloses Angebot in Minuten',
+      callNow: 'Anrufen',
+      whatsapp: 'WhatsApp',
+      inquire: 'Anfragen',
+    },
+    features: {
+      title: 'Warum uns wählen?',
+      trusted: 'Vertrauenswürdig & Zuverlässig',
+      quality: 'Qualität garantiert',
+      onTime: 'Pünktlicher Service',
+      customerFirst: 'Kunde zuerst',
+    },
+    carousel: {
+      professional: 'Professionelle Reinigung',
+      professionalDesc: 'Experten-Reinigungsdienste für Ihr Zuhause',
+      deepCleaning: 'Tiefenreinigung',
+      deepCleaningDesc: 'Gründliche Reinigung für jede Ecke',
+      reliable: 'Zuverlässiger Service',
+      reliableDesc: 'Vertraut von Tausenden von Kunden',
+      quality: 'Qualität garantiert',
+      qualityDesc: '100% Zufriedenheitsgarantie',
+    },
+  },
   common: {
     loading: 'Laden...',
     error: 'Fehler',
@@ -31,6 +62,7 @@ export const de = {
     no: 'Nein',
     logout: 'Abmelden',
     germany: 'Deutschland',
+    changeLanguage: 'Sprache ändern',
   },
   auth: {
     login: 'Anmelden',

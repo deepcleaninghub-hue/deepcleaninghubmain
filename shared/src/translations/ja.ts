@@ -2,6 +2,37 @@ export const ja = {
   app: {
     title: 'ディープクリーニングハブ',
   },
+  home: {
+    title: 'ホーム',
+    welcome: 'DeepClean Hubへようこそ',
+    subtitle: 'プロフェッショナルな清掃サービスの信頼できるパートナー',
+    placeholder: 'これがメイン画面です。コンテンツは近日中にここに追加されます。',
+    ourServices: '私たちのサービス',
+    cta: {
+      title: '清掃の準備はできましたか？',
+      subtitle: '数分で無料見積もりを取得',
+      callNow: '電話',
+      whatsapp: 'WhatsApp',
+      inquire: 'お問い合わせ',
+    },
+    features: {
+      title: 'なぜ私たちを選ぶのか？',
+      trusted: '信頼できる＆安全',
+      quality: '品質保証',
+      onTime: '時間厳守サービス',
+      customerFirst: 'お客様第一',
+    },
+    carousel: {
+      professional: 'プロフェッショナル清掃',
+      professionalDesc: 'お宅のための専門清掃サービス',
+      deepCleaning: 'ディープクリーニング',
+      deepCleaningDesc: '隅々まで徹底的な清掃',
+      reliable: '信頼できるサービス',
+      reliableDesc: '何千ものお客様に信頼されています',
+      quality: '品質保証',
+      qualityDesc: '100%満足保証',
+    },
+  },
   common: {
     loading: '読み込み中...',
     error: 'エラー',
@@ -31,6 +62,7 @@ export const ja = {
     no: 'いいえ',
     logout: 'ログアウト',
     germany: 'ドイツ',
+    changeLanguage: '言語を変更',
   },
   auth: {
     login: 'ログイン',
@@ -307,6 +339,7 @@ export const ja = {
     translating: '翻訳中...',
   },
   services: {
+    title: 'サービス',
     kitchenDeepCleaning: 'キッチン徹底清掃',
     houseMoving: '引越し',
     deepCleaning: '徹底清掃',
@@ -314,7 +347,6 @@ export const ja = {
     carpetUpholsteryCleaning: 'カーペット＆家具クリーニング',
     windowGlassCleaning: '窓・ガラス清掃',
     customService: 'カスタムサービス',
-    title: 'サービス',
     browseServices: 'サービスを見る',
     allServices: 'すべてのサービス',
     categories: 'カテゴリ',

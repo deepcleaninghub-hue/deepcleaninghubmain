@@ -232,7 +232,7 @@ const ServicesScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title={t('app.title')} />
+      <AppHeader title={t('services.title')} />
       
       <ScrollView 
         style={styles.scrollView} 
@@ -375,48 +375,6 @@ const ServicesScreen = ({ navigation }: Props) => {
           ))}
         </ScrollView>
 
-        {/* Call to Action */}
-        <Card style={[styles.ctaCard, { backgroundColor: theme.colors.surfaceVariant }] }>
-          <Card.Content style={styles.ctaContent}>
-            <View style={styles.ctaBadgeRow}>
-              <View style={[styles.ctaIconCircle, { backgroundColor: theme.colors.primary }]}>
-                <Ionicons name="sparkles" size={16} color={theme.colors.onPrimary} />
-              </View>
-              <Text style={[styles.ctaBadge, { color: theme.colors.primary }]}>{t('services.customQuotesFast')}</Text>
-            </View>
-            <Text variant="titleLarge" style={[styles.ctaTitle, { color: theme.colors.onSurface }]}>
-              {t('services.needTailoredEstimate')}
-            </Text>
-            <Text variant="bodyMedium" style={[styles.ctaDescription, { color: theme.colors.onSurfaceVariant }]}>
-              {t('services.tellUsRequirements')}
-            </Text>
-            <View style={styles.ctaButtons}>
-              <Button
-                mode="contained"
-                onPress={handleGetInTouch}
-                style={[styles.ctaPrimary, { backgroundColor: theme.colors.primary }]}
-                contentStyle={styles.ctaPrimaryContent}
-                icon={({ size, color }) => (
-                  <Ionicons name="chatbubbles" size={size} color={color} />
-                )}
-              >
-                {t('services.getQuote')}
-              </Button>
-              <Button
-                mode="outlined"
-                onPress={handleCallNow}
-                style={[styles.ctaSecondary, { borderColor: theme.colors.primary }]}
-                textColor={theme.colors.primary}
-                contentStyle={styles.ctaSecondaryContent}
-                icon={({ size, color }) => (
-                  <Ionicons name="call" size={size} color={color} />
-                )}
-              >
-                {t('services.call')}
-              </Button>
-            </View>
-          </Card.Content>
-        </Card>
       </ScrollView>
       <FAB
         icon="message"
@@ -627,70 +585,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.7,
     lineHeight: 22,
-  },
-  ctaCard: {
-    marginHorizontal: 16,
-    marginVertical: 12,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#112D4E',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-  },
-  ctaContent: {
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  ctaBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 6,
-  },
-  ctaIconCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ctaBadge: {
-    fontWeight: '700',
-  },
-  ctaTitle: {
-    textAlign: 'center',
-    marginBottom: 6,
-    fontWeight: '700',
-    fontSize: 16,
-  },
-  ctaDescription: {
-    textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 18,
-    fontSize: 12,
-  },
-  ctaButtons: {
-    flexDirection: 'row',
-    gap: 8,
-    width: '100%',
-  },
-  ctaPrimary: {
-    flex: 1,
-    borderRadius: 12,
-  },
-  ctaPrimaryContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  ctaSecondary: {
-    flex: 1,
-    borderRadius: 12,
-  },
-  ctaSecondaryContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
   },
   buttonContent: {
     paddingVertical: 12,
