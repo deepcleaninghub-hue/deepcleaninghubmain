@@ -39,6 +39,18 @@ interface Order {
     service_price: number;
     quantity: number;
     calculated_price: number;
+    user_inputs?: {
+      quantity?: number;
+      measurement?: number;
+      unit_measure?: string;
+      area?: number;
+      distance?: number;
+      boxes?: number;
+      isMultiDay?: boolean;
+      selectedDates?: Array<{date: string; time: string}>;
+      pricingType?: string;
+      [key: string]: any;
+    };
   }>;
   createdAt: string;
   updatedAt: string;
@@ -85,11 +97,10 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
       setLoading(true);
       
       // Try to get as individual booking first
-      try {
-        const bookingDetails = await serviceBookingAPI.getBookingById(orderId);
-        console.log('🔍 OrderDetailsScreen - Received individual booking data:', bookingDetails);
-        setOrder(bookingDetails);
-        return;
+        try {
+          const bookingDetails = await serviceBookingAPI.getBookingById(orderId);
+          setOrder(bookingDetails);
+          return;
       } catch (individualError) {
         console.log('Not an individual booking, trying as booking group...');
       }
@@ -433,6 +444,95 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
                   <Text variant="bodyMedium" style={[styles.serviceQuantity, { color: theme.colors.onSurfaceVariant }]}>
                     {t('orders.duration')} {(order as ServiceBooking).duration_minutes} {t('orders.minutes')}
                   </Text>
+                  
+  
+                  {/* Display user inputs for ServiceBooking */}
+                  {(() => {
+                    const booking = order as ServiceBooking;
+                    
+                    // Check if user_inputs is a string that needs parsing
+                    let parsedUserInputs = booking.user_inputs;
+                    if (typeof booking.user_inputs === 'string') {
+                      try {
+                        parsedUserInputs = JSON.parse(booking.user_inputs);
+                      } catch (e) {
+                        console.log('Failed to parse user_inputs JSON:', e);
+                      }
+                    }
+                    
+                    // Check if we have any user input data to display
+                    const hasUserInputs = parsedUserInputs && Object.keys(parsedUserInputs || {}).length > 0;
+                    const hasIndividualFields = booking.area_sqm || booking.distance_km || booking.number_of_boxes || booking.measurement_value;
+                    
+                    return hasUserInputs || hasIndividualFields;
+                  })() && (
+                    <View style={styles.userInputsContainer}>
+                      <Text variant="bodySmall" style={[styles.userInputsTitle, { color: theme.colors.onSurfaceVariant }]}>
+                        {t('orders.serviceDetails')}:
+                      </Text>
+                      
+                      {(() => {
+                        const booking = order as ServiceBooking;
+                        // Parse user_inputs if it's a string
+                        let parsedUserInputs = booking.user_inputs;
+                        if (typeof booking.user_inputs === 'string') {
+                          try {
+                            parsedUserInputs = JSON.parse(booking.user_inputs);
+                          } catch (e) {
+                            console.log('Failed to parse user_inputs JSON:', e);
+                          }
+                        }
+                        
+                        return (
+                          <>
+                            {/* Quantity */}
+                            {parsedUserInputs?.quantity && (
+                              <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('orders.quantity')}: {parsedUserInputs.quantity}
+                              </Text>
+                            )}
+                            
+                            {/* Measurement for per-unit services */}
+                            {(parsedUserInputs?.measurement || booking.measurement_value) && (
+                              <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('orders.measurement')}: {parsedUserInputs?.measurement || booking.measurement_value} {parsedUserInputs?.unit_measure || booking.measurement_unit || 'units'}
+                              </Text>
+                            )}
+                            
+                            {/* House moving specific inputs - check both user_inputs and individual fields */}
+                            {(parsedUserInputs?.area || booking.area_sqm) && (
+                              <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('orders.area')}: {parsedUserInputs?.area || booking.area_sqm} sqm
+                              </Text>
+                            )}
+                            
+                            {(parsedUserInputs?.distance || booking.distance_km) && (
+                              <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('orders.distance')}: {parsedUserInputs?.distance || booking.distance_km} km
+                              </Text>
+                            )}
+                            
+                            {(() => {
+                              const boxes = parsedUserInputs?.boxes || booking.number_of_boxes;
+                              return boxes && boxes > 0;
+                            })() && (
+                              <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('orders.boxes')}: {parsedUserInputs?.boxes || booking.number_of_boxes} ({t('orders.boxesCost')}: €{(((parsedUserInputs?.boxes || booking.number_of_boxes || 0) * 2.50).toFixed(2))})
+                              </Text>
+                            )}
+                            
+                            {/* Multi-day booking */}
+                            {(parsedUserInputs?.isMultiDay || booking.is_multi_day_booking) && (parsedUserInputs?.selectedDates || booking.selected_dates) && (
+                              <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('orders.multiDayBooking')}: {(parsedUserInputs?.selectedDates?.length || JSON.parse(booking.selected_dates || '[]').length || 0)} {t('orders.days')}
+                              </Text>
+                            )}
+                            
+                          </>
+                        );
+                      })()}
+                    </View>
+                  )}
                 </View>
                 <Text variant="titleMedium" style={[styles.servicePrice, { color: theme.colors.primary }]}>
                   €{((order as ServiceBooking).total_amount || 0).toFixed(2)}
@@ -468,6 +568,62 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
                     <Text variant="bodyMedium" style={[styles.serviceQuantity, { color: theme.colors.onSurfaceVariant }]}>
                       {t('orders.quantity')} {item.quantity}
                     </Text>
+                    
+                    {/* Display user inputs if available */}
+                    {item.user_inputs && Object.keys(item.user_inputs).length > 0 && (
+                      <View style={styles.userInputsContainer}>
+                        <Text variant="bodySmall" style={[styles.userInputsTitle, { color: theme.colors.onSurfaceVariant }]}>
+                          {t('orders.serviceDetails')}:
+                        </Text>
+                        
+                        {/* Quantity */}
+                        {item.user_inputs.quantity && (
+                          <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                            {t('orders.quantity')}: {item.user_inputs.quantity}
+                          </Text>
+                        )}
+                        
+                        {/* Measurement for per-unit services */}
+                        {item.user_inputs.measurement && (
+                          <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                            {t('orders.measurement')}: {item.user_inputs.measurement} {item.user_inputs.unit_measure || 'units'}
+                          </Text>
+                        )}
+                        
+                        {/* House moving specific inputs */}
+                        {item.user_inputs.area && (
+                          <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                            {t('orders.area')}: {item.user_inputs.area} sqm
+                          </Text>
+                        )}
+                        
+                        {item.user_inputs.distance && (
+                          <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                            {t('orders.distance')}: {item.user_inputs.distance} km
+                          </Text>
+                        )}
+                        
+                        {item.user_inputs.boxes && item.user_inputs.boxes > 0 && (
+                          <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                            {t('orders.boxes')}: {item.user_inputs.boxes} ({t('orders.boxesCost')}: €{(item.user_inputs.boxes * 2.50).toFixed(2)})
+                          </Text>
+                        )}
+                        
+                        {/* Multi-day booking */}
+                        {item.user_inputs.isMultiDay && item.user_inputs.selectedDates && (
+                          <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                            {t('orders.multiDayBooking')}: {item.user_inputs.selectedDates.length} {t('orders.days')}
+                          </Text>
+                        )}
+                        
+                        {/* Pricing type */}
+                        {item.user_inputs.pricingType && (
+                          <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                            {t('orders.pricingType')}: {item.user_inputs.pricingType}
+                          </Text>
+                        )}
+                      </View>
+                    )}
                   </View>
                   <Text variant="titleMedium" style={[styles.servicePrice, { color: theme.colors.primary }]}>
                     €{(item.calculated_price || 0).toFixed(2)}
@@ -677,6 +833,20 @@ const styles = StyleSheet.create({
   },
   servicePrice: {
     fontWeight: '600',
+  },
+  userInputsContainer: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 6,
+  },
+  userInputsTitle: {
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  userInputText: {
+    marginBottom: 2,
+    fontSize: 12,
   },
   instructionsText: {
     lineHeight: 20,

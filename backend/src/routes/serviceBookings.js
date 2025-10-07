@@ -35,57 +35,6 @@ router.get('/test', async (req, res) => {
   }
 });
 
-// @desc    Test WhatsApp service
-// @route   GET /api/service-bookings/test-whatsapp
-// @access  Public
-router.get('/test-whatsapp', async (req, res) => {
-  try {
-    // Try WhatsApp Cloud API first
-    const cloudStatus = whatsappCloudService.getStatus();
-    
-    if (cloudStatus.configured) {
-      console.log('📱 Testing WhatsApp Cloud API...');
-      const testResult = await whatsappCloudService.testConnection();
-      
-      return res.json({
-        success: testResult.success,
-        message: testResult.message || 'WhatsApp Cloud API test completed',
-        status: cloudStatus,
-        testResult,
-        provider: 'whatsapp-cloud-api'
-      });
-    }
-
-    // Fallback to Twilio if Cloud API not configured
-    const twilioStatus = whatsappService.getStatus();
-    
-    if (!twilioStatus.configured) {
-      return res.status(400).json({
-        success: false,
-        message: 'No WhatsApp service configured (neither Cloud API nor Twilio)',
-        status: { cloud: cloudStatus, twilio: twilioStatus }
-      });
-    }
-
-    console.log('📱 Testing WhatsApp Twilio...');
-    const testResult = await whatsappService.testConnection();
-    
-    res.json({
-      success: testResult.success,
-      message: testResult.message || 'WhatsApp Twilio test completed',
-      status: twilioStatus,
-      testResult,
-      provider: 'twilio'
-    });
-  } catch (error) {
-    console.error('WhatsApp test error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'WhatsApp test failed',
-      details: error.message
-    });
-  }
-});
 
 // Middleware to verify JWT token and get user
 const verifyToken = async (req, res, next) => {
@@ -434,8 +383,32 @@ router.post('/', [
       service_address,
       special_instructions,
       total_amount,
-      payment_method = 'pending'
+      payment_method = 'pending',
+      // User inputs from service modal
+      user_inputs,
+      service_variant_data,
+      moving_service_data,
+      cost_breakdown,
+      booking_type = 'standard',
+      is_house_moving = false,
+      area_sqm,
+      distance_km,
+      number_of_boxes = 0,
+      boxes_cost = 0,
+      area_cost = 0,
+      distance_cost = 0,
+      subtotal_before_vat,
+      vat_amount,
+      vat_rate = 0.19,
+      service_duration_hours,
+      measurement_value,
+      measurement_unit,
+      unit_price,
+      pricing_type = 'fixed',
+      selected_dates,
+      is_multi_day_booking = false
     } = req.body;
+
 
     // Determine if this is a multi-day booking
     const isMultiDay = booking_dates && booking_dates.length > 1;
@@ -614,9 +587,33 @@ router.post('/', [
         payment_method,
         is_multi_day: false,
         is_group_booking: false,
+        // User inputs from service modal
+        user_inputs: user_inputs ? JSON.stringify(user_inputs) : null,
+        service_variant_data: service_variant_data ? JSON.stringify(service_variant_data) : null,
+        moving_service_data: moving_service_data ? JSON.stringify(moving_service_data) : null,
+        cost_breakdown: cost_breakdown ? JSON.stringify(cost_breakdown) : null,
+        booking_type,
+        is_house_moving,
+        area_sqm: area_sqm ? parseFloat(area_sqm) : null,
+        distance_km: distance_km ? parseFloat(distance_km) : null,
+        number_of_boxes: number_of_boxes ? parseInt(number_of_boxes) : 0,
+        boxes_cost: boxes_cost ? parseFloat(boxes_cost) : 0,
+        area_cost: area_cost ? parseFloat(area_cost) : null,
+        distance_cost: distance_cost ? parseFloat(distance_cost) : null,
+        subtotal_before_vat: subtotal_before_vat ? parseFloat(subtotal_before_vat) : null,
+        vat_amount: vat_amount ? parseFloat(vat_amount) : null,
+        vat_rate: vat_rate ? parseFloat(vat_rate) : 0.19,
+        service_duration_hours: service_duration_hours ? parseFloat(service_duration_hours) : null,
+        measurement_value: measurement_value ? parseFloat(measurement_value) : null,
+        measurement_unit,
+        unit_price: unit_price ? parseFloat(unit_price) : null,
+        pricing_type,
+        selected_dates: selected_dates ? JSON.stringify(selected_dates) : null,
+        is_multi_day_booking,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
+
 
       const { data: createdBooking, error: bookingError } = await supabase
         .from('service_bookings')
@@ -626,11 +623,15 @@ router.post('/', [
 
       if (bookingError) {
         console.error('Error creating single booking:', bookingError);
+        console.error('Booking error details:', JSON.stringify(bookingError, null, 2));
         return res.status(500).json({
           success: false,
-          error: 'Failed to create booking'
+          error: 'Failed to create booking',
+          details: bookingError.message
         });
       }
+
+      // Debug: Log what was actually saved
 
       const responseData = {
         ...createdBooking,

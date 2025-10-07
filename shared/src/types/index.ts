@@ -104,6 +104,28 @@ export interface CartItem {
   calculated_price?: number;
   createdAt: string;
   updatedAt: string;
+  // User inputs from service modal
+  service_variant_data?: any;
+  moving_service_data?: any;
+  cost_breakdown?: any;
+  booking_type?: string;
+  is_house_moving?: boolean;
+  area_sqm?: number | null;
+  distance_km?: number | null;
+  number_of_boxes?: number;
+  boxes_cost?: number;
+  area_cost?: number | null;
+  distance_cost?: number | null;
+  subtotal_before_vat?: number | null;
+  vat_amount?: number | null;
+  vat_rate?: number;
+  service_duration_hours?: number | null;
+  measurement_value?: number | null;
+  measurement_unit?: string | null;
+  unit_price?: number | null;
+  pricing_type?: string;
+  selected_dates?: any;
+  is_multi_day_booking?: boolean;
 }
 
 export interface CartSummary {

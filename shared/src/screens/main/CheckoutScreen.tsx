@@ -168,23 +168,23 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
 
   const validateForm = () => {
     if (!address.street_address.trim()) {
-      showError(t('errors.error'), t('checkout.enterStreetAddress'));
+      showError(t('errors.validationError'), t('checkout.enterStreetAddress'));
       return false;
     }
     if (!address.city.trim()) {
-      showError(t('errors.error'), t('checkout.enterCity'));
+      showError(t('errors.validationError'), t('checkout.enterCity'));
       return false;
     }
     if (!address.postal_code.trim()) {
-      showError(t('errors.error'), t('checkout.enterPostalCode'));
+      showError(t('errors.validationError'), t('checkout.enterPostalCode'));
       return false;
     }
     if (isMultiDay && selectedDates.length === 0) {
-      showError(t('errors.error'), t('checkout.selectServiceDate'));
+      showError(t('errors.validationError'), t('checkout.selectServiceDate'));
       return false;
     }
     if (!isMultiDay && !serviceDate) {
-      showError(t('errors.error'), t('checkout.selectServiceDate'));
+      showError(t('errors.validationError'), t('checkout.selectServiceDate'));
       return false;
     }
     return true;
@@ -238,8 +238,33 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
           service_address: `${address.street_address}, ${address.city}, ${address.postal_code}, ${address.country}`,
           special_instructions: specialInstructions || address.additional_notes,
           total_amount: itemTotalAmount,
-          payment_method: 'pending'
+          payment_method: 'pending',
+          // Include user inputs from cart item
+          user_inputs: item.user_inputs || {},
+          service_variant_data: item.service_variant_data || null,
+          moving_service_data: item.moving_service_data || null,
+          cost_breakdown: item.cost_breakdown || null,
+          booking_type: item.booking_type || 'standard',
+          is_house_moving: item.is_house_moving || false,
+          area_sqm: item.area_sqm || null,
+          distance_km: item.distance_km || null,
+          number_of_boxes: item.number_of_boxes || 0,
+          boxes_cost: item.boxes_cost || 0,
+          area_cost: item.area_cost || null,
+          distance_cost: item.distance_cost || null,
+          subtotal_before_vat: item.subtotal_before_vat || null,
+          vat_amount: item.vat_amount || null,
+          vat_rate: item.vat_rate || 0.19,
+          service_duration_hours: item.service_duration_hours || null,
+          measurement_value: item.measurement_value || null,
+          measurement_unit: item.measurement_unit || null,
+          unit_price: item.unit_price || null,
+          pricing_type: item.pricing_type || 'fixed',
+          selected_dates: item.selected_dates || null,
+          is_multi_day_booking: item.is_multi_day_booking || false
         };
+
+        // Debug: Log what's being sent to booking creation
 
         // Booking data for item - silent
         
@@ -285,7 +310,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
       
     } catch (error) {
       console.error('Error creating service bookings:', error);
-      showError(t('errors.error'), `${t('checkout.bookingFailed')}: ${error instanceof Error ? error.message : t('errors.unknownError')}`);
+      showError(t('errors.validationError'), `${t('checkout.bookingFailed')}: ${error instanceof Error ? error.message : t('errors.unexpectedError')}`);
     } finally {
       setLoading(false);
     }

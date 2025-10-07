@@ -33,7 +33,6 @@ interface ServiceVariantModalProps {
   onDismiss: () => void;
   serviceTitle: string;
   serviceId: string;
-  onNavigateToCart?: () => void;
   t: (key: string) => string;
   translateDynamicText?: (text: string) => Promise<string>;
   currentLanguage?: string;
@@ -44,7 +43,6 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
   onDismiss,
   serviceTitle,
   serviceId,
-  onNavigateToCart,
   t,
   translateDynamicText,
   currentLanguage,
@@ -56,10 +54,23 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
   const [addingToCart, setAddingToCart] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedVariants, setSelectedVariants] = useState<{[key: string]: {variant: ServiceVariant, quantity: number, customMeasurement?: string}}>({});
-  const [perUnitInputs, setPerUnitInputs] = useState<{[key: string]: string}>({});
   const [isMultiDay, setIsMultiDay] = useState(false);
   const [selectedDates, setSelectedDates] = useState<Array<{date: string; time: string; id: string}>>([]);
   const [serviceTime, setServiceTime] = useState<Date | null>(null);
+  const [distance, setDistance] = useState<string>('');
+  const [numberOfBoxes, setNumberOfBoxes] = useState<string>('');
+
+  // Check if this is a house moving service
+  const isHouseMovingService = serviceTitle.toLowerCase().includes('moving') || 
+                               serviceTitle.toLowerCase().includes('house') ||
+                               serviceId === 'house-moving';
+
+  // Check if this is a cleaning service (allows multi-day booking)
+  const isCleaningService = serviceTitle.toLowerCase().includes('cleaning') || 
+                            serviceTitle.toLowerCase().includes('clean') ||
+                            serviceTitle.toLowerCase().includes('deep clean') ||
+                            serviceId.includes('cleaning') ||
+                            serviceId.includes('clean');
 
 
   // Fetch service variants when modal opens
@@ -143,10 +154,36 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
     }
   };
 
+  // Calculate house moving cost
+  const calculateHouseMovingCost = (area: number, distance: number, rate: number, boxes: number = 0) => {
+    const RATE_PER_KM = 0.5; // 0.5 euro per km
+    const BOX_PRICE = 2.50; // €2.50 per box
+    const VAT_RATE = 0.19; // 19% VAT
+    
+    const areaCost = rate * area;
+    const distanceCost = distance * RATE_PER_KM;
+    const boxesCost = boxes * BOX_PRICE;
+    const subtotal = areaCost + distanceCost + boxesCost;
+    const vat = subtotal * VAT_RATE;
+    const total = subtotal + vat;
+    
+    return {
+      areaCost: areaCost,
+      distanceCost: distanceCost,
+      boxesCost: boxesCost,
+      subtotal: subtotal,
+      vat: vat,
+      total: total,
+      ratePerKm: RATE_PER_KM,
+      boxPrice: BOX_PRICE,
+      vatRate: VAT_RATE
+    };
+  };
+
   // Calculate total price based on pricing type
-  const calculateTotalPrice = (variant: ServiceVariant, quantity: number = 1): number => {
+  const calculateTotalPrice = (variant: ServiceVariant, quantity: number = 1, customMeasurement?: string): number => {
     if (variant.pricingType === 'per_unit') {
-      const inputValue = perUnitInputs[variant.id] || '';
+      const inputValue = customMeasurement || '';
       const measurement = parseFloat(inputValue) || 0;
       return measurement * (variant.unitPrice || variant.price);
     }
@@ -171,12 +208,6 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
       }
       return newSelected;
     });
-    
-    // Reset per-unit inputs for this variant
-    setPerUnitInputs(prev => ({
-      ...prev,
-      [variant.id]: ''
-    }));
   };
 
   // Handle quantity change for a specific variant
@@ -204,7 +235,7 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
       if (!current) return prev;
       
       return {
-        ...prev,
+      ...prev,
         [variantId]: {
           ...current,
           customMeasurement: value
@@ -213,13 +244,6 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
     });
   };
 
-  // Handle per-unit input change for specific variant
-  const handlePerUnitInputChange = (variantId: string, value: string) => {
-    setPerUnitInputs(prev => ({
-      ...prev,
-      [variantId]: value
-    }));
-  };
 
   // Check if all required inputs are filled for a specific variant
   const isVariantReadyForCart = (variantId: string): boolean => {
@@ -233,7 +257,7 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
     if (variant.pricingType === 'fixed') {
       pricingValid = selectedVariant.quantity > 0;
     } else if (variant.pricingType === 'per_unit') {
-      const inputValue = perUnitInputs[variantId] || '';
+      const inputValue = selectedVariant.customMeasurement || '';
       const numericValue = parseFloat(inputValue);
       pricingValid = numericValue > 0 && 
              (!variant.minMeasurement || numericValue >= variant.minMeasurement) &&
@@ -242,20 +266,119 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
       pricingValid = true; // For other pricing types
     }
 
-    // Check date selection for multi-day services
-    const dateValid = !isMultiDay || selectedDates.length > 0;
+    // For house moving services, also check distance
+    let distanceValid = true;
+    if (isHouseMovingService) {
+      const distanceValue = parseFloat(distance);
+      distanceValid = distanceValue > 0;
+    }
 
-    return pricingValid && dateValid;
+    // Check date selection for multi-day services (only for cleaning services)
+    const dateValid = !isCleaningService || !isMultiDay || selectedDates.length > 0;
+
+    return pricingValid && distanceValid && dateValid;
   };
 
   // Check if any variants are ready for cart
   const hasReadyVariants = (): boolean => {
+    // For house moving services, check if we have area, distance, and date
+    if (isHouseMovingService) {
+      const hasArea = Object.keys(selectedVariants).some(variantId => {
+        const selectedVariant = selectedVariants[variantId];
+        if (!selectedVariant) return false;
+        const variant = selectedVariant.variant;
+        if (variant.pricingType === 'per_unit') {
+          const inputValue = selectedVariant.customMeasurement || '';
+          const numericValue = parseFloat(inputValue);
+          return numericValue > 0;
+        }
+        return selectedVariant.quantity > 0;
+      });
+      const hasDistance = parseFloat(distance) > 0;
+      const dateValid = !isCleaningService || !isMultiDay || selectedDates.length > 0;
+      return hasArea && hasDistance && dateValid;
+    }
+    
+    // For regular services
     return Object.keys(selectedVariants).some(variantId => isVariantReadyForCart(variantId));
   };
 
   const handleAddToCart = async () => {
     try {
       setAddingToCart(true);
+      
+      // Handle house moving service with special calculation
+      if (isHouseMovingService) {
+        const selectedVariant = Object.values(selectedVariants)[0];
+        if (!selectedVariant) return;
+        
+        const variant = selectedVariant.variant;
+        const area = variant.pricingType === 'per_unit' 
+          ? parseFloat(selectedVariant.customMeasurement || '0')
+          : selectedVariant.quantity;
+        const distanceValue = parseFloat(distance);
+        const boxesValue = parseFloat(numberOfBoxes) || 0;
+        const rate = variant.pricingType === 'per_unit' 
+          ? (variant.unitPrice || variant.price)
+          : variant.price;
+        
+        const movingCost = calculateHouseMovingCost(area, distanceValue, rate, boxesValue);
+        
+        const serviceData = {
+          id: variant.id,
+          title: variant.title,
+          description: `${variant.description} - ${t('services.area')}: ${area} ${t('services.sqm')}, ${t('services.distance')}: ${distanceValue}${t('services.km')}${boxesValue > 0 ? `, ${t('services.boxes')}: ${boxesValue}` : ''}`,
+          image: '',
+          category: `${serviceTitle} - ${variant.title}`,
+          pricingType: 'fixed' as const,
+          price: movingCost.total,
+          unitPrice: movingCost.total,
+          unitMeasure: '',
+          minMeasurement: 0,
+          maxMeasurement: 0,
+          measurementStep: 1,
+          measurementPlaceholder: '',
+          duration: variant.duration || '',
+          features: [
+            `${t('services.area')}: ${area} ${t('services.sqm')}`,
+            `${t('services.distance')}: ${distanceValue}${t('services.km')}`,
+            ...(boxesValue > 0 ? [`${t('services.boxes')}: ${boxesValue} (€${movingCost.boxPrice.toFixed(2)} ${t('services.each')})`] : []),
+            `${t('services.areaCost')}: €${movingCost.areaCost.toFixed(2)}`,
+            `${t('services.distanceCost')}: €${movingCost.distanceCost.toFixed(2)}`,
+            ...(boxesValue > 0 ? [`${t('services.boxesCost')}: €${movingCost.boxesCost.toFixed(2)}`] : []),
+            `${t('services.subtotal')}: €${movingCost.subtotal.toFixed(2)}`,
+            `${t('services.vat')} (${(movingCost.vatRate * 100).toFixed(0)}%): €${movingCost.vat.toFixed(2)}`
+          ],
+          displayOrder: variant.displayOrder || 0,
+          isActive: true,
+          serviceVariants: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        const userInputs = {
+          quantity: 1,
+          pricingType: 'fixed',
+          area: area,
+          distance: distanceValue,
+          boxes: boxesValue,
+          movingCost: movingCost,
+          isMovingService: true
+        };
+
+        await addToCart(serviceData, movingCost.total, userInputs);
+        
+        modalService.showSuccess(
+          t('cart.itemAdded'),
+          `${variant.title} ${t('cart.addedToCart')}`
+        );
+        
+        setTimeout(() => {
+          onDismiss();
+        }, 2000);
+        
+        return;
+      }
       
       // Add all selected variants to cart
       const addedVariants: string[] = [];
@@ -265,68 +388,66 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
           const variant = selectedVariant.variant;
           const totalPrice = calculateTotalPrice(variant, selectedVariant.quantity);
           
-          const userInputs: Record<string, any> = {
+      const userInputs: Record<string, any> = {
             quantity: selectedVariant.quantity,
-            pricingType: variant.pricingType || 'fixed',
-          };
+        pricingType: variant.pricingType || 'fixed',
+      };
 
-          if (variant.pricingType === 'per_unit') {
-            const inputValue = perUnitInputs[variantId] || selectedVariant.customMeasurement || '';
-            userInputs.measurement = parseFloat(inputValue) || 0;
-            userInputs.unitPrice = variant.unitPrice || variant.price;
-            userInputs.unitMeasure = variant.unitMeasure || '';
-          }
+      if (variant.pricingType === 'per_unit') {
+            const inputValue = selectedVariant.customMeasurement || '';
+        userInputs.measurement = parseFloat(inputValue) || 0;
+        userInputs.unitPrice = variant.unitPrice || variant.price;
+        userInputs.unitMeasure = variant.unitMeasure || '';
+      }
 
-          // Add date selection data
-          if (isMultiDay) {
-            userInputs.selectedDates = selectedDates;
-            userInputs.isMultiDay = true;
-          } else {
-            userInputs.isMultiDay = false;
-          }
+      // Add date selection data
+      if (isMultiDay) {
+        userInputs.selectedDates = selectedDates;
+        userInputs.isMultiDay = true;
+      } else {
+        userInputs.isMultiDay = false;
+      }
 
-          const serviceData = {
-            id: variant.id,
-            title: variant.title,
-            description: variant.description,
-            image: '',
-            category: `${serviceTitle} - ${variant.title}`,
-            pricingType: variant.pricingType || 'fixed',
-            price: totalPrice,
-            unitPrice: variant.unitPrice || variant.price,
-            unitMeasure: variant.unitMeasure || '',
-            minMeasurement: variant.minMeasurement || 0,
-            maxMeasurement: variant.maxMeasurement || 0,
-            measurementStep: variant.measurementStep || 1,
-            measurementPlaceholder: variant.measurementPlaceholder || '',
-            duration: variant.duration || '',
-            features: variant.features || [],
-            displayOrder: variant.displayOrder || 0,
-            isActive: true,
-            serviceVariants: [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          };
+      const serviceData = {
+        id: variant.id,
+        title: variant.title,
+        description: variant.description,
+        image: '',
+        category: `${serviceTitle} - ${variant.title}`,
+        pricingType: variant.pricingType || 'fixed',
+            price: variant.price, // Unit price for reference
+        unitPrice: variant.unitPrice || variant.price,
+        unitMeasure: variant.unitMeasure || '',
+        minMeasurement: variant.minMeasurement || 0,
+        maxMeasurement: variant.maxMeasurement || 0,
+        measurementStep: variant.measurementStep || 1,
+        measurementPlaceholder: variant.measurementPlaceholder || '',
+        duration: variant.duration || '',
+        features: variant.features || [],
+        displayOrder: variant.displayOrder || 0,
+        isActive: true,
+        serviceVariants: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
 
-          await addToCart(serviceData, totalPrice, userInputs);
+          // Pass unit price and let backend calculate total
+          await addToCart(serviceData, variant.price, userInputs);
           addedVariants.push(variant.title);
         }
       }
       
       if (addedVariants.length > 0) {
         modalService.showSuccess(
-          t('cart.itemAdded'),
+        t('cart.itemAdded'),
           `${addedVariants.join(', ')} ${t('cart.addedToCart')}`
         );
         
-        // Auto-dismiss modal after successful addition
+        // Just dismiss the modal, don't navigate to cart
         setTimeout(() => {
-          onDismiss();
-          if (onNavigateToCart) {
-            onNavigateToCart();
-          }
+              onDismiss();
         }, 2000);
-      }
+              }
     } catch (error) {
       console.error('Error adding to cart:', error);
       modalService.showError(t('common.error'), t('cart.failedToAdd'));
@@ -372,41 +493,43 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.modalScrollContent}
         >
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={theme.colors.primary} />
-              <Text style={[styles.loadingText, { color: theme.colors.onSurface }]}>
-                {t('services.loadingVariants')}
-              </Text>
-            </View>
-          ) : error ? (
-            <View style={styles.errorContainer}>
-              <Text style={[styles.errorText, { color: theme.colors.error }]}>
-                {error}
-              </Text>
-              <Button 
-                mode="contained" 
-                onPress={fetchServiceVariants}
-                style={{ marginTop: 16 }}
-              >
-                {t('services.retry')}
-              </Button>
-            </View>
-          ) : variants.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
-                No variants available for this service.
-              </Text>
-            </View>
-          ) : (
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+            <Text style={[styles.loadingText, { color: theme.colors.onSurface }]}>
+              {t('services.loadingVariants')}
+            </Text>
+          </View>
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Text style={[styles.errorText, { color: theme.colors.error }]}>
+              {error}
+            </Text>
+            <Button 
+              mode="contained" 
+              onPress={fetchServiceVariants}
+              style={{ marginTop: 16 }}
+            >
+              {t('services.retry')}
+            </Button>
+          </View>
+        ) : variants.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
+              No variants available for this service.
+            </Text>
+          </View>
+        ) : (
             <View style={styles.variantsList}>
-            {variants.map((variant) => (
+              {/* Selected Variants First */}
+              {Object.entries(selectedVariants).map(([variantId, selectedVariant]) => {
+                const variant = selectedVariant.variant;
+                return (
+                  <View key={`selected-${variantId}`}>
               <Card 
-                key={variant.id} 
                 style={[
                   styles.variantCard, 
-                  { backgroundColor: theme.colors.surface },
-                  selectedVariants[variant.id] && { borderColor: theme.colors.primary, borderWidth: 2 }
+                        { backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, borderWidth: 2 }
                 ]}
               >
                 <Card.Content style={styles.variantContent}>
@@ -449,6 +572,360 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
                         </Chip>
                       )}
                     </View>
+                  </View>
+                  
+                    <AutoTranslateText 
+                      style={[styles.variantDescription, { color: theme.colors.onSurfaceVariant }]}
+                      showLoading={true}
+                      loadingText={t('autoTranslate.translating')}
+                      t={t}
+                      {...(translateDynamicText && { translateDynamicText })}
+                      {...(currentLanguage && { currentLanguage })}
+                    >
+                      {variant.description}
+                    </AutoTranslateText>
+                  
+                  {variant.features && variant.features.length > 0 && (
+                    <View style={styles.featuresContainer}>
+                        {variant.features.map((feature, index) => (
+                              <View key={index} style={styles.featureItem}>
+                                <Text style={{ color: theme.colors.primary, fontSize: 16 }}>✓</Text>
+                            <AutoTranslateText 
+                                  style={[styles.featureText, { color: theme.colors.onSurface }]}
+                                  showLoading={true}
+                                  loadingText={t('autoTranslate.translating')}
+                              t={t}
+                              {...(translateDynamicText && { translateDynamicText })}
+                              {...(currentLanguage && { currentLanguage })}
+                            >
+                              {feature}
+                            </AutoTranslateText>
+                              </View>
+                        ))}
+                    </View>
+                  )}
+
+                  <Button
+                          mode="contained"
+                    onPress={() => handleVariantSelect(variant)}
+                          style={[styles.selectButton, { backgroundColor: theme.colors.primary }]}
+                          labelStyle={[styles.selectButtonLabel, { color: theme.colors.onPrimary }]}
+                    icon="check"
+                  >
+                          {t('services.selected')}
+                  </Button>
+                </Card.Content>
+              </Card>
+
+                    {/* Configuration for this selected variant */}
+                    <Card style={[styles.selectedVariantCard, { backgroundColor: theme.colors.surface, marginTop: 8 }]}>
+                      <Card.Content style={styles.selectedVariantCardContent}>
+                        <View style={styles.selectedVariantHeader}>
+                          <Text variant="titleMedium" style={[styles.selectedVariantCardTitle, { color: theme.colors.onSurface }]}>
+                            {t('services.configure')} {variant.title}
+            </Text>
+                  </View>
+
+                        {/* Quantity Input for Fixed Pricing */}
+                        {variant.pricingType === 'fixed' && (
+                          <View style={styles.quantityInputContainer}>
+                  <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
+                              {t('services.quantity')}:
+                  </Text>
+                  <View style={styles.quantityControls}>
+                    <Button
+                      mode="outlined"
+                                onPress={() => handleQuantityChange(variantId, Math.max(1, selectedVariant.quantity - 1))}
+                      style={styles.quantityButton}
+                                labelStyle={styles.quantityButtonLabel}
+                    >
+                      -
+                    </Button>
+                              <Text variant="titleMedium" style={[styles.quantity, { color: theme.colors.onSurface }]}>
+                                {selectedVariant.quantity}
+                    </Text>
+                    <Button
+                      mode="outlined"
+                                onPress={() => handleQuantityChange(variantId, selectedVariant.quantity + 1)}
+                      style={styles.quantityButton}
+                                labelStyle={styles.quantityButtonLabel}
+                    >
+                      +
+                    </Button>
+                  </View>
+                </View>
+              )}
+
+                        {/* Measurement Input for Per-Unit Pricing */}
+                        {variant.pricingType === 'per_unit' && (
+                          <View style={styles.measurementInputContainer}>
+                  <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
+                              {variant.measurementPlaceholder || t('services.measurement')}:
+                  </Text>
+                  <TextInput
+                    mode="outlined"
+                              value={selectedVariant.customMeasurement || ''}
+                              onChangeText={(text) => handleMeasurementChange(variantId, text)}
+                              placeholder={variant.measurementPlaceholder || t('services.enterMeasurement')}
+                    keyboardType="numeric"
+                    style={styles.measurementInput}
+                              error={!isVariantReadyForCart(variantId) && selectedVariant.customMeasurement !== ''}
+                            />
+                            <View style={styles.measurementInfoContainer}>
+                              {variant.unitMeasure && (
+                                <Text variant="bodySmall" style={[styles.unitMeasure, { color: theme.colors.onSurfaceVariant }]}>
+                                  {variant.unitMeasure}
+                                </Text>
+                              )}
+                              {variant.minMeasurement && (
+                                <Text variant="bodySmall" style={[styles.minMeasurementText, { color: theme.colors.primary }]}>
+                                  {t('services.minimum')}: {variant.minMeasurement} {variant.unitMeasure || t('services.units')}
+                                </Text>
+                              )}
+                            </View>
+                </View>
+              )}
+
+                        {/* Price Calculation and Total Price Display */}
+              <View style={styles.totalPriceContainer}>
+                          {/* Show calculation details for per-unit pricing */}
+                          {variant.pricingType === 'per_unit' && selectedVariant.customMeasurement && (
+                            <View style={styles.calculationContainer}>
+                              <Text variant="bodyMedium" style={[styles.calculationText, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('services.measurement')}: {selectedVariant.customMeasurement} {variant.unitMeasure || t('services.units')} × €{variant.unitPrice || variant.price}/{variant.unitMeasure || t('services.units')} = €{calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement).toFixed(2)}
+                              </Text>
+                            </View>
+                          )}
+                          
+                          {/* Show calculation details for fixed pricing with quantity > 1 */}
+                          {variant.pricingType === 'fixed' && selectedVariant.quantity > 1 && (
+                            <View style={styles.calculationContainer}>
+                              <Text variant="bodyMedium" style={[styles.calculationText, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('services.quantity')}: {selectedVariant.quantity} × €{variant.price} = €{calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement).toFixed(2)}
+                              </Text>
+            </View>
+                          )}
+                          
+                          <Text variant="titleMedium" style={[styles.totalPriceLabel, { color: theme.colors.primary }]}>
+                            {t('services.totalPrice')} €{calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement).toFixed(2)}
+                          </Text>
+                        </View>
+                      </Card.Content>
+                    </Card>
+                  </View>
+                );
+              })}
+
+              {/* Distance Input for House Moving Services */}
+              {isHouseMovingService && Object.keys(selectedVariants).length > 0 && (
+                <Card style={[styles.distanceInputCard, { backgroundColor: theme.colors.surface }]}>
+                  <Card.Content style={styles.distanceInputContent}>
+                    <Text variant="titleMedium" style={[styles.distanceInputTitle, { color: theme.colors.onSurface }]}>
+                      {t('services.distanceInput')}
+                    </Text>
+                    <TextInput
+                      mode="outlined"
+                      value={distance}
+                      onChangeText={setDistance}
+                      placeholder={t('services.enterDistance')}
+                      keyboardType="numeric"
+                      style={styles.distanceInput}
+                      error={!parseFloat(distance) && distance !== ''}
+                    />
+                    <Text variant="bodySmall" style={[styles.distanceHint, { color: theme.colors.onSurfaceVariant }]}>
+                      {t('services.distanceHint')}
+                    </Text>
+                    
+                    {/* Boxes Input */}
+                    <Text variant="titleMedium" style={[styles.boxesInputTitle, { color: theme.colors.onSurface }]}>
+                      {t('services.boxesInput')} ({t('services.optional')})
+                    </Text>
+                    <TextInput
+                      mode="outlined"
+                      value={numberOfBoxes}
+                      onChangeText={setNumberOfBoxes}
+                      placeholder={t('services.enterNumberOfBoxes')}
+                      keyboardType="numeric"
+                      style={styles.boxesInput}
+                      error={!parseFloat(numberOfBoxes) && numberOfBoxes !== ''}
+                    />
+                    <Text variant="bodySmall" style={[styles.boxesHint, { color: theme.colors.onSurfaceVariant }]}>
+                      {t('services.boxesHint')}
+                    </Text>
+                    
+                    {/* Show calculation if both area and distance are provided */}
+                    {Object.keys(selectedVariants).length > 0 && distance && parseFloat(distance) > 0 && (
+                      <View style={styles.movingCalculationContainer}>
+                        <Text variant="titleSmall" style={[styles.calculationTitle, { color: theme.colors.onSurface }]}>
+                          {t('services.costBreakdown')}
+                        </Text>
+                        {Object.values(selectedVariants).map((selectedVariant, index) => {
+                          const variant = selectedVariant.variant;
+                          const area = variant.pricingType === 'per_unit' 
+                            ? parseFloat(selectedVariant.customMeasurement || '0')
+                            : selectedVariant.quantity;
+                          const distanceValue = parseFloat(distance);
+                          const boxesValue = parseFloat(numberOfBoxes) || 0;
+                          const rate = variant.pricingType === 'per_unit' 
+                            ? (variant.unitPrice || variant.price)
+                            : variant.price;
+                          const movingCost = calculateHouseMovingCost(area, distanceValue, rate, boxesValue);
+                          
+                          return (
+                            <View key={index} style={styles.calculationDetails}>
+                              <Text variant="bodyMedium" style={[styles.calculationLine, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('services.area')}: {area} {t('services.sqm')} × €{rate.toFixed(2)}/{t('services.sqm')} = €{movingCost.areaCost.toFixed(2)}
+                              </Text>
+                              <Text variant="bodyMedium" style={[styles.calculationLine, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('services.distance')}: {distanceValue}{t('services.km')} × €0.5/{t('services.km')} = €{movingCost.distanceCost.toFixed(2)}
+                              </Text>
+                              {boxesValue > 0 && (
+                                <Text variant="bodyMedium" style={[styles.calculationLine, { color: theme.colors.onSurfaceVariant }]}>
+                                  {t('services.boxes')}: {boxesValue} × €{movingCost.boxPrice.toFixed(2)} = €{movingCost.boxesCost.toFixed(2)}
+                                </Text>
+                              )}
+                              <Text variant="bodyMedium" style={[styles.calculationLine, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('services.subtotal')}: €{movingCost.areaCost.toFixed(2)} + €{movingCost.distanceCost.toFixed(2)}{boxesValue > 0 ? ` + €${movingCost.boxesCost.toFixed(2)}` : ''} = €{movingCost.subtotal.toFixed(2)}
+                              </Text>
+                              <Text variant="bodyMedium" style={[styles.calculationLine, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('services.vat')} (19%): €{movingCost.vat.toFixed(2)}
+                              </Text>
+                              <Text variant="titleMedium" style={[styles.calculationTotal, { color: theme.colors.primary }]}>
+                                {t('services.total')}: €{movingCost.total.toFixed(2)}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    )}
+                  </Card.Content>
+                </Card>
+              )}
+
+              {/* Date Selection and Add to Cart - Show after all selected variants */}
+              {Object.keys(selectedVariants).length > 0 && (
+                <>
+            {/* Date Selection Section */}
+            <View style={styles.dateSelectionSection}>
+              <Divider style={{ marginVertical: 16 }} />
+              
+                <View style={styles.dateSelectionHeader}>
+                  <Text variant="titleMedium" style={[styles.dateSelectionTitle, { color: theme.colors.onSurface }]}>
+                    {t('checkout.serviceDate')}
+                  </Text>
+                  {/* Only show multi-day toggle for cleaning services */}
+                  {isCleaningService && (
+                    <View style={styles.multiDayToggle}>
+                      <Text variant="bodyMedium" style={[styles.multiDayLabel, { color: theme.colors.onSurfaceVariant }]}>
+                        {t('checkout.multiDayService')}
+                      </Text>
+                      <Switch
+                        value={isMultiDay}
+                        onValueChange={setIsMultiDay}
+                        color={theme.colors.primary}
+                      />
+                    </View>
+                  )}
+                </View>
+
+              {isCleaningService && isMultiDay ? (
+                <MultiDateSelector
+                  selectedDates={selectedDates}
+                  onDatesChange={setSelectedDates}
+                  serviceTime={serviceTime || new Date()}
+                  onTimeChange={setServiceTime}
+                  maxDays={7}
+                  t={t}
+                />
+              ) : (
+                <View style={styles.singleDateContainer}>
+                  <Text variant="bodyMedium" style={[styles.singleDateText, { color: theme.colors.onSurfaceVariant }]}>
+                    {isCleaningService ? t('checkout.singleDateService') : t('checkout.singleDayService')}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+                  {/* Add to Cart Button */}
+                  <View style={styles.inputSection}>
+                    <Button
+                      mode="contained"
+                      onPress={handleAddToCart}
+                      disabled={!hasReadyVariants() || addingToCart}
+                      loading={addingToCart}
+                      style={[
+                        styles.addToCartButton,
+                        { 
+                          backgroundColor: hasReadyVariants() && !addingToCart ? theme.colors.primary : theme.colors.outline,
+                        }
+                      ]}
+                      contentStyle={styles.addToCartButtonContent}
+                      labelStyle={[
+                        styles.addToCartButtonLabel, 
+                        { 
+                          color: hasReadyVariants() && !addingToCart ? theme.colors.onPrimary : theme.colors.onSurfaceVariant 
+                        }
+                      ]}
+                      {...(addingToCart ? {} : { icon: "cart-plus" })}
+                    >
+                      {addingToCart ? t('services.addingToCart') : t('services.addToCart')}
+                    </Button>
+                      </View>
+                </>
+              )}
+
+              {/* Unselected Variants */}
+              {variants
+                .filter(variant => !selectedVariants[variant.id])
+                .map((variant) => (
+              <Card 
+                key={variant.id} 
+                style={[
+                  styles.variantCard, 
+                  { backgroundColor: theme.colors.surface },
+                  selectedVariants[variant.id] && { borderColor: theme.colors.primary, borderWidth: 2 }
+                ]}
+              >
+                <Card.Content style={styles.variantContent}>
+                  <View style={styles.variantHeader}>
+                    <AutoTranslateText 
+                      style={[styles.variantTitle, { color: theme.colors.onSurface }]}
+                      showLoading={true}
+                      loadingText={t('autoTranslate.translating')}
+                      t={t}
+                      {...(translateDynamicText && { translateDynamicText })}
+                      {...(currentLanguage && { currentLanguage })}
+                    >
+                      {variant.title}
+                    </AutoTranslateText>
+                    <View style={styles.priceContainer}>
+                      <Text variant="titleSmall" style={[styles.variantPrice, { color: theme.colors.primary }]}>
+                        {variant.pricingType === 'per_unit' 
+                          ? `€${variant.unitPrice || variant.price}/${variant.unitMeasure || 'unit'}`
+                          : `€${variant.price}`
+                        }
+                        </Text>
+                      {variant.pricingType === 'fixed' && (
+                        <Chip 
+                          mode="outlined" 
+                          compact 
+                          style={[styles.pricingChip, { borderColor: theme.colors.primary }]}
+                          textStyle={{ color: theme.colors.primary, fontSize: 10 }}
+                        >
+                          {t('services.fixedPrice')}
+                        </Chip>
+                      )}
+                      {variant.pricingType === 'per_unit' && (
+                        <Chip 
+                          mode="outlined" 
+                          compact 
+                          style={[styles.pricingChip, { borderColor: theme.colors.secondary }]}
+                          textStyle={{ color: theme.colors.secondary, fontSize: 10 }}
+                        >
+                          {t('services.perUnit')}
+                        </Chip>
+                      )}
+                      </View>
                   </View>
                   
                   {variant.description && (
@@ -496,217 +973,37 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
                           </Chip>
                         ))}
                       </View>
-                    </View>
-                  )}
+              </View>
+            )}
 
                   {/* Selection Button - Always visible */}
-                  <Button
+            <Button
                     mode={selectedVariants[variant.id] ? "contained" : "outlined"}
                     onPress={() => handleVariantSelect(variant)}
-                    style={[
+              style={[
                       styles.selectButton, 
-                      { 
+                { 
                         backgroundColor: selectedVariants[variant.id] ? theme.colors.primary : 'transparent',
                         borderColor: theme.colors.primary
-                      }
-                    ]}
+                }
+              ]}
                     contentStyle={styles.selectButtonContent}
-                    labelStyle={[
-                      styles.selectButtonLabel, 
-                      { 
-                        color: selectedVariants[variant.id] ? theme.colors.onPrimary : theme.colors.primary 
-                      }
-                    ]}
-                    icon="check"
-                  >
-                    {selectedVariants[variant.id] ? t('services.selected') : t('services.select')}
-                  </Button>
-                </Card.Content>
-              </Card>
-            ))}
-          </View>
-        )}
-
-        {/* Quantity Inputs for Selected Variants */}
-        {Object.keys(selectedVariants).length > 0 && (
-          <View style={styles.selectedVariantsSection}>
-            <Divider style={{ marginVertical: 16 }} />
-            <Text variant="titleMedium" style={[styles.selectedVariantsTitle, { color: theme.colors.onSurface }]}>
-              {t('services.selectedVariants')}
-            </Text>
-            
-            {Object.entries(selectedVariants).map(([variantId, selectedVariant]) => (
-              <Card key={variantId} style={[styles.selectedVariantCard, { backgroundColor: theme.colors.surface }]}>
-                <Card.Content style={styles.selectedVariantCardContent}>
-                  <View style={styles.selectedVariantHeader}>
-                    <AutoTranslateText 
-                      style={[styles.selectedVariantCardTitle, { color: theme.colors.onSurface }]}
-                      t={t}
-                      {...(translateDynamicText && { translateDynamicText })}
-                      {...(currentLanguage && { currentLanguage })}
-                    >
-                      {selectedVariant.variant.title}
-                    </AutoTranslateText>
-                    <Text variant="bodyMedium" style={[styles.selectedVariantCardPrice, { color: theme.colors.primary }]}>
-                      {selectedVariant.variant.pricingType === 'per_unit' 
-                        ? `€${selectedVariant.variant.unitPrice || selectedVariant.variant.price}/${selectedVariant.variant.unitMeasure || t('services.units')}`
-                        : `€${selectedVariant.variant.price}`
-                      }
-                    </Text>
-                  </View>
-
-                  {/* Quantity Input for Fixed Pricing */}
-                  {selectedVariant.variant.pricingType === 'fixed' && (
-                    <View style={styles.quantityInputContainer}>
-                      <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
-                        {t('services.quantity')}:
-                      </Text>
-                      <View style={styles.quantityControls}>
-                        <Button
-                          mode="outlined"
-                          onPress={() => handleQuantityChange(variantId, Math.max(1, selectedVariant.quantity - 1))}
-                          style={styles.quantityButton}
-                          contentStyle={styles.quantityButtonContent}
-                        >
-                          -
-                        </Button>
-                        <Text variant="titleMedium" style={[styles.quantityText, { color: theme.colors.onSurface }]}>
-                          {selectedVariant.quantity}
-                        </Text>
-                        <Button
-                          mode="outlined"
-                          onPress={() => handleQuantityChange(variantId, selectedVariant.quantity + 1)}
-                          style={styles.quantityButton}
-                          contentStyle={styles.quantityButtonContent}
-                        >
-                          +
-                        </Button>
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Measurement Input for Per Unit Pricing */}
-                  {selectedVariant.variant.pricingType === 'per_unit' && (
-                    <View style={styles.measurementInputContainer}>
-                      <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
-                        <AutoTranslateText 
-                          style={[styles.inputLabel, { color: theme.colors.onSurface }]}
-                          t={t}
-                          {...(translateDynamicText && { translateDynamicText })}
-                          {...(currentLanguage && { currentLanguage })}
-                        >
-                          {selectedVariant.variant.unitMeasure || t('services.units')}
-                        </AutoTranslateText>
-                        :
-                      </Text>
-                      <TextInput
-                        mode="outlined"
-                        value={perUnitInputs[variantId] || ''}
-                        onChangeText={(value) => handlePerUnitInputChange(variantId, value)}
-                        placeholder={selectedVariant.variant.measurementPlaceholder || `${t('services.enter')} ${selectedVariant.variant.unitMeasure || t('services.units')}`}
-                        keyboardType="numeric"
-                        style={styles.measurementInput}
-                        outlineColor={theme.colors.outline}
-                      />
-                      {selectedVariant.variant.minMeasurement && selectedVariant.variant.maxMeasurement && (
-                        <Text variant="bodySmall" style={[styles.measurementHint, { color: theme.colors.onSurfaceVariant }]}>
-                          {t('services.range')} {selectedVariant.variant.minMeasurement} - {selectedVariant.variant.maxMeasurement}{' '}
-                          <AutoTranslateText 
-                            style={[styles.measurementHint, { color: theme.colors.onSurfaceVariant }]}
-                            t={t}
-                            {...(translateDynamicText && { translateDynamicText })}
-                            {...(currentLanguage && { currentLanguage })}
-                          >
-                            {selectedVariant.variant.unitMeasure || t('services.units')}
-                          </AutoTranslateText>
-                        </Text>
-                      )}
-                    </View>
-                  )}
-
-                  {/* Total Price Display */}
-                  <View style={styles.totalPriceContainer}>
-                    <Text variant="titleMedium" style={[styles.totalPriceLabel, { color: theme.colors.onSurface }]}>
-                      {t('services.totalPrice')} €{calculateTotalPrice(selectedVariant.variant, selectedVariant.quantity).toFixed(2)}
-                    </Text>
-                  </View>
-                </Card.Content>
-              </Card>
-            ))}
-          </View>
-        )}
-
-        {/* Input Fields and Add to Cart Button - Only show when variants are selected */}
-        {Object.keys(selectedVariants).length > 0 && (
-          <View style={styles.inputSection}>
-            <Divider style={{ marginVertical: 16 }} />
-            
-
-
-            {/* Date Selection Section */}
-            <View style={styles.dateSelectionSection}>
-              <Divider style={{ marginVertical: 16 }} />
-              
-              <View style={styles.dateSelectionHeader}>
-                <Text variant="titleMedium" style={[styles.dateSelectionTitle, { color: theme.colors.onSurface }]}>
-                  {t('checkout.serviceDate')}
-                </Text>
-                <View style={styles.multiDayToggle}>
-                  <Text variant="bodyMedium" style={[styles.multiDayLabel, { color: theme.colors.onSurfaceVariant }]}>
-                    {t('checkout.multiDayService')}
-                  </Text>
-                  <Switch
-                    value={isMultiDay}
-                    onValueChange={setIsMultiDay}
-                    color={theme.colors.primary}
-                  />
-                </View>
-              </View>
-
-              {isMultiDay ? (
-                <MultiDateSelector
-                  selectedDates={selectedDates}
-                  onDatesChange={setSelectedDates}
-                  serviceTime={serviceTime || new Date()}
-                  onTimeChange={setServiceTime}
-                  maxDays={7}
-                  t={t}
-                />
-              ) : (
-                <View style={styles.singleDateContainer}>
-                  <Text variant="bodyMedium" style={[styles.singleDateText, { color: theme.colors.onSurfaceVariant }]}>
-                    {t('checkout.singleDateService')}
-                  </Text>
-                </View>
-              )}
-            </View>
-
-
-            {/* Add to Cart Button - Only enabled when inputs are valid */}
-            <Button
-              mode="contained"
-              onPress={handleAddToCart}
-              disabled={!hasReadyVariants() || addingToCart}
-              loading={addingToCart}
-              style={[
-                styles.addToCartButton,
-                { 
-                  backgroundColor: hasReadyVariants() && !addingToCart ? theme.colors.primary : theme.colors.outline,
-                }
-              ]}
-              contentStyle={styles.addToCartButtonContent}
               labelStyle={[
-                styles.addToCartButtonLabel, 
+                      styles.selectButtonLabel, 
                 { 
-                  color: hasReadyVariants() && !addingToCart ? theme.colors.onPrimary : theme.colors.onSurfaceVariant 
+                        color: selectedVariants[variant.id] ? theme.colors.onPrimary : theme.colors.primary 
                 }
               ]}
-              {...(addingToCart ? {} : { icon: "cart-plus" })}
+                    icon="check"
             >
-              {addingToCart ? t('services.addingToCart') : t('services.addToCart')}
+                    {selectedVariants[variant.id] ? t('services.selected') : t('services.select')}
             </Button>
+                </Card.Content>
+              </Card>
+            ))}
           </View>
-          )}
+        )}
+
         </ScrollView>
       </Modal>
     </Portal>
@@ -892,6 +1189,14 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.1)',
   },
+  calculationContainer: {
+    marginBottom: 8,
+    paddingHorizontal: 16,
+  },
+  calculationText: {
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
   totalPriceLabel: {
     fontWeight: '700',
     color: '#2E7D32',
@@ -1019,6 +1324,91 @@ const styles = StyleSheet.create({
   },
   measurementInputContainer: {
     marginBottom: 12,
+  },
+  measurementInfoContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  minMeasurementText: {
+    fontWeight: '500',
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  featureText: {
+    marginLeft: 8,
+    flex: 1,
+  },
+  quantityButtonLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  quantity: {
+    fontWeight: '600',
+    marginHorizontal: 16,
+    minWidth: 20,
+    textAlign: 'center',
+  },
+  unitMeasure: {
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  distanceInputCard: {
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  distanceInputContent: {
+    paddingVertical: 16,
+  },
+  distanceInputTitle: {
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  distanceInput: {
+    marginBottom: 8,
+  },
+  distanceHint: {
+    fontStyle: 'italic',
+    marginBottom: 16,
+  },
+  boxesInputTitle: {
+    fontWeight: '700',
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  boxesInput: {
+    marginBottom: 8,
+  },
+  boxesHint: {
+    fontStyle: 'italic',
+    marginBottom: 16,
+  },
+  movingCalculationContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 8,
+  },
+  calculationTitle: {
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  calculationDetails: {
+    marginBottom: 8,
+  },
+  calculationLine: {
+    marginBottom: 4,
+  },
+  calculationTotal: {
+    fontWeight: '700',
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
   },
 });
 

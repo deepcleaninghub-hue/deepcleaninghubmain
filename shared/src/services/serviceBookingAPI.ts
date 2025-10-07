@@ -30,6 +30,40 @@ export interface ServiceBooking {
   // New booking group support
   group_id?: string;
   is_group_booking?: boolean;
+  // User inputs from service modal
+  user_inputs?: {
+    quantity?: number;
+    measurement?: number;
+    unit_measure?: string;
+    area?: number;
+    distance?: number;
+    boxes?: number;
+    isMultiDay?: boolean;
+    selectedDates?: Array<{date: string; time: string}>;
+    pricingType?: string;
+    [key: string]: any;
+  };
+  service_variant_data?: any;
+  moving_service_data?: any;
+  cost_breakdown?: any;
+  booking_type?: string;
+  is_house_moving?: boolean;
+  area_sqm?: number;
+  distance_km?: number;
+  number_of_boxes?: number;
+  boxes_cost?: number;
+  area_cost?: number;
+  distance_cost?: number;
+  subtotal_before_vat?: number;
+  vat_amount?: number;
+  vat_rate?: number;
+  service_duration_hours?: number;
+  measurement_value?: number;
+  measurement_unit?: string;
+  unit_price?: number;
+  pricing_type?: string;
+  selected_dates?: any;
+  is_multi_day_booking?: boolean;
   // Response data
   isMultiDay?: boolean;
   totalDays?: number;
@@ -104,6 +138,29 @@ export interface CreateServiceBookingData {
   special_instructions?: string;
   total_amount: number;
   payment_method?: string;
+  // User inputs from service modal
+  user_inputs?: any;
+  service_variant_data?: any;
+  moving_service_data?: any;
+  cost_breakdown?: any;
+  booking_type?: string;
+  is_house_moving?: boolean;
+  area_sqm?: number | null;
+  distance_km?: number | null;
+  number_of_boxes?: number;
+  boxes_cost?: number;
+  area_cost?: number | null;
+  distance_cost?: number | null;
+  subtotal_before_vat?: number | null;
+  vat_amount?: number | null;
+  vat_rate?: number;
+  service_duration_hours?: number | null;
+  measurement_value?: number | null;
+  measurement_unit?: string | null;
+  unit_price?: number | null;
+  pricing_type?: string;
+  selected_dates?: any;
+  is_multi_day_booking?: boolean;
 }
 
 export interface UpdateServiceBookingData {
@@ -284,7 +341,7 @@ class ServiceBookingAPI {
   // Cancel booking group
   async cancelBookingGroup(groupId: string, reason?: string): Promise<boolean> {
     try {
-      const response = await httpClient.delete<{success: boolean, message: string}>(`${this.baseUrl}/groups/${groupId}`, { reason });
+      const response = await httpClient.delete<{success: boolean, message: string}>(`${this.baseUrl}/groups/${groupId}?reason=${encodeURIComponent(reason || '')}`);
       if (!response.success) {
         throw new Error(response.message || 'Failed to cancel booking group');
       }

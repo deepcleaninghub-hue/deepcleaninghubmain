@@ -242,10 +242,33 @@ router.post('/items', verifyToken, async (req, res) => {
           service_category: service.category,
           quantity,
           calculated_price: totalPrice,
-          user_inputs
+          user_inputs,
+          // Additional user input fields
+          service_variant_data: user_inputs?.service_variant_data || null,
+          moving_service_data: user_inputs?.moving_service_data || null,
+          cost_breakdown: user_inputs?.cost_breakdown || null,
+          booking_type: user_inputs?.booking_type || 'standard',
+          is_house_moving: user_inputs?.is_house_moving || false,
+          area_sqm: user_inputs?.area || null,
+          distance_km: user_inputs?.distance || null,
+          number_of_boxes: user_inputs?.boxes || 0,
+          boxes_cost: user_inputs?.boxes ? (user_inputs.boxes * 2.50) : 0,
+          area_cost: user_inputs?.movingCost?.areaCost || null,
+          distance_cost: user_inputs?.movingCost?.distanceCost || null,
+          subtotal_before_vat: user_inputs?.movingCost?.subtotal || null,
+          vat_amount: user_inputs?.movingCost?.vat || null,
+          vat_rate: user_inputs?.movingCost?.vatRate || 0.19,
+          service_duration_hours: service.duration ? parseFloat(service.duration.split('-')[0]) : null,
+          measurement_value: user_inputs?.measurement || null,
+          measurement_unit: user_inputs?.unitMeasure || null,
+          unit_price: user_inputs?.unitPrice || service.price,
+          pricing_type: user_inputs?.pricingType || 'fixed',
+          selected_dates: user_inputs?.selectedDates || null,
+          is_multi_day_booking: user_inputs?.isMultiDay || false
         })
         .select()
         .single();
+
 
       if (error) {
         console.error('Error adding cart item:', error);

@@ -40,21 +40,6 @@ class WhatsAppService {
     };
   }
 
-  async testConnection() {
-    if (!this.isConfigured) {
-      return { success: false, message: 'WhatsApp service not configured' };
-    }
-
-    try {
-      // Test by sending a simple message to admin
-      const testMessage = `🧪 WhatsApp Test Message\n\nThis is a test message from Deep Cleaning Hub to verify WhatsApp integration.\n\nTime: ${new Date().toLocaleString()}`;
-      
-      const result = await this.sendMessage(this.adminNumber, testMessage);
-      return result;
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
-  }
 
   async sendMessage(to, message) {
     if (!this.isConfigured) {

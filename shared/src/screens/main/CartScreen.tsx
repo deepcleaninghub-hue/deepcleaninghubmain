@@ -186,10 +186,54 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
                 <Text variant="bodyMedium" style={[styles.itemCategory, { color: theme.colors.onSurfaceVariant }]}>
                   {t('cart.serviceId')} {item.service_id || item.serviceId || t('cart.unknown')}
                 </Text>
-                {item.user_inputs && item.user_inputs.measurement && (
-                  <Text variant="bodySmall" style={[styles.measurementText, { color: theme.colors.primary }]}>
-                    {item.user_inputs.measurement} {item.user_inputs.unit_measure} × €{item.user_inputs.unit_price}/sqm
-                  </Text>
+                {/* Display all user inputs */}
+                {item.user_inputs && Object.keys(item.user_inputs).length > 0 && (
+                  <View style={styles.userInputsContainer}>
+                    <Text variant="bodySmall" style={[styles.userInputsTitle, { color: theme.colors.onSurfaceVariant }]}>
+                      {t('cart.serviceDetails')}:
+                    </Text>
+                    
+                    {/* Quantity */}
+                    {item.user_inputs.quantity && (
+                      <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                        {t('cart.quantity')}: {item.user_inputs.quantity}
+                      </Text>
+                    )}
+                    
+                    {/* Measurement for per-unit services */}
+                    {item.user_inputs.measurement && (
+                      <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                        {t('cart.measurement')}: {item.user_inputs.measurement} {item.user_inputs.unit_measure || 'units'}
+                      </Text>
+                    )}
+                    
+                    {/* House moving specific inputs */}
+                    {item.user_inputs.area && (
+                      <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                        {t('cart.area')}: {item.user_inputs.area} sqm
+                      </Text>
+                    )}
+                    
+                    {item.user_inputs.distance && (
+                      <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                        {t('cart.distance')}: {item.user_inputs.distance} km
+                      </Text>
+                    )}
+                    
+                    {item.user_inputs.boxes && item.user_inputs.boxes > 0 && (
+                      <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                        {t('cart.boxes')}: {item.user_inputs.boxes} ({t('cart.boxesCost')}: €{(item.user_inputs.boxes * 2.50).toFixed(2)})
+                      </Text>
+                    )}
+                    
+                    {/* Multi-day booking */}
+                    {item.user_inputs.isMultiDay && item.user_inputs.selectedDates && (
+                      <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.onSurfaceVariant }]}>
+                        {t('cart.multiDayBooking')}: {item.user_inputs.selectedDates.length} {t('cart.days')}
+                      </Text>
+                    )}
+                    
+                  </View>
                 )}
                 <Text variant="titleLarge" style={[styles.itemPrice, { color: theme.colors.primary }]}>
                   €{((item.calculated_price || item.service_price || 0)).toFixed(2)}
@@ -393,6 +437,20 @@ const styles = StyleSheet.create({
   measurementText: {
     fontWeight: '500',
     marginBottom: 8,
+  },
+  userInputsContainer: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 6,
+  },
+  userInputsTitle: {
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  userInputText: {
+    marginBottom: 2,
+    fontSize: 12,
   },
   itemPrice: {
     fontWeight: '700',

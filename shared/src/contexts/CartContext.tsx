@@ -233,7 +233,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         service_id: service.id,
         quantity: userInputs?.quantity || 1,
         user_inputs: userInputs || {},
-        calculated_price: calculatedPrice || service.price || 0,
+        // Let backend calculate the total price based on unit price and quantity
       };
 
       const response = await httpClient.post<{ success: boolean; data: CartItem }>('/cart/items', cartItemData);
@@ -287,7 +287,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      const response = await httpClient.put<{ success: boolean }>(`/cart/items/${cartItemId}`, { quantity });
+      
+      // Let backend calculate the total price based on unit price and quantity
+      const response = await httpClient.put<{ success: boolean }>(`/cart/items/${cartItemId}`, { 
+        quantity
+      });
       
       if (response.success) {
         await refreshCart(true); // Force refresh to clear cache

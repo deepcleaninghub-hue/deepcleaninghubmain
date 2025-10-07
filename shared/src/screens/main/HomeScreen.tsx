@@ -12,7 +12,6 @@ import {
   ScrollView,
   Image,
   Linking,
-  Alert,
 } from 'react-native';
 import { Text, Card, useTheme, Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,6 +21,7 @@ import { ImageCarousel } from '../../components/ImageCarousel';
 import { EnhancedLanguageSelector } from '../../components/EnhancedLanguageSelector';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { HomeStackScreenProps } from '../../navigation/types';
+import { modalService } from '../../services/modalService';
 
 type Props = HomeStackScreenProps<'HomeMain'>;
 
@@ -37,24 +37,24 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   // CTA Button Handlers
   const handleCall = async () => {
     try {
-      const phoneNumber = '+1234567890'; // Replace with actual phone number
+      const phoneNumber = '+4916097044182'; // DeepClean Hub admin contact number
       const phoneUrl = `tel:${phoneNumber}`;
       const canOpen = await Linking.canOpenURL(phoneUrl);
       
       if (canOpen) {
         await Linking.openURL(phoneUrl);
       } else {
-        Alert.alert(t('common.error'), t('home.cta.couldNotOpenPhoneApp'));
+        modalService.showError(t('common.error'), t('home.cta.couldNotOpenPhoneApp'));
       }
     } catch (error) {
       console.error('Error opening phone app:', error);
-      Alert.alert(t('common.error'), t('home.cta.couldNotOpenPhoneApp'));
+      modalService.showError(t('common.error'), t('home.cta.couldNotOpenPhoneApp'));
     }
   };
 
   const handleWhatsApp = async () => {
     try {
-      const phoneNumber = '+1234567890'; // Replace with actual phone number
+      const phoneNumber = '+4916097044182'; // DeepClean Hub admin WhatsApp number
       const message = t('home.cta.whatsappMessage');
       const whatsappUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
       
@@ -69,7 +69,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
-      Alert.alert(t('common.error'), t('home.cta.couldNotOpenWhatsApp'));
+      modalService.showError(t('common.error'), t('home.cta.couldNotOpenWhatsApp'));
     }
   };
 

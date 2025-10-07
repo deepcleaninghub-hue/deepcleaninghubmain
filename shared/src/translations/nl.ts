@@ -22,6 +22,16 @@ export const nl = {
       onTime: 'Tijdige Service',
       customerFirst: 'Klant Eerst',
     },
+    carousel: {
+      professional: 'Professionele Schoonmaak',
+      professionalDesc: 'Expert schoonmaakdiensten voor uw huis',
+      deepCleaning: 'Diepe Reiniging',
+      deepCleaningDesc: 'Grondige reiniging voor elke hoek',
+      reliable: 'Betrouwbare Service',
+      reliableDesc: 'Vertrouwd door duizenden klanten',
+      quality: 'Kwaliteit Gegarandeerd',
+      qualityDesc: '100% tevredenheidsgarantie',
+    },
   },
   common: {
     loading: 'Laden...',

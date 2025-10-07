@@ -22,6 +22,16 @@ export const ru = {
       onTime: 'Своевременное Обслуживание',
       customerFirst: 'Клиент на Первом Месте',
     },
+    carousel: {
+      professional: 'Профессиональная Уборка',
+      professionalDesc: 'Экспертные услуги по уборке для вашего дома',
+      deepCleaning: 'Глубокая Очистка',
+      deepCleaningDesc: 'Тщательная уборка каждого угла',
+      reliable: 'Надежный Сервис',
+      reliableDesc: 'Доверяют тысячи клиентов',
+      quality: 'Гарантия Качества',
+      qualityDesc: '100% гарантия удовлетворения',
+    },
   },
   common: {
     loading: 'Загрузка...',

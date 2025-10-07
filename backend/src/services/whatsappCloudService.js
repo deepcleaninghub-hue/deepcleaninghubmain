@@ -33,24 +33,6 @@ class WhatsAppCloudService {
     };
   }
 
-  async testConnection() {
-    if (!this.isConfigured) {
-      return { success: false, message: 'WhatsApp Cloud API service not configured' };
-    }
-
-    try {
-      const testMessage = `🧪 WhatsApp Test Message
-
-This is a test message from Deep Cleaning Hub to verify WhatsApp Cloud API integration.
-
-Time: ${new Date().toLocaleString()}`;
-      
-      const result = await this.sendMessage(this.adminNumber, testMessage);
-      return result;
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
-  }
 
   async sendMessage(to, message) {
     if (!this.isConfigured) {

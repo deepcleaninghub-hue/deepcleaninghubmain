@@ -1,21 +1,5 @@
 import { httpClient } from './httpClient';
 
-export interface WhatsAppTestResult {
-  success: boolean;
-  message: string;
-  status: {
-    configured: boolean;
-    fromNumber: string;
-    adminNumber: string;
-    provider: string;
-  };
-  requiredCredentials?: {
-    WHATSAPP_ACCOUNT_SID: string;
-    WHATSAPP_AUTH_TOKEN: string;
-    WHATSAPP_FROM_NUMBER: string;
-    ADMIN_WHATSAPP_NUMBER: string;
-  };
-}
 
 export interface OrderConfirmationData {
   customerName: string;
@@ -44,16 +28,6 @@ export interface OrderConfirmationData {
 class WhatsAppAPI {
   private baseUrl = '/whatsapp';
 
-  // Test WhatsApp service connection
-  async testConnection(): Promise<WhatsAppTestResult> {
-    try {
-      const response = await httpClient.get<WhatsAppTestResult>(`${this.baseUrl}/test`);
-      return response;
-    } catch (error) {
-      console.error('Error testing WhatsApp connection:', error);
-      throw error;
-    }
-  }
 
   // Send order confirmation WhatsApp message
   async sendOrderConfirmation(orderData: OrderConfirmationData): Promise<{ success: boolean; message: string }> {

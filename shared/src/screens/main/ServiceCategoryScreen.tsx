@@ -120,9 +120,6 @@ const ServiceCategoryScreen = ({ route, navigation }: Props) => {
   };
 
 
-  const handleNavigateToCart = () => {
-    navigation.getParent()?.navigate('Cart');
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -288,7 +285,6 @@ const ServiceCategoryScreen = ({ route, navigation }: Props) => {
           onDismiss={handleModalDismiss}
           serviceTitle={selectedService.title}
           serviceId={selectedService.id}
-          onNavigateToCart={handleNavigateToCart}
           t={t}
           translateDynamicText={translateDynamicText}
           currentLanguage={currentLanguage}

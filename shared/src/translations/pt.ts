@@ -22,6 +22,16 @@ export const pt = {
       onTime: 'Serviço Pontual',
       customerFirst: 'Cliente em Primeiro',
     },
+    carousel: {
+      professional: 'Limpeza Profissional',
+      professionalDesc: 'Serviços de limpeza especializados para sua casa',
+      deepCleaning: 'Limpeza Profunda',
+      deepCleaningDesc: 'Limpeza completa para cada canto',
+      reliable: 'Serviço Confiável',
+      reliableDesc: 'Confiado por milhares de clientes',
+      quality: 'Qualidade Garantida',
+      qualityDesc: 'Garantia de satisfação de 100%',
+    },
   },
   common: {
     loading: 'Carregando...',

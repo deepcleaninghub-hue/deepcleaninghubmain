@@ -22,6 +22,16 @@ export const pl = {
       onTime: 'Usługa na Czas',
       customerFirst: 'Klient na Pierwszym Miejscu',
     },
+    carousel: {
+      professional: 'Profesjonalne Czyszczenie',
+      professionalDesc: 'Eksperckie usługi czyszczenia dla Twojego domu',
+      deepCleaning: 'Głębokie Czyszczenie',
+      deepCleaningDesc: 'Dokładne czyszczenie każdego kąta',
+      reliable: 'Niezawodna Usługa',
+      reliableDesc: 'Zaufana przez tysiące klientów',
+      quality: 'Gwarancja Jakości',
+      qualityDesc: '100% gwarancja satysfakcji',
+    },
   },
   common: {
     loading: 'Ładowanie...',
