@@ -55,6 +55,15 @@ export interface ServiceVariant {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  // Additional pricing fields from database
+  pricingType?: 'fixed' | 'per_unit';
+  unitPrice?: number | undefined;
+  unitMeasure?: string;
+  minMeasurement?: number;
+  maxMeasurement?: number;
+  measurementStep?: number;
+  measurementPlaceholder?: string;
+  displayOrder?: number;
 }
 
 export interface ServiceOption {

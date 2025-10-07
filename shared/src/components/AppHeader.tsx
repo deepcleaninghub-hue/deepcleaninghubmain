@@ -4,6 +4,7 @@ import { Text, useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '../contexts/LanguageContext';
+import AutoTranslateText from './AutoTranslateText';
 
 interface Props { 
   title?: string; 
@@ -15,7 +16,7 @@ interface Props {
 const AppHeader: React.FC<Props> = ({ title, showBack, onBackPress, showLogo }) => {
   const theme = useTheme();
   const navigation = useNavigation<any>();
-  const { t } = useLanguage();
+  const { t, translateDynamicText, currentLanguage } = useLanguage();
 
   return (
     <View style={[styles.customHeader, { backgroundColor: theme.colors.surface }]}>
@@ -37,15 +38,27 @@ const AppHeader: React.FC<Props> = ({ title, showBack, onBackPress, showLogo }) 
             resizeMode="contain"
           />
           {title ? (
-            <Text variant="titleLarge" style={[styles.titleWithLogo, { color: theme.colors.onSurface }]}>
+            <AutoTranslateText 
+              style={[styles.titleWithLogo, { color: theme.colors.onSurface }]}
+              t={t}
+              translateDynamicText={translateDynamicText}
+              currentLanguage={currentLanguage}
+              {...{ variant: "titleLarge" }}
+            >
               {title}
-            </Text>
+            </AutoTranslateText>
           ) : null}
         </View>
       ) : title ? (
-        <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>
+        <AutoTranslateText 
+          style={{ color: theme.colors.onSurface }}
+          t={t}
+          translateDynamicText={translateDynamicText}
+          currentLanguage={currentLanguage}
+          {...{ variant: "titleLarge" }}
+        >
           {title}
-        </Text>
+        </AutoTranslateText>
       ) : null}
     </View>
   );

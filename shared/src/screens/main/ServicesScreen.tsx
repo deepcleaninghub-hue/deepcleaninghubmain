@@ -1,259 +1,127 @@
 // Enhanced with new color palette: #F9F7F7, #DBE2EF, #3F72AF, #112D4E
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
-  RefreshControl,
-  Linking,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
-import { Text, Card, Button, Chip, useTheme, ActivityIndicator, TextInput, FAB } from 'react-native-paper';
+import { Text, useTheme, TextInput, Card, Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
-import ServiceCard from '../../components/Service/ServiceCard';
-import { servicesAPI } from '../../services/api';
-import { serviceOptionsAPI } from '../../services/serviceOptionsAPI';
-import { useCart } from '../../contexts/CartContext';
-import { useAuth } from '../../contexts/AuthContext';
+import ServiceCards from '../../components/ServiceCards';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { whatsappAPI } from '../../services/whatsappAPI';
-import AutoTranslateText from '../../components/AutoTranslateText';
 import { ServicesStackScreenProps } from '../../navigation/types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import AppModal from '../../components/common/AppModal';
-import { useAppModal } from '../../hooks/useAppModal';
+import { servicesAPI } from '../../services/api';
+import { Service } from '../../types';
 
 type Props = ServicesStackScreenProps<'ServicesMain'>;
 
 const ServicesScreen = ({ navigation }: Props) => {
   const theme = useTheme();
-  const { t, translateDynamicText } = useLanguage();
-  const { modalConfig, visible, hideModal, showError } = useAppModal();
-  const [services, setServices] = useState<any[]>([]);
-  const [serviceOptions, setServiceOptions] = useState<any[]>([]);
-  const [allServiceOptions, setAllServiceOptions] = useState<any[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [translatedCategories, setTranslatedCategories] = useState<{[key: string]: string}>({});
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const { t } = useLanguage();
+  const [imageLoading, setImageLoading] = useState<{[key: string]: boolean}>({});
+  const [imageError, setImageError] = useState<{[key: string]: boolean}>({});
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [showServiceOptions, setShowServiceOptions] = useState(false);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [whatsappStatus, setWhatsappStatus] = useState<boolean | null>(null);
-  const [debouncedSearch, setDebouncedSearch] = useState<string>('');
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
-  
-  // Function to translate categories
-  const translateCategories = async (categoryTitles: string[]) => {
-    const translated: {[key: string]: string} = {};
-    for (const title of categoryTitles) {
-      try {
-        const translatedTitle = await translateDynamicText(title);
-        translated[title] = translatedTitle;
-      } catch (error) {
-        // Fallback to original title if translation fails
-        translated[title] = title;
-      }
-    }
-    setTranslatedCategories(translated);
-  };
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch services and categories from API
-  useEffect(() => {
-    fetchData();
-    restoreUIState();
-    checkWhatsAppStatus();
-  }, []);
+  // Main service categories - these are the top-level categories
+  const mainServiceCategories = [
+    {
+      id: 'cleaning',
+      title: t('services.cleaning'),
+      image: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80',
+      category: 'Cleaning',
+    },
+    {
+      id: 'furniture-assembly',
+      title: t('services.furnitureAssembly'),
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80',
+      category: 'Furniture Assembly',
+    },
+    {
+      id: 'furniture-disassembly',
+      title: t('services.furnitureDisassembly'),
+      image: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80',
+      category: 'Furniture Disassembly',
+    },
+    {
+      id: 'moving',
+      title: t('services.moving'),
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80',
+      category: 'Moving',
+    },
+    {
+      id: 'office-setup',
+      title: t('services.officeSetup'),
+      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop&q=80',
+      category: 'Office Setup',
+    },
+    {
+      id: 'house-painting',
+      title: t('services.housePainting'),
+      image: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80',
+      category: 'House Painting',
+    },
+  ];
 
-  useEffect(() => {
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    debounceTimer.current = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 300);
-    return () => {
-      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+  const handleServiceCardPress = (service: Service) => {
+    // Map the translated title back to the original English category name
+    const categoryMapping: {[key: string]: string} = {
+      [t('services.cleaning')]: 'Cleaning',
+      [t('services.furnitureAssembly')]: 'Furniture Assembly',
+      [t('services.furnitureDisassembly')]: 'Furniture Disassembly',
+      [t('services.moving')]: 'Moving',
+      [t('services.officeSetup')]: 'Office Setup',
+      [t('services.housePainting')]: 'House Painting',
     };
-  }, [searchQuery]);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch main services for categories
-      const servicesData = await servicesAPI.getAllServices();
-      setServices(servicesData);
-      
-      // Fetch all service options for default (no category selected)
-      const fetchedAllOptions = await serviceOptionsAPI.getAllServiceOptions();
-      setServiceOptions(fetchedAllOptions);
-      setAllServiceOptions(fetchedAllOptions);
-      
-      // Use service titles as categories (no explicit "All" chip)
-      const serviceTitles = [...servicesData.map(service => service.title)];
-      setCategories(serviceTitles);
-      
-      // Translate categories for display
-      await translateCategories(serviceTitles);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      showError(t('common.error'), t('services.loadingServices'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const restoreUIState = async () => {
-    try {
-      const [storedCategory] = await Promise.all([
-        AsyncStorage.getItem('services:selectedCategory'),
-      ]);
-      if (storedCategory) setSelectedCategory(storedCategory);
-    } catch (e) {
-      // ignore restore errors
-    }
-  };
-
-  const fetchServices = async () => {
-    try {
-      setLoading(true);
-      const servicesData = await servicesAPI.getAllServices();
-      setServices(servicesData);
-    } catch (error) {
-      console.error('Error fetching services:', error);
-      showError(t('common.error'), t('services.failedToLoadServices'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchData();
-    setRefreshing(false);
-  };
-
-  // Handle category selection
-  const handleCategorySelect = async (category: string) => {
-    // Toggle selection: if already selected, clear to default (all)
-    if (selectedCategory === category) {
-      setSelectedCategory('');
-      setServiceOptions(allServiceOptions);
-      return;
-    }
-
-    setSelectedCategory(category);
-
-    // Find the selected service to get its ID
-    const selectedService = services.find(service => service.title === category);
-    if (selectedService) {
-      try {
-        setLoading(true);
-        const options = await serviceOptionsAPI.getServiceOptionsByCategory(selectedService.id);
-        setServiceOptions(options);
-      } catch (error) {
-        console.error('Error fetching service options:', error);
-        showError(t('common.error'), t('services.failedToLoadServiceOptions'));
-        setServiceOptions([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  const filteredServices = selectedCategory === '' 
-    ? services 
-    : services.filter(service => service.title === selectedCategory);
-
-  const filteredServiceOptions = serviceOptions.filter(option => {
-    // Filter by category
-    const categoryMatch = selectedCategory === '' || option.services?.title === selectedCategory;
     
-    // Filter by search query
-    const q = (debouncedSearch || '').toLowerCase();
-    const searchMatch = q === '' || 
-      (option.title ? option.title.toLowerCase().includes(q) : false) ||
-      (option.description ? option.description.toLowerCase().includes(q) : false) ||
-      (option.services?.title ? option.services.title.toLowerCase().includes(q) : false) ||
-      (option.services?.category ? option.services.category.toLowerCase().includes(q) : false);
+    const originalCategoryTitle = categoryMapping[service.title] || service.title;
     
-    return categoryMatch && searchMatch;
-  });
-
-  const handleBookService = (service: any) => {
-    // Navigate to booking screen
-    console.log('Book service:', service.title);
-  };
-
-  const handleCallNow = () => {
-    Linking.openURL('tel:+4916097044182').catch(() => {
-      showError(t('common.error'), t('services.couldNotOpenPhoneApp'));
+    navigation.navigate('ServiceCategory', {
+      categoryId: service.id,
+      categoryTitle: originalCategoryTitle,
     });
   };
 
-  const handleGetInTouch = () => {
-    navigation.navigate('Contact');
-  };
-
-  const checkWhatsAppStatus = async () => {
-    try {
-      const result = await whatsappAPI.testConnection();
-      setWhatsappStatus(result.status?.configured || false);
-    } catch (error) {
-      console.error('Error checking WhatsApp status:', error);
-      setWhatsappStatus(false);
-    }
-  };
-
-  const openWhatsAppSupport = async () => {
-    try {
-      const adminPhone = '+4916097044182';
-      const appUrl = `whatsapp://send?phone=${encodeURIComponent(adminPhone)}`;
-      const webUrl = `https://wa.me/${encodeURIComponent(adminPhone.replace(/[^\d]/g, ''))}`;
-
-      const canOpen = await Linking.canOpenURL(appUrl);
-      if (canOpen) {
-        await Linking.openURL(appUrl);
-        return;
-      }
-      await Linking.openURL(webUrl);
-    } catch (e) {
-      showError(t('services.support'), t('services.unableToOpenWhatsApp'));
-    }
-  };
-
-  const clearFilters = async () => {
-    setSelectedCategory('');
-    setServiceOptions(allServiceOptions);
-    try { await AsyncStorage.setItem('services:selectedCategory', ''); } catch {}
-  };
-
-  // Simple featured/recommended derivations
-  const featured = allServiceOptions.slice(0, 8);
-  const recommended = allServiceOptions.slice(0, 8);
+  // Set the main service categories - update when language changes
+  useEffect(() => {
+    // Convert to Service interface format
+    const serviceCategories: Service[] = mainServiceCategories.map(category => ({
+      id: category.id,
+      title: category.title,
+      description: `${category.title} services`,
+      image: category.image,
+      category: category.title,
+      pricingType: 'fixed' as const,
+      price: 0,
+      features: [],
+      displayOrder: 0,
+      isActive: true,
+      serviceVariants: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }));
+    
+    setServices(serviceCategories);
+    setLoading(false);
+  }, [t]); // Add t as dependency to re-run when language changes
 
   return (
     <SafeAreaView style={styles.container}>
       <AppHeader title={t('services.title')} />
       
-      <ScrollView 
-        style={styles.scrollView} 
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
-        }
-      >
-
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
+      {/* Fixed Search Bar */}
+      <View style={[styles.searchContainer, { backgroundColor: theme.colors.background }]}>
           <TextInput
             mode="outlined"
             placeholder={t('services.searchServices')}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
             style={[styles.searchInput, { backgroundColor: theme.colors.surface }]}
             left={<TextInput.Icon icon="magnify" color={theme.colors.onSurfaceVariant} />}
-            right={searchQuery ? (
-              <TextInput.Icon icon="close" onPress={() => setSearchQuery('')} color={theme.colors.onSurfaceVariant} />
-            ) : undefined}
             outlineColor={theme.colors.outline}
             activeOutlineColor={theme.colors.primary}
             textColor={theme.colors.onSurface}
@@ -263,140 +131,111 @@ const ServicesScreen = ({ navigation }: Props) => {
           />
         </View>
         
-        {/* Services - compact carousel */}
-        <View style={styles.servicesCarouselSection}>
-          <View style={styles.sectionHeaderRow}>
-            <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>{t('services.serviceOptions')}</Text>
-          </View>
+      <ScrollView 
+        style={styles.scrollView} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Services Section */}
+        <View style={styles.servicesSection}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+            {t('services.ourServices')}
+          </Text>
           
-          {/* Category Filter */}
-        <View style={styles.categoryContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-            <Button mode="text" onPress={clearFilters} style={styles.clearFiltersBtn}>{t('services.clear')}</Button>
-            {(categories || []).map((category) => {
-              const isSelected = selectedCategory === category;
-              return (
-                <Chip
-                key={category}
-                mode={isSelected ? 'flat' : 'outlined'}
-                selected={isSelected}
-                onPress={() => handleCategorySelect(category)}
-                style={[
-                  styles.categoryChip,
-                  isSelected ? { backgroundColor: theme.colors.primary } : { borderColor: theme.colors.primary }
-                ]}
-                textStyle={{ color: isSelected ? theme.colors.onPrimary : theme.colors.primary }}
-                >
-                  {translatedCategories[category] || category}
-                </Chip>
-              );
-            })}
-          </ScrollView>
-        </View>
           {loading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={theme.colors.primary} />
-              <Text variant="bodyLarge" style={{ color: theme.colors.onSurface, marginTop: 16 }}>
-                {t('services.loadingServicesText')}
+              <Text style={[styles.loadingText, { color: theme.colors.onSurface }]}>
+                Loading services...
               </Text>
             </View>
-          ) : filteredServiceOptions.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Ionicons name="search-outline" size={64} color={theme.colors.outline} />
-              <Text variant="headlineSmall" style={[styles.emptyTitle, { color: theme.colors.onSurface }]}>
-                {searchQuery ? t('services.noSearchResults') : t('services.noServiceOptionsFound')}
+          ) : error ? (
+            <View style={styles.errorContainer}>
+              <Text style={[styles.errorText, { color: theme.colors.error }]}>
+                {error}
               </Text>
-              <Text variant="bodyLarge" style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
-                {searchQuery 
-                  ? `${t('services.noServicesFoundForQuery')} "${searchQuery}"`
-                  : selectedCategory === t('services.all') 
-                  ? t('services.noServiceOptionsAvailable') 
-                  : `${t('services.noOptionsAvailableFor')} ${translatedCategories[selectedCategory] || selectedCategory}`
-                }
-              </Text>
+              <Button 
+                mode="contained" 
+                onPress={() => {
+                  setError(null);
+                  setLoading(true);
+                  // Retry fetching services
+                  servicesAPI.getAllServices()
+                    .then(setServices)
+                    .catch(() => setError('Failed to load services'))
+                    .finally(() => setLoading(false));
+                }}
+                style={{ marginTop: 16 }}
+              >
+                Retry
+              </Button>
             </View>
           ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carouselList}>
-              {filteredServiceOptions.map((option) => (
-                <View key={option.id || Math.random().toString()} style={{ width: 260, marginRight: 12 }}>
-                  <ServiceCard
-                    id={option.id || ''}
-                    title={option.title || ''}
-                    description={option.description || ''}
-                    image={option.services?.image_url || 'https://via.placeholder.com/300x200'}
-                    price={option.price}
-                    duration={option.duration || ''}
-                    category={option.services?.category || ''}
-                    pricing_type={option.pricing_type}
-                    unit_price={option.unit_price}
-                    unit_measure={option.unit_measure}
-                    min_measurement={option.min_measurement}
-                    max_measurement={option.max_measurement}
-                    measurement_step={option.measurement_step}
-                    measurement_placeholder={option.measurement_placeholder}
-                    service_id={option.service_id}
-                    compact
-                  />
-                </View>
+            <View style={styles.servicesGrid}>
+              {services.map((service) => (
+                <TouchableOpacity
+                  key={service.id}
+                  style={[styles.serviceCard, { backgroundColor: theme.colors.surface }]}
+                  activeOpacity={0.8}
+                  onPress={() => handleServiceCardPress(service)}
+                >
+                  <View style={styles.imageContainer}>
+                    {imageLoading[service.id] && (
+                      <View style={styles.imageLoader}>
+                        <ActivityIndicator size="small" color={theme.colors.primary} />
+                      </View>
+                    )}
+                    <Image 
+                      source={{ uri: service.image || 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80' }} 
+                      style={styles.serviceImage}
+                      onLoadStart={() => setImageLoading(prev => ({ ...prev, [service.id]: true }))}
+                      onLoadEnd={() => setImageLoading(prev => ({ ...prev, [service.id]: false }))}
+                      onError={() => {
+                        setImageLoading(prev => ({ ...prev, [service.id]: false }));
+                        setImageError(prev => ({ ...prev, [service.id]: true }));
+                      }}
+                    />
+                    <View style={styles.imageOverlay} />
+                    {imageError[service.id] && (
+                      <View style={styles.imageErrorContainer}>
+                        <Text style={[styles.imageErrorText, { color: theme.colors.onSurface }]}>
+                          📷
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.serviceContent}>
+                    <Text variant="titleMedium" style={[styles.serviceTitle, { color: theme.colors.onSurface }]}>
+                      {service.title}
+                    </Text>
+                    <View style={styles.buttonContainer}>
+                      <Button
+                        mode="contained"
+                        style={[styles.viewButton, { backgroundColor: theme.colors.primary }]}
+                        contentStyle={styles.viewButtonContent}
+                        labelStyle={[styles.viewButtonLabel, { color: theme.colors.onPrimary }]}
+                        onPress={() => handleServiceCardPress(service)}
+                      >
+                        {t('common.order')}
+                      </Button>
+                    </View>
+                  </View>
+                </TouchableOpacity>
               ))}
-            </ScrollView>
+            </View>
           )}
         </View>
         
-        
-  
-
-        {/* Recommended */}
-        <View style={styles.sectionHeaderRow}>
-          <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>{t('services.recommendedForYou')}</Text>
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carouselList}>
-          {recommended.map((option) => (
-            <View key={`r-${option.id || Math.random().toString()}`} style={{ width: 260, marginRight: 12 }}>
-              <ServiceCard
-                id={option.id || ''}
-                title={option.title || ''}
-                description={option.description || ''}
-                image={option.services?.image_url || 'https://via.placeholder.com/300x200'}
-                price={option.price}
-                duration={option.duration || ''}
-                category={option.services?.category || ''}
-                pricing_type={option.pricing_type}
-                unit_price={option.unit_price}
-                unit_measure={option.unit_measure}
-                min_measurement={option.min_measurement}
-                max_measurement={option.max_measurement}
-                measurement_step={option.measurement_step}
-                measurement_placeholder={option.measurement_placeholder}
-                service_id={option.service_id}
-                compact
-              />
-            </View>
-          ))}
-        </ScrollView>
-
+        {/* Service Cards Section */}
+        <ServiceCards 
+          onServicePress={(categoryId, categoryTitle) => {
+            navigation.navigate('ServiceCategory', {
+              categoryId,
+              categoryTitle,
+            });
+          }}
+        />
       </ScrollView>
-      <FAB
-        icon="message"
-        style={styles.supportFab}
-        size="small"
-        onPress={openWhatsAppSupport}
-      />
-
-      {/* App Modal */}
-      <AppModal
-        visible={visible}
-        onDismiss={hideModal}
-        title={modalConfig?.title || ''}
-        message={modalConfig?.message || ''}
-        type={modalConfig?.type}
-        showCancel={modalConfig?.showCancel}
-        confirmText={modalConfig?.confirmText}
-        cancelText={modalConfig?.cancelText}
-        onConfirm={modalConfig?.onConfirm}
-        onCancel={modalConfig?.onCancel}
-        icon={modalConfig?.icon}
-      />
     </SafeAreaView>
   );
 };
@@ -437,8 +276,17 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     paddingHorizontal: 20,
-    marginTop: 12,
-    marginBottom: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   searchInput: {
     borderRadius: 16,
@@ -451,68 +299,120 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
-  
-  categoryContainer: {
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  servicesSection: {
+    paddingVertical: 20,
+  },
+  sectionTitle: {
     paddingHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 16,
+    fontWeight: '700',
   },
-  categoryScroll: {
+  servicesGrid: {
     flexDirection: 'row',
-  },
-  categoryChip: {
-    marginRight: 12,
-    borderRadius: 20,
-    height: 40,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
-  clearFiltersBtn: {
-    marginLeft: 8,
-    alignSelf: 'center',
-  },
-  servicesCarouselSection: {
-    paddingVertical: 8,
-  },
-  sectionHeaderRow: {
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexWrap: 'wrap',
+    paddingHorizontal: 20,
     justifyContent: 'space-between',
   },
-  carouselList: {
-    paddingLeft: 16,
-    paddingRight: 8,
-    paddingBottom: 12,
-    gap: 12,
-  },
-  compactCard: {
-    width: 240,
-    marginRight: 12,
-    borderRadius: 14,
-  },
-  compactInner: {
+  serviceCard: {
+    width: (Dimensions.get('window').width - 60) / 2, // 2 cards per row with margins
+    marginBottom: 20,
+    borderRadius: 16,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
     overflow: 'hidden',
-    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
   },
-  compactImage: {
-    height: 120,
+  imageContainer: {
+    position: 'relative',
+    height: 160,
+    backgroundColor: '#F5F5F5',
   },
-  compactContent: {
-    paddingTop: 8,
+  serviceImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
-  compactButtons: {
-    marginTop: 8,
-    flexDirection: 'row',
-    gap: 8,
+  imageLoader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    zIndex: 1,
   },
-  compactPrimaryBtn: {
-    borderRadius: 10,
-    flexGrow: 1,
+  imageErrorContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    zIndex: 1,
   },
-  compactSecondaryBtn: {
-    borderRadius: 10,
+  imageErrorText: {
+    fontSize: 32,
+    opacity: 0.5,
   },
+  imageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    zIndex: 0,
+  },
+  serviceContent: {
+    padding: 20,
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  serviceTitle: {
+    fontWeight: '700',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 16,
+    color: '#1A1A1A',
+  },
+  buttonContainer: {
+    alignItems: 'center',
+  },
+  viewButton: {
+    borderRadius: 25,
+    minWidth: 120,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  viewButtonContent: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+  },
+  viewButtonLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+  },
+  
   heroBanner: {
     paddingHorizontal: 20,
     paddingTop: 16,
@@ -554,14 +454,9 @@ const styles = StyleSheet.create({
   badgeChip: {
     borderRadius: 12,
   },
-  supportFab: {
-    position: 'absolute',
-    right: 16,
-    bottom: 24,
-    width: 48,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
+  buttonContent: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
   },
   loadingContainer: {
     flex: 1,
@@ -569,26 +464,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 60,
   },
-  emptyContainer: {
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+  },
+  errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 60,
-  },
-  emptyTitle: {
-    marginTop: 20,
-    marginBottom: 12,
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  emptyText: {
-    textAlign: 'center',
-    opacity: 0.7,
-    lineHeight: 22,
-  },
-  buttonContent: {
-    paddingVertical: 12,
     paddingHorizontal: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { translations, SupportedLanguage, supportedLanguages } from '../translations';
 import { reactNativeTranslateService } from '../services/reactNativeTranslateService';
@@ -64,7 +64,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     }
   };
 
-  const t = (key: string): string => {
+  const t = useCallback((key: string): string => {
     try {
       const keys = key.split('.');
       let value: any = translations[currentLanguage as keyof typeof translations];
@@ -93,31 +93,9 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       console.error('Translation error:', error);
       return key;
     }
-  };
+  }, [currentLanguage]);
 
-  // Enhanced t function that automatically translates text not found in static translations
-  const tAuto = async (key: string): Promise<string> => {
-    // First try static translation
-    const staticTranslation = t(key);
-    if (staticTranslation !== key) {
-      return staticTranslation;
-    }
-
-    // If not found in static translations and not English, translate dynamically
-    if (currentLanguage !== 'en') {
-      try {
-        const translated = await translateDynamicText(key);
-        return translated;
-      } catch (error) {
-        console.error('Auto translation failed:', error);
-        return key;
-      }
-    }
-
-    return key;
-  };
-
-  const translateDynamicText = async (text: string): Promise<string> => {
+  const translateDynamicText = useCallback(async (text: string): Promise<string> => {
     if (currentLanguage === 'en') {
       return text;
     }
@@ -136,9 +114,31 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     } finally {
       setIsTranslating(false);
     }
-  };
+  }, [currentLanguage]);
 
-  const translateObject = async (obj: any): Promise<any> => {
+  // Enhanced t function that automatically translates text not found in static translations
+  const tAuto = useCallback(async (key: string): Promise<string> => {
+    // First try static translation
+    const staticTranslation = t(key);
+    if (staticTranslation !== key) {
+      return staticTranslation;
+    }
+
+    // If not found in static translations and not English, translate dynamically
+    if (currentLanguage !== 'en') {
+      try {
+        const translated = await translateDynamicText(key);
+        return translated;
+      } catch (error) {
+        console.error('Auto translation failed:', error);
+        return key;
+      }
+    }
+
+    return key;
+  }, [t, translateDynamicText, currentLanguage]);
+
+  const translateObject = useCallback(async (obj: any): Promise<any> => {
     if (currentLanguage === 'en') {
       return obj;
     }
@@ -152,9 +152,9 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     } finally {
       setIsTranslating(false);
     }
-  };
+  }, [currentLanguage]);
 
-  const detectLanguage = async (text: string): Promise<string> => {
+  const detectLanguage = useCallback(async (text: string): Promise<string> => {
     try {
       const result = await reactNativeTranslateService.detectLanguage(text);
       return result.language;
@@ -162,7 +162,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       console.error('Language detection error:', error);
       return 'en'; // Default to English
     }
-  };
+  }, []);
 
   const value: LanguageContextType = {
     currentLanguage,

@@ -7,7 +7,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Text, TextProps } from 'react-native';
-import { useLanguage } from '../contexts/LanguageContext';
 
 interface AutoTranslateTextProps extends TextProps {
   children: string;
@@ -15,17 +14,22 @@ interface AutoTranslateTextProps extends TextProps {
   showLoading?: boolean;
   loadingText?: string;
   useStaticFirst?: boolean; // Try static translation first, then Google Translate
+  t?: (key: string) => string; // Translation function
+  translateDynamicText?: (text: string) => Promise<string>; // Dynamic translation function
+  currentLanguage?: string; // Current language
 }
 
-export const AutoTranslateText: React.FC<AutoTranslateTextProps> = ({
+const AutoTranslateText: React.FC<AutoTranslateTextProps> = ({
   children,
   fallback,
   showLoading = false,
   loadingText = 'Translating...',
   useStaticFirst = true,
+  t,
+  translateDynamicText,
+  currentLanguage = 'en',
   ...textProps
 }) => {
-  const { t, translateDynamicText, currentLanguage } = useLanguage();
   const [translatedText, setTranslatedText] = useState<string>(children);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,8 +41,14 @@ export const AutoTranslateText: React.FC<AutoTranslateTextProps> = ({
         return;
       }
 
-      // Try static translation first if enabled
-      if (useStaticFirst) {
+      // Skip if children is empty or only whitespace
+      if (!children || !children.trim()) {
+        setTranslatedText(children);
+        return;
+      }
+
+      // Try static translation first if enabled and t function is provided
+      if (useStaticFirst && t) {
         const staticTranslation = t(children);
         if (staticTranslation !== children) {
           setTranslatedText(staticTranslation);
@@ -46,16 +56,21 @@ export const AutoTranslateText: React.FC<AutoTranslateTextProps> = ({
         }
       }
 
-      // Use Google Translate for dynamic translation
-      setIsLoading(true);
-      try {
-        const translated = await translateDynamicText(children);
-        setTranslatedText(translated || fallback || children);
-      } catch (error) {
-        console.error('Translation failed:', error);
-        setTranslatedText(fallback || children);
-      } finally {
-        setIsLoading(false);
+      // Use Google Translate for dynamic translation if function is provided
+      if (translateDynamicText) {
+        setIsLoading(true);
+        try {
+          const translated = await translateDynamicText(children);
+          setTranslatedText(translated || fallback || children);
+        } catch (error) {
+          console.error('Translation failed:', error);
+          setTranslatedText(fallback || children);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        // If no translation functions provided, just use the original text
+        setTranslatedText(children);
       }
     };
 
@@ -66,5 +81,7 @@ export const AutoTranslateText: React.FC<AutoTranslateTextProps> = ({
 
   return <Text {...textProps}>{displayText}</Text>;
 };
+
+AutoTranslateText.displayName = 'AutoTranslateText';
 
 export default AutoTranslateText;

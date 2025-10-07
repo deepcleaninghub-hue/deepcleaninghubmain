@@ -424,6 +424,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                 serviceTime={serviceTime}
                 onTimeChange={setServiceTime}
                 maxDays={7}
+                t={t}
               />
             ) : (
               <View style={styles.dateTimeRow}>

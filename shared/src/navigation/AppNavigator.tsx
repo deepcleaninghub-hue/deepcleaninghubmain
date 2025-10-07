@@ -19,6 +19,7 @@ import { useCart } from '../contexts/CartContext';
 // Import screens
 import HomeScreen from '../screens/main/HomeScreen';
 import ServicesScreen from '../screens/main/ServicesScreen';
+import ServiceCategoryScreen from '../screens/main/ServiceCategoryScreen';
 import { CartScreen } from '../screens/main/CartScreen';
 import CheckoutScreen from '../screens/main/CheckoutScreen';
 import OrderConfirmationScreen from '../screens/main/OrderConfirmationScreen';
@@ -72,6 +73,7 @@ const ServicesStack = () => {
   return (
     <ServicesStackNavigator.Navigator screenOptions={{ headerShown: false }}>
       <ServicesStackNavigator.Screen name="ServicesMain" component={ServicesScreen} />
+      <ServicesStackNavigator.Screen name="ServiceCategory" component={ServiceCategoryScreen} />
       <ServicesStackNavigator.Screen name="Contact" component={ContactScreen} />
     </ServicesStackNavigator.Navigator>
   );

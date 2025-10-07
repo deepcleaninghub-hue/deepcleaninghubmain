@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -8,7 +8,6 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text, Card, Button, Chip, useTheme, Divider, IconButton } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { useLanguage } from '../contexts/LanguageContext';
 import { useAppModal } from '../hooks/useAppModal';
 
 interface BookingDate {
@@ -23,6 +22,7 @@ interface MultiDateSelectorProps {
   serviceTime: Date;
   onTimeChange: (time: Date) => void;
   maxDays?: number;
+  t: (key: string) => string;
 }
 
 const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
@@ -31,13 +31,19 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
   serviceTime,
   onTimeChange,
   maxDays = 7,
+  t,
 }) => {
   const theme = useTheme();
-  const { t } = useLanguage();
   const { showError } = useAppModal();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [tempDate, setTempDate] = useState(new Date());
+  const [tempTime, setTempTime] = useState(new Date());
+
+  // Initialize tempTime with serviceTime
+  useEffect(() => {
+    setTempTime(serviceTime);
+  }, [serviceTime]);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
@@ -66,11 +72,13 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
   };
 
   const handleTimeChange = (event: any, selectedTime?: Date) => {
+    console.log('Time picker changed:', selectedTime);
     if (Platform.OS === 'android') {
       setShowTimePicker(false);
     }
     if (selectedTime) {
-      onTimeChange(selectedTime);
+      setTempTime(selectedTime);
+      console.log('Updated tempTime to:', selectedTime);
     }
   };
 
@@ -80,10 +88,16 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
       return;
     }
 
-    if (!tempDate || !serviceTime) return;
+    if (!tempDate || !tempTime) return;
 
-    const dateString = tempDate?.toISOString()?.split('T')[0];
-    const timeString = serviceTime?.toTimeString()?.split(' ')[0]?.substring(0, 5);
+    // Format date as YYYY-MM-DD in local timezone
+    const dateString = tempDate?.getFullYear() + '-' + 
+      String(tempDate?.getMonth() + 1).padStart(2, '0') + '-' + 
+      String(tempDate?.getDate()).padStart(2, '0');
+    
+    // Format time as HH:MM in 24-hour format
+    const timeString = String(tempTime?.getHours()).padStart(2, '0') + ':' + 
+      String(tempTime?.getMinutes()).padStart(2, '0');
 
     // Check if this date is already selected
     const isDuplicate = selectedDates.some(
@@ -101,6 +115,10 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
       id: `${dateString || ''}_${timeString || ''}_${Date.now()}`,
     };
 
+    console.log('Adding new date:', newDate);
+    console.log('tempTime:', tempTime);
+    console.log('timeString:', timeString);
+
     onDatesChange([...selectedDates, newDate].sort((a, b) => 
       new Date(a.date).getTime() - new Date(b.date).getTime()
     ));
@@ -116,6 +134,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
 
   const handleTimeConfirm = () => {
     setShowTimePicker(false);
+    onTimeChange(tempTime);
   };
 
   return (
@@ -140,11 +159,14 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
             </Text>
             <Button
               mode="outlined"
-              onPress={() => setShowTimePicker(true)}
+              onPress={() => {
+                console.log('Opening time picker, current tempTime:', tempTime);
+                setShowTimePicker(true);
+              }}
               style={styles.timeButton}
               icon="clock-outline"
             >
-              {formatTime(serviceTime)}
+              {formatTime(tempTime)}
             </Button>
           </View>
 
@@ -194,7 +216,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
                       textStyle={{ color: theme.colors.primary }}
                       icon="calendar"
                     >
-                      {formatDate(new Date(date.date))}
+                      {formatDate(new Date(date.date))} {date.time}
                     </Chip>
                   ))}
                 </View>
@@ -270,7 +292,7 @@ const MultiDateSelector: React.FC<MultiDateSelectorProps> = ({
                   {t('checkout.selectTime')}
                 </Text>
                 <DateTimePicker
-                  value={serviceTime}
+                  value={tempTime}
                   mode="time"
                   display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                   onChange={handleTimeChange}

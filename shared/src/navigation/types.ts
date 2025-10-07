@@ -38,6 +38,7 @@ export type HomeStackParamList = {
 // Services Stack
 export type ServicesStackParamList = {
   ServicesMain: undefined;
+  ServiceCategory: { categoryId: string; categoryTitle: string };
   ServiceDetails: { serviceId: string };
   ServiceOptions: { serviceId: string };
   Contact: undefined;

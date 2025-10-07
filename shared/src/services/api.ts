@@ -8,6 +8,7 @@
 import { httpClient } from './httpClient';
 import { 
   Service, 
+  ServiceVariant,
   CartItem, 
   CartSummary, 
   Booking, 
@@ -44,10 +45,18 @@ const transformService = (apiService: any): Service => ({
     serviceId: variant.service_id,
     title: variant.title,
     description: variant.description,
-    price: variant.price,
+    price: parseFloat(variant.price) || 0,
     duration: variant.duration,
-    features: variant.features || [],
+    features: Array.isArray(variant.features) ? variant.features : (typeof variant.features === 'string' ? JSON.parse(variant.features) : []),
     isActive: variant.is_active,
+    pricingType: variant.pricing_type,
+    unitPrice: variant.unit_price ? parseFloat(variant.unit_price) : undefined,
+    unitMeasure: variant.unit_measure,
+    minMeasurement: variant.min_measurement,
+    maxMeasurement: variant.max_measurement,
+    measurementStep: variant.measurement_step,
+    measurementPlaceholder: variant.measurement_placeholder,
+    displayOrder: variant.display_order,
     createdAt: variant.created_at,
     updatedAt: variant.updated_at,
   })),
@@ -117,6 +126,66 @@ export const servicesAPI = {
       return [];
     } catch (error) {
       secureLog('error', 'Error fetching categories', { error });
+      return [];
+    }
+  },
+
+  async getServiceVariantsByCategory(category: string): Promise<ServiceVariant[]> {
+    try {
+      const response = await httpClient.get<ApiResponse<any[]>>('/service-options', { category });
+      
+      if (response.success && response.data) {
+        return response.data.map((variant: any) => ({
+          id: variant.id,
+          serviceId: variant.service_id,
+          title: variant.title,
+          description: variant.description,
+          price: variant.price,
+          duration: variant.duration,
+          features: variant.features || [],
+          isActive: variant.is_active,
+          createdAt: variant.created_at,
+          updatedAt: variant.updated_at,
+        }));
+      }
+      
+      return [];
+    } catch (error) {
+      secureLog('error', 'Error fetching service variants by category', { error, category });
+      return [];
+    }
+  },
+
+  async getServiceVariantsByServiceId(serviceId: string): Promise<ServiceVariant[]> {
+    try {
+      const response = await httpClient.get<ApiResponse<any[]>>('/service-variants', { service_id: serviceId });
+      
+      if (response.success && response.data) {
+        return response.data.map((variant: any) => ({
+          id: variant.id,
+          serviceId: variant.service_id,
+          title: variant.title,
+          description: variant.description,
+          price: parseFloat(variant.price) || 0,
+          duration: variant.duration,
+          features: Array.isArray(variant.features) ? variant.features : (typeof variant.features === 'string' ? JSON.parse(variant.features) : []),
+          isActive: variant.is_active,
+          pricingType: variant.pricing_type,
+          unitPrice: variant.unit_price ? parseFloat(variant.unit_price) : undefined as number | undefined,
+          unitMeasure: variant.unit_measure,
+          minMeasurement: variant.min_measurement,
+          maxMeasurement: variant.max_measurement,
+          measurementStep: variant.measurement_step,
+          measurementPlaceholder: variant.measurement_placeholder,
+          displayOrder: variant.display_order,
+          createdAt: variant.created_at,
+          updatedAt: variant.updated_at,
+        }));
+      }
+      
+      return [];
+    } catch (error) {
+      secureLog('error', 'Error fetching service variants by service ID', { error, serviceId });
       return [];
     }
   },

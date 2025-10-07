@@ -12,6 +12,7 @@ import AutoTranslateText from '../../components/AutoTranslateText';
 import { CartStackScreenProps } from '../../navigation/types';
 import AppModal from '../../components/common/AppModal';
 import { useAppModal } from '../../hooks/useAppModal';
+import ServiceCategoryCard from '../../components/ServiceCategoryCard';
 
 type Props = CartStackScreenProps<'CartMain'>;
 
@@ -30,6 +31,46 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
   } = useCart();
   const { modalConfig, visible, hideModal, showError } = useAppModal();
 
+  // Main service categories - same as in ServicesScreen
+  const mainServiceCategories = [
+    {
+      id: 'cleaning',
+      title: 'Cleaning',
+      image: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80',
+      category: 'Cleaning',
+    },
+    {
+      id: 'furniture-assembly',
+      title: 'Furniture Assembly',
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80',
+      category: 'Furniture Assembly',
+    },
+    {
+      id: 'furniture-disassembly',
+      title: 'Furniture Disassembly',
+      image: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80',
+      category: 'Furniture Disassembly',
+    },
+    {
+      id: 'moving',
+      title: 'Moving',
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80',
+      category: 'Moving',
+    },
+    {
+      id: 'office-setup',
+      title: 'Office Setup',
+      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop&q=80',
+      category: 'Office Setup',
+    },
+    {
+      id: 'house-painting',
+      title: 'House Painting',
+      image: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80',
+      category: 'House Painting',
+    },
+  ];
+
   const handleCheckout = () => {
     if (!isAuthenticated) {
       showError(t('cart.loginRequired'), t('cart.loginToCheckout'));
@@ -40,6 +81,21 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleClearCart = () => {
     clearCart();
+  };
+
+  const handleServiceCardPress = (service: any) => {
+    // Navigate to Services tab and then to the specific category
+    // We need to use the parent navigator to switch tabs
+    const parentNavigation = navigation.getParent();
+    if (parentNavigation) {
+      parentNavigation.navigate('Services', {
+        screen: 'ServiceCategory',
+        params: {
+          categoryId: service.id,
+          categoryTitle: service.title,
+        },
+      });
+    }
   };
 
   if (!isAuthenticated) {
@@ -215,6 +271,31 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             {loading ? <ActivityIndicator size="small" color="white" /> : t('cart.proceedToCheckout')}
           </Button>
         </View>
+
+        {/* Add More Services Section */}
+        <View style={styles.addMoreServicesSection}>
+          <Text variant="titleMedium" style={[styles.addMoreTitle, { color: theme.colors.onSurface }]}>
+            {t('cart.addMoreServices')}
+          </Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalScrollContent}
+            style={styles.horizontalScroll}
+          >
+            {mainServiceCategories.map((service) => (
+              <ServiceCategoryCard
+                key={service.id}
+                id={service.id}
+                title={service.title}
+                image={service.image}
+                onPress={() => handleServiceCardPress(service)}
+                compact={true}
+                showButton={false}
+              />
+            ))}
+          </ScrollView>
+        </View>
       </ScrollView>
       
       {/* App Modal */}
@@ -378,8 +459,23 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 32,
+    marginBottom: 24,
     alignItems: 'stretch',
+  },
+  addMoreServicesSection: {
+    marginBottom: 32,
+  },
+  addMoreTitle: {
+    fontWeight: '600',
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  horizontalScroll: {
+    marginHorizontal: -8,
+  },
+  horizontalScrollContent: {
+    paddingHorizontal: 8,
+    paddingBottom: 8,
   },
   clearButton: {
     flex: 1.3,

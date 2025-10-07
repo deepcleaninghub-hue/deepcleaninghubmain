@@ -231,7 +231,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
       const cartItemData = {
         service_id: service.id,
-        quantity: 1,
+        quantity: userInputs?.quantity || 1,
         user_inputs: userInputs || {},
         calculated_price: calculatedPrice || service.price || 0,
       };

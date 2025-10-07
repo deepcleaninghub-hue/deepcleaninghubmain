@@ -11,6 +11,8 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  Linking,
+  Alert,
 } from 'react-native';
 import { Text, Card, useTheme, Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,6 +32,51 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleChangeLanguage = () => {
     setLanguageSelectorVisible(true);
+  };
+
+  // CTA Button Handlers
+  const handleCall = async () => {
+    try {
+      const phoneNumber = '+1234567890'; // Replace with actual phone number
+      const phoneUrl = `tel:${phoneNumber}`;
+      const canOpen = await Linking.canOpenURL(phoneUrl);
+      
+      if (canOpen) {
+        await Linking.openURL(phoneUrl);
+      } else {
+        Alert.alert(t('common.error'), t('home.cta.couldNotOpenPhoneApp'));
+      }
+    } catch (error) {
+      console.error('Error opening phone app:', error);
+      Alert.alert(t('common.error'), t('home.cta.couldNotOpenPhoneApp'));
+    }
+  };
+
+  const handleWhatsApp = async () => {
+    try {
+      const phoneNumber = '+1234567890'; // Replace with actual phone number
+      const message = t('home.cta.whatsappMessage');
+      const whatsappUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+      
+      const canOpen = await Linking.canOpenURL(whatsappUrl);
+      
+      if (canOpen) {
+        await Linking.openURL(whatsappUrl);
+      } else {
+        // Fallback to web WhatsApp
+        const webWhatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        await Linking.openURL(webWhatsappUrl);
+      }
+    } catch (error) {
+      console.error('Error opening WhatsApp:', error);
+      Alert.alert(t('common.error'), t('home.cta.couldNotOpenWhatsApp'));
+    }
+  };
+
+  const handleInquire = () => {
+    // Navigate to contact us page for inquiry
+    // Since we're in HomeStack, we need to navigate to the Services tab first, then to Contact
+    navigation.getParent()?.navigate('Services', { screen: 'Contact' });
   };
 
   // Carousel images data - real cleaning service images
@@ -135,7 +182,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                 style={styles.overlayButton}
                 contentStyle={styles.overlayButtonContent}
                 labelStyle={styles.overlayButtonLabel}
-                icon={() => <Ionicons name="briefcase" size={16} color="white" />}
+                icon={() => <Ionicons name="briefcase" size={20} color="white" />}
                 compact
               >
                 {t('home.ourServices')}
@@ -159,10 +206,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
               <View style={styles.ctaButtonsContainer}>
                 <Button
                   mode="contained"
-                  onPress={() => {
-                    // Handle call action
-                    console.log('Call button pressed');
-                  }}
+                  onPress={handleCall}
                   style={[styles.ctaButton, styles.callButton, { backgroundColor: theme.colors.primary }]}
                   contentStyle={styles.ctaButtonContent}
                   labelStyle={[styles.ctaButtonLabel, { color: theme.colors.onPrimary }]}
@@ -173,10 +217,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                   
                   <Button
                     mode="contained"
-                    onPress={() => {
-                      // Handle WhatsApp action
-                      console.log('WhatsApp button pressed');
-                    }}
+                    onPress={handleWhatsApp}
                     style={[styles.ctaButton, styles.whatsappButton, { backgroundColor: '#25D366' }]}
                     contentStyle={styles.ctaButtonContent}
                     labelStyle={[styles.ctaButtonLabel, { color: 'white' }]}
@@ -187,14 +228,11 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                   
                   <Button
                     mode="contained"
-                    onPress={() => {
-                      // Handle inquire action
-                      console.log('Inquire button pressed');
-                    }}
+                    onPress={handleInquire}
                     style={[styles.ctaButton, styles.inquireButton, { backgroundColor: theme.colors.secondary }]}
                     contentStyle={styles.ctaButtonContent}
                     labelStyle={[styles.ctaButtonLabel, { color: theme.colors.onSecondary }]}
-                    icon={() => <Ionicons name="mail" size={18} color={theme.colors.onSecondary} />}
+                    icon={() => <Ionicons name="chatbubble-outline" size={18} color={theme.colors.onSecondary} />}
                   >
                     {t('home.cta.inquire')}
                   </Button>
@@ -432,11 +470,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
   },
   overlayButtonContent: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
   },
   overlayButtonLabel: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '700',
     color: 'white',
   },
