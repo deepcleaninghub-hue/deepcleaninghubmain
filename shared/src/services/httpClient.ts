@@ -6,9 +6,10 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import { API_BASE_URL } from '../config/environment';
 
-// Simple base URL configuration - matches original apps
-const BASE_URL = 'http://192.168.29.120:5001/api';
+// Use environment configuration for proper API URL
+const BASE_URL = API_BASE_URL;
 
 interface HttpOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

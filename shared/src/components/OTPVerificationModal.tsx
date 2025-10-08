@@ -78,7 +78,7 @@ export const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
 
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.29.120:5001/api/auth/verify-otp', {
+      const response = await fetch('http://localhost:5001/api/auth/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ export const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
   const handleResendOTP = async () => {
     setResendLoading(true);
     try {
-      const response = await fetch('http://192.168.29.120:5001/api/auth/resend-otp', {
+      const response = await fetch('http://localhost:5001/api/auth/resend-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,8 +2,10 @@ import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse 
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import { API_BASE_URL } from '../config/environment';
 
-const BASE_URL = 'http://192.168.29.65:5001/api'; // Use local backend
+// Use environment configuration for proper API URL
+const BASE_URL = API_BASE_URL;
 
 class HttpClient {
   private client: AxiosInstance;

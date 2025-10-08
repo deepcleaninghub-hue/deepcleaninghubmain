@@ -7,6 +7,21 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const { connectDB } = require('./config/database');
+
+// Environment configuration
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const isProduction = NODE_ENV === 'production';
+
+// API URL configuration based on environment
+const getApiBaseUrl = () => {
+  if (isProduction) {
+    return process.env.API_BASE_URL || 'http://13.211.76.43:5001/api';
+  } else {
+    return process.env.API_BASE_URL || 'http://192.168.29.112:5001/api';
+  }
+};
+
+const API_BASE_URL = getApiBaseUrl();
 const errorHandler = require('./middleware/errorHandler');
 const notFound = require('./middleware/notFound');
 
@@ -43,16 +58,19 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
     
+    // Get the base IP for CORS origins
+    const baseIp = isProduction ? '13.211.76.43' : '192.168.29.112';
+    
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
       'http://localhost:3000',
       'http://localhost:8081',
       'http://localhost:8082',
       'http://localhost:19000',
       'http://localhost:19006',
-      'exp://192.168.29.65:8081',
-      'exp://192.168.29.65:8082',
-      'exp://192.168.29.65:19000',
-      'exp://192.168.29.65:19006'
+      `exp://${baseIp}:8081`,
+      `exp://${baseIp}:8082`,
+      `exp://${baseIp}:19000`,
+      `exp://${baseIp}:19006`
     ];
     
     if (allowedOrigins.indexOf(origin) !== -1) {
@@ -141,11 +159,14 @@ app.use(errorHandler);
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
+  const baseIp = isProduction ? '13.211.76.43' : '192.168.29.112';
+  
   console.log(`🚀 Deep Cleaning Hub API server running on port ${PORT}`);
-  console.log(`📱 Environment: ${process.env.NODE_ENV}`);
+  console.log(`📱 Environment: ${NODE_ENV}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   console.log(`📚 API base: http://localhost:${PORT}/api`);
-  console.log(`🌐 Network access: http://192.168.29.65:${PORT}/health`);
+  console.log(`🌐 Network access: http://${baseIp}:${PORT}/health`);
+  console.log(`🔧 API Base URL: ${API_BASE_URL}`);
 });
 
 // Graceful shutdown
