@@ -615,6 +615,13 @@ export const OrderDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
                             {t('orders.multiDayBooking')}: {item.user_inputs.selectedDates.length} {t('orders.days')}
                           </Text>
                         )}
+
+                        {/* Weekly cleaning specific - show selected dates count */}
+                        {item.service_title.toLowerCase().includes('weekly cleaning') && item.user_inputs.selectedDates && (
+                          <Text variant="bodySmall" style={[styles.userInputText, { color: theme.colors.primary }]}>
+                            {t('orders.weeklyCleaning')}: {item.user_inputs.selectedDates.length} {t('orders.daysSelected')}
+                          </Text>
+                        )}
                         
                         {/* Pricing type */}
                         {item.user_inputs.pricingType && (

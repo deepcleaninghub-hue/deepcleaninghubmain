@@ -180,6 +180,8 @@ export const en = {
     boxesCost: 'Boxes Cost',
     multiDayBooking: 'Multi-day Booking',
     days: 'days',
+    weeklyCleaning: 'Weekly Cleaning',
+    daysSelected: 'days selected',
     pricingType: 'Pricing Type',
     orderSummary: 'Order Summary',
     proceedToCheckout: 'Proceed to Checkout',
@@ -293,6 +295,8 @@ export const en = {
     boxes: 'Boxes',
     boxesCost: 'Boxes Cost',
     days: 'days',
+    weeklyCleaning: 'Weekly Cleaning',
+    daysSelected: 'days selected',
   },
   checkout: {
     title: 'Checkout',
@@ -341,6 +345,8 @@ export const en = {
     ofDaysSelected: 'of',
     multiDayOnlyForCleaning: 'Multi-day booking is only available for Deep Cleaning and Kitchen Cleaning services.',
     daysSelected: 'days selected',
+    weeklyCleaningDates: 'Weekly Cleaning - Selected Dates',
+    datesFromCart: 'Dates selected from service configuration',
     serviceTimeSameForAll: 'Service Time (same for all days)',
     addServiceDate: 'Add Service Date',
     add: 'Add',
@@ -349,6 +355,7 @@ export const en = {
     sameTimeForAll: 'The same time will be used for all selected dates',
     selectDate: 'Select Date',
     selectTime: 'Select Time',
+    minimumDatesRequired: 'Minimum {{min}} dates required for weekly cleaning service',
   },
   cta: {
     // CTA section keys

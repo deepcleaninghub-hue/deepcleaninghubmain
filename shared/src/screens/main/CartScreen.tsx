@@ -232,6 +232,8 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
                         {t('cart.multiDayBooking')}: {item.user_inputs.selectedDates.length} {t('cart.days')}
                       </Text>
                     )}
+
+
                     
                   </View>
                 )}

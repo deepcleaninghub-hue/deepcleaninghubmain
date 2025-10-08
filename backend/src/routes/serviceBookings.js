@@ -411,8 +411,23 @@ router.post('/', [
 
 
     // Determine if this is a multi-day booking
-    const isMultiDay = booking_dates && booking_dates.length > 1;
-    const datesToProcess = isMultiDay ? booking_dates : [{ date: booking_date, time: booking_time }];
+    // Check both booking_dates and selected_dates for weekly cleaning
+    let isMultiDay = false;
+    let datesToProcess = [];
+    
+    if (booking_dates && booking_dates.length > 1) {
+      // Regular multi-day booking
+      isMultiDay = true;
+      datesToProcess = booking_dates;
+    } else if (selected_dates && selected_dates.length > 1) {
+      // Weekly cleaning with selected_dates
+      isMultiDay = true;
+      datesToProcess = selected_dates;
+    } else {
+      // Single day booking
+      isMultiDay = false;
+      datesToProcess = [{ date: booking_date, time: booking_time }];
+    }
 
     // Validate that we have at least one date
     if (!isMultiDay && (!booking_date || !booking_time)) {
@@ -422,18 +437,18 @@ router.post('/', [
       });
     }
 
-    if (isMultiDay && (!booking_dates || booking_dates.length === 0)) {
+    if (isMultiDay && datesToProcess.length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'booking_dates array is required for multi-day bookings'
+        error: 'booking_dates or selected_dates array is required for multi-day bookings'
       });
     }
 
-    // If booking_dates is provided but empty, treat as single day booking
-    if (booking_dates && booking_dates.length === 0 && (!booking_date || !booking_time)) {
+    // If booking_dates is provided but empty, and no selected_dates, require single date
+    if (booking_dates && booking_dates.length === 0 && (!selected_dates || selected_dates.length === 0) && (!booking_date || !booking_time)) {
       return res.status(400).json({
         success: false,
-        error: 'Either single booking_date/booking_time or non-empty booking_dates array is required'
+        error: 'Either single booking_date/booking_time or non-empty booking_dates/selected_dates array is required'
       });
     }
 
@@ -462,6 +477,7 @@ router.post('/', [
         error: 'Service variant not found or inactive'
       });
     }
+
 
     // Use new booking group system
     if (isMultiDay) {

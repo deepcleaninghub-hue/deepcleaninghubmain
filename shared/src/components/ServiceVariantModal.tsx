@@ -65,13 +65,25 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
                                serviceTitle.toLowerCase().includes('house') ||
                                serviceId === 'house-moving';
 
-  // Check if this is a cleaning service (allows multi-day booking)
-  const isCleaningService = serviceTitle.toLowerCase().includes('cleaning') || 
+  // Check if this is a weekly cleaning service (mandatory multi-day booking)
+  const isWeeklyCleaningService = serviceId === 'weekly-cleaning';
+  
+  // Check if this is a regular cleaning service (no multi-day booking allowed)
+  const isCleaningService = (serviceTitle.toLowerCase().includes('cleaning') || 
                             serviceTitle.toLowerCase().includes('clean') ||
                             serviceTitle.toLowerCase().includes('deep clean') ||
                             serviceId.includes('cleaning') ||
-                            serviceId.includes('clean');
+                            serviceId.includes('clean')) && !isWeeklyCleaningService;
 
+
+  // Set multi-day booking to true for weekly cleaning service
+  useEffect(() => {
+    if (isWeeklyCleaningService) {
+      setIsMultiDay(true);
+    } else {
+      setIsMultiDay(false);
+    }
+  }, [isWeeklyCleaningService]);
 
   // Fetch service variants when modal opens
   useEffect(() => {
@@ -299,8 +311,16 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
       return hasArea && hasDistance && dateValid;
     }
     
-    // For regular services
-    return Object.keys(selectedVariants).some(variantId => isVariantReadyForCart(variantId));
+    // For weekly cleaning service, require at least 2 dates and no quantity input needed
+    if (isWeeklyCleaningService) {
+      const hasEnoughDates = selectedDates.length >= 2;
+      return hasEnoughDates;
+    }
+    
+    // For regular services, require at least one date and valid variants
+    const hasValidVariants = Object.keys(selectedVariants).some(variantId => isVariantReadyForCart(variantId));
+    const hasDate = selectedDates.length > 0;
+    return hasValidVariants && hasDate;
   };
 
   const handleAddToCart = async () => {
@@ -377,6 +397,68 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
           onDismiss();
         }, 2000);
         
+        return;
+      }
+
+      // Handle weekly cleaning service with date-based quantity
+      if (isWeeklyCleaningService) {
+        if (variants.length === 0) return;
+        
+        const variant = variants[0]; // Use the first (and only) variant
+        if (!variant) return;
+        const quantity = selectedDates.length; // Quantity = number of dates
+        
+        const serviceData = {
+          id: variant.id,
+          title: variant.title,
+          description: `${variant.description} - ${selectedDates.length} ${t('checkout.daysSelected')}`,
+          image: '',
+          category: `${serviceTitle} - ${variant.title}`,
+          pricingType: 'fixed' as const,
+          price: variant.price,
+          unitPrice: variant.price,
+          unitMeasure: '',
+          minMeasurement: 0,
+          maxMeasurement: 0,
+          measurementStep: 1,
+          measurementPlaceholder: '',
+          duration: variant.duration || '',
+          features: variant.features || [],
+          displayOrder: variant.displayOrder || 0,
+          isActive: true,
+          serviceVariants: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        const userInputs = {
+          quantity: quantity,
+          selectedDates: selectedDates,
+          isMultiDay: true,
+          serviceTime: serviceTime?.toISOString() || new Date().toISOString(),
+          service_variant_data: {
+            id: variant.id,
+            title: variant.title,
+            price: variant.price,
+            duration: variant.duration,
+            features: variant.features
+          }
+        };
+
+
+        // Calculate total price (unit price × number of dates)
+        const totalPrice = variant.price * quantity;
+        await addToCart(serviceData, totalPrice, userInputs);
+        
+        modalService.showSuccess(
+          t('cart.itemAdded'),
+          `${variant.title} (${quantity} ${t('checkout.daysSelected')}) ${t('cart.addedToCart')}`
+        );
+        
+        // Just dismiss the modal, don't navigate to cart
+        setTimeout(() => {
+          onDismiss();
+        }, 2000);
         return;
       }
       
@@ -629,8 +711,8 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
             </Text>
                   </View>
 
-                        {/* Quantity Input for Fixed Pricing */}
-                        {variant.pricingType === 'fixed' && (
+                        {/* Quantity Input for Fixed Pricing - Hidden for Weekly Cleaning */}
+                        {variant.pricingType === 'fixed' && !isWeeklyCleaningService && (
                           <View style={styles.quantityInputContainer}>
                   <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
                               {t('services.quantity')}:
@@ -659,6 +741,18 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
                 </View>
               )}
 
+                        {/* Date-based Quantity Display for Weekly Cleaning */}
+                        {isWeeklyCleaningService && (
+                          <View style={styles.quantityInputContainer}>
+                            <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
+                              {t('checkout.daysSelected')}:
+                            </Text>
+                            <Text variant="titleMedium" style={[styles.quantity, { color: theme.colors.primary }]}>
+                              {selectedDates.length}
+                            </Text>
+                          </View>
+                        )}
+
                         {/* Measurement Input for Per-Unit Pricing */}
                         {variant.pricingType === 'per_unit' && (
                           <View style={styles.measurementInputContainer}>
@@ -683,8 +777,8 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
                               {variant.minMeasurement && (
                                 <Text variant="bodySmall" style={[styles.minMeasurementText, { color: theme.colors.primary }]}>
                                   {t('services.minimum')}: {variant.minMeasurement} {variant.unitMeasure || t('services.units')}
-                                </Text>
-                              )}
+                    </Text>
+                  )}
                             </View>
                 </View>
               )}
@@ -696,8 +790,8 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
                             <View style={styles.calculationContainer}>
                               <Text variant="bodyMedium" style={[styles.calculationText, { color: theme.colors.onSurfaceVariant }]}>
                                 {t('services.measurement')}: {selectedVariant.customMeasurement} {variant.unitMeasure || t('services.units')} × €{variant.unitPrice || variant.price}/{variant.unitMeasure || t('services.units')} = €{calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement).toFixed(2)}
-                              </Text>
-                            </View>
+                </Text>
+              </View>
                           )}
                           
                           {/* Show calculation details for fixed pricing with quantity > 1 */}
@@ -708,9 +802,18 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
                               </Text>
             </View>
                           )}
+
+                          {/* Show calculation details for weekly cleaning */}
+                          {isWeeklyCleaningService && selectedDates.length > 0 && (
+                            <View style={styles.calculationContainer}>
+                              <Text variant="bodyMedium" style={[styles.calculationText, { color: theme.colors.onSurfaceVariant }]}>
+                                {t('checkout.daysSelected')}: {selectedDates.length} × €{variant.price} = €{(selectedDates.length * variant.price).toFixed(2)}
+                              </Text>
+                            </View>
+                          )}
                           
                           <Text variant="titleMedium" style={[styles.totalPriceLabel, { color: theme.colors.primary }]}>
-                            {t('services.totalPrice')} €{calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement).toFixed(2)}
+                            {t('services.totalPrice')} €{isWeeklyCleaningService ? (selectedDates.length * variant.price).toFixed(2) : calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement).toFixed(2)}
                           </Text>
                         </View>
                       </Card.Content>
@@ -812,39 +915,71 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
             <View style={styles.dateSelectionSection}>
               <Divider style={{ marginVertical: 16 }} />
               
-                <View style={styles.dateSelectionHeader}>
-                  <Text variant="titleMedium" style={[styles.dateSelectionTitle, { color: theme.colors.onSurface }]}>
-                    {t('checkout.serviceDate')}
-                  </Text>
-                  {/* Only show multi-day toggle for cleaning services */}
-                  {isCleaningService && (
-                    <View style={styles.multiDayToggle}>
-                      <Text variant="bodyMedium" style={[styles.multiDayLabel, { color: theme.colors.onSurfaceVariant }]}>
-                        {t('checkout.multiDayService')}
-                      </Text>
-                      <Switch
-                        value={isMultiDay}
-                        onValueChange={setIsMultiDay}
-                        color={theme.colors.primary}
-                      />
-                    </View>
-                  )}
-                </View>
+              <View style={styles.dateSelectionHeader}>
+                <Text variant="titleMedium" style={[styles.dateSelectionTitle, { color: theme.colors.onSurface }]}>
+                  {t('checkout.serviceDate')}
+                </Text>
+      {/* Multi-day toggle is only available for weekly cleaning service */}
+      {isWeeklyCleaningService && (
+        <View style={styles.multiDayToggle}>
+          <Text variant="bodyMedium" style={[styles.multiDayLabel, { color: theme.colors.onSurfaceVariant }]}>
+            {t('checkout.multiDayService')} (Required)
+          </Text>
+          <Switch
+            value={isMultiDay}
+            onValueChange={setIsMultiDay}
+            color={theme.colors.primary}
+            disabled={true} // Always enabled for weekly cleaning
+          />
+        </View>
+      )}
+              </View>
 
-              {isCleaningService && isMultiDay ? (
-                <MultiDateSelector
-                  selectedDates={selectedDates}
-                  onDatesChange={setSelectedDates}
-                  serviceTime={serviceTime || new Date()}
-                  onTimeChange={setServiceTime}
-                  maxDays={7}
-                  t={t}
-                />
+              {isWeeklyCleaningService ? (
+                <>
+                  <MultiDateSelector
+                    selectedDates={selectedDates}
+                    onDatesChange={setSelectedDates}
+                    serviceTime={serviceTime || new Date()}
+                    onTimeChange={setServiceTime}
+                    maxDays={7}
+                    t={t}
+                  />
+                  {selectedDates.length > 0 && selectedDates.length < 2 && (
+                    <Text variant="bodySmall" style={[styles.validationText, { color: theme.colors.error }]}>
+                      Minimum 2 dates required for weekly cleaning service
+                    </Text>
+                  )}
+                </>
               ) : (
                 <View style={styles.singleDateContainer}>
                   <Text variant="bodyMedium" style={[styles.singleDateText, { color: theme.colors.onSurfaceVariant }]}>
                     {isCleaningService ? t('checkout.singleDateService') : t('checkout.singleDayService')}
                   </Text>
+                  <Button
+                    mode="outlined"
+                    onPress={() => {
+                      // For single date selection, we'll use the first date from selectedDates or create a new one
+                      if (selectedDates.length === 0) {
+                        const today = new Date();
+                        const isoString = today.toISOString();
+                        const dateString = isoString.split('T')[0] || '';
+                        const timeString = today.toTimeString().split(' ')[0]?.substring(0, 5) || '09:00';
+                        setSelectedDates([{
+                          id: `date_${Date.now()}`,
+                          date: dateString,
+                          time: timeString
+                        }]);
+                      }
+                    }}
+                    style={styles.datePickerButton}
+                    labelStyle={styles.datePickerButtonLabel}
+                  >
+                    {selectedDates.length > 0 
+                      ? new Date(selectedDates[0]?.date || '').toLocaleDateString()
+                      : t('checkout.selectDate')
+                    }
+                  </Button>
                 </View>
               )}
             </View>
@@ -1285,6 +1420,13 @@ const styles = StyleSheet.create({
   },
   singleDateText: {
     fontStyle: 'italic',
+    marginBottom: 12,
+  },
+  datePickerButton: {
+    marginTop: 8,
+  },
+  datePickerButtonLabel: {
+    fontSize: 14,
   },
   selectedVariantsSection: {
     paddingHorizontal: 16,
@@ -1412,6 +1554,11 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  validationText: {
+    textAlign: 'center',
+    marginTop: 8,
+    fontStyle: 'italic',
   },
 });
 

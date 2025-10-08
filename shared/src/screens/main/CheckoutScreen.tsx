@@ -66,12 +66,22 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
   const isMultiDayAllowed = () => {
     if (!cartItems || cartItems.length === 0) return false;
     
-    // Only allow multi-day for deep cleaning and kitchen cleaning services
-    const allowedServiceIds = ['deep-cleaning', 'kitchen-cleaning'];
+    // Only allow multi-day for deep cleaning, kitchen cleaning, and weekly cleaning services
+    const allowedServiceIds = ['deep-cleaning', 'kitchen-cleaning', 'weekly-cleaning'];
     
     return cartItems.every(item => {
       const serviceId = item.service_id || item.serviceId;
       return allowedServiceIds.includes(serviceId);
+    });
+  };
+
+  // Check if current cart contains weekly cleaning service
+  const isWeeklyCleaningInCart = () => {
+    if (!cartItems || cartItems.length === 0) return false;
+    
+    return cartItems.some(item => {
+      const serviceId = item.service_id || item.serviceId;
+      return serviceId === 'weekly-cleaning';
     });
   };
   
@@ -204,33 +214,79 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
       setLoading(true);
       
       // Prepare dates for booking
-      const datesToBook = isMultiDay ? selectedDates : [{
-        date: serviceDate.toISOString().split('T')[0],
-        time: serviceTime.toTimeString().split(' ')[0]?.substring(0, 5) || '09:00',
-        id: 'single_date'
-      }];
+      let datesToBook: BookingDate[] = [];
+      
+      if (isWeeklyCleaningInCart()) {
+        // For weekly cleaning, get dates from cart items
+        const weeklyCleaningItem = cartItems.find(item => {
+          const serviceId = item.service_id || item.serviceId;
+          return serviceId === 'weekly-cleaning';
+        });
+        
+        if (weeklyCleaningItem?.user_inputs?.selectedDates) {
+          datesToBook = weeklyCleaningItem.user_inputs.selectedDates;
+        } else {
+          throw new Error('Weekly cleaning service requires selected dates');
+        }
+      } else if (isMultiDay) {
+        // For other multi-day services, use selectedDates from state
+        datesToBook = selectedDates;
+      } else {
+        // For single day services
+        datesToBook = [{
+          date: serviceDate.toISOString().split('T')[0],
+          time: serviceTime.toTimeString().split(' ')[0]?.substring(0, 5) || '09:00',
+          id: 'single_date'
+        }];
+      }
 
       // Creating service bookings - silent
       
       // Create service bookings for each cart item
-      const bookingPromises = cartItems.map(async (item, index) => {
-        // Creating booking for item - silent
-        
+      const bookingPromises: Promise<any>[] = [];
+      
+      cartItems.forEach((item, index) => {
         const serviceId = item.service_id || item.serviceId;
         if (!serviceId) {
           throw new Error(`Service ID is required for item ${index + 1}`);
         }
         
         // Calculate total amount for this item
-        // For multi-day bookings, send the total amount and let backend split it
         const basePrice = item.calculated_price || item.service_price || item.price || 0;
-        const itemTotalAmount = isMultiDay ? basePrice * datesToBook.length : basePrice;
+        let itemTotalAmount = basePrice;
+        
+        // For weekly cleaning, create multiple individual orders based on quantity
+        if (isWeeklyCleaningInCart() && (item.service_id === 'weekly-cleaning' || item.serviceId === 'weekly-cleaning')) {
+          // For weekly cleaning, create one order per quantity (each order gets all selected dates)
+          const quantity = item.user_inputs?.quantity || 1;
+          for (let q = 0; q < quantity; q++) {
+            // Each order gets the full price (unit price × number of dates)
+            itemTotalAmount = basePrice;
+            
+            const bookingPromise = createSingleBooking(item, index, q, itemTotalAmount, datesToBook);
+            bookingPromises.push(bookingPromise);
+          }
+        } else {
+          // For other services, create one order per item
+          if (isMultiDay) {
+            // For other multi-day services, multiply by number of dates
+            itemTotalAmount = basePrice * datesToBook.length;
+          }
+          
+          const bookingPromise = createSingleBooking(item, index, 0, itemTotalAmount, datesToBook);
+          bookingPromises.push(bookingPromise);
+        }
+      });
+      
+      // Helper function to create a single booking
+      async function createSingleBooking(item: any, index: number, quantityIndex: number, itemTotalAmount: number, datesToBook: BookingDate[]) {
+        const serviceId = item.service_id || item.serviceId;
         
         const bookingData: CreateServiceBookingData = {
           service_id: serviceId,
           booking_date: datesToBook[0]?.date || '',
           booking_time: datesToBook[0]?.time || '',
-          booking_dates: isMultiDay ? datesToBook.map(d => ({ date: d.date || '', time: d.time || '' })) : [],
+          booking_dates: (isMultiDay || isWeeklyCleaningInCart()) ? datesToBook.map(d => ({ date: d.date || '', time: d.time || '' })) : [],
           duration_minutes: parseInt((item.service_duration || item.duration || '2').split('-')[0] || '2') * 60 || 120,
           customer_name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Customer',
           customer_email: user?.email || '',
@@ -264,19 +320,14 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
           is_multi_day_booking: item.is_multi_day_booking || false
         };
 
-        // Debug: Log what's being sent to booking creation
-
-        // Booking data for item - silent
-        
         try {
           const result = await serviceBookingAPI.createBooking(bookingData);
-          // Successfully created booking - silent
           return result;
         } catch (itemError) {
-          console.error(`Error creating booking for item ${index + 1}:`, itemError);
+          console.error(`Error creating booking for item ${index + 1}, quantity ${quantityIndex + 1}:`, itemError);
           throw itemError;
         }
-      });
+      }
 
       // Create all bookings
       // Creating all bookings - silent
@@ -442,7 +493,26 @@ const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
             </View>
             <Divider style={styles.divider} />
             
-            {isMultiDay ? (
+            {isWeeklyCleaningInCart() ? (
+              // For weekly cleaning, show selected dates from cart (read-only)
+              <View style={styles.weeklyCleaningContainer}>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}>
+                  {t('checkout.weeklyCleaningDates')}
+                </Text>
+                {cartItems.map((item, index) => {
+                  if (item.user_inputs?.selectedDates) {
+                    return (
+                      <View key={index} style={styles.selectedDatesContainer}>
+                        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                          {item.user_inputs.selectedDates.length} {t('checkout.daysSelected')} - {t('checkout.datesFromCart')}
+                        </Text>
+                      </View>
+                    );
+                  }
+                  return null;
+                })}
+              </View>
+            ) : isMultiDay ? (
               <MultiDateSelector
                 selectedDates={selectedDates}
                 onDatesChange={setSelectedDates}
@@ -748,6 +818,18 @@ const styles = StyleSheet.create({
   multiDayInfoText: {
     fontStyle: 'italic',
     textAlign: 'center',
+  },
+  weeklyCleaningContainer: {
+    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  selectedDatesContainer: {
+    padding: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+    borderRadius: 4,
+    marginTop: 4,
   },
   dateTimeRow: {
     flexDirection: 'row',
