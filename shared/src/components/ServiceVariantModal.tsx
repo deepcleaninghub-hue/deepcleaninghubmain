@@ -431,9 +431,11 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
         updatedAt: new Date().toISOString(),
       };
 
-          // Calculate total price for per-unit services
-          const calculatedTotalPrice = calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement);
-          await addToCart(serviceData, calculatedTotalPrice, userInputs);
+          // For per-unit services, calculate total price. For fixed-price services, pass unit price only
+          const calculatedPrice = variant.pricingType === 'per_unit' 
+            ? calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement)
+            : variant.price; // For fixed-price, pass unit price only
+          await addToCart(serviceData, calculatedPrice, userInputs);
           addedVariants.push(variant.title);
         }
       }

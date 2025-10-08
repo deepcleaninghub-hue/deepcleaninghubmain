@@ -229,7 +229,9 @@ router.post('/items', verifyToken, async (req, res) => {
     } else {
       // Add new item
       const priceToUse = finalCalculatedPrice || calculated_price || service.price;
-      const totalPrice = priceToUse * quantity;
+      // For per-unit services, if calculated_price is provided, it's already the total price
+      // For fixed-price services, multiply by quantity
+      const totalPrice = calculated_price ? calculated_price : (priceToUse * quantity);
 
       const { data, error } = await supabase
         .from('cart_items')

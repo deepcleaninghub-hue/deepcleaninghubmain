@@ -233,7 +233,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         service_id: service.id,
         quantity: userInputs?.quantity || 1,
         user_inputs: userInputs || {},
-        calculated_price: calculatedPrice, // Use the calculated total price
+        calculated_price: calculatedPrice, // Pass the calculated price (total for per-unit, unit for fixed)
       };
 
       const response = await httpClient.post<{ success: boolean; data: CartItem }>('/cart/items', cartItemData);
