@@ -431,8 +431,9 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
         updatedAt: new Date().toISOString(),
       };
 
-          // Pass unit price and let backend calculate total
-          await addToCart(serviceData, variant.price, userInputs);
+          // Calculate total price for per-unit services
+          const calculatedTotalPrice = calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement);
+          await addToCart(serviceData, calculatedTotalPrice, userInputs);
           addedVariants.push(variant.title);
         }
       }

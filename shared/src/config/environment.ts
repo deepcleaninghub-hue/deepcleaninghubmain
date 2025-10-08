@@ -46,11 +46,11 @@ const getNumberEnvVar = (key: string, defaultValue: number): number => {
 // Environment-specific configurations
 const developmentConfig: EnvironmentConfig = {
   API_BASE_URL: (() => {
-    const envValue = getEnvVar('API_BASE_URL', 'http://13.211.76.43:5001/api');
+    const envValue = getEnvVar('API_BASE_URL', 'http://192.168.29.120:5001/api');
     console.log('🔍 API_BASE_URL Debug:', {
       envValue,
       processEnv: process.env.EXPO_PUBLIC_API_BASE_URL,
-      fallback: 'http://13.211.76.43:5001/api'
+      fallback: 'http://192.168.29.120:5001/api'
     });
     return envValue;
   })(),
@@ -113,7 +113,7 @@ const getConfig = (): EnvironmentConfig => {
   // Force recreation of development config to pick up latest env vars
   if (currentEnv === 'development') {
     return {
-      API_BASE_URL: getEnvVar('API_BASE_URL', 'http://13.211.76.43:5001/api'),
+      API_BASE_URL: getEnvVar('API_BASE_URL', 'http://192.168.29.120:5001/api'),
       ENVIRONMENT: 'development',
       SENTRY_DSN: getEnvVar('SENTRY_DSN'),
       CRASHLYTICS_ENABLED: getBooleanEnvVar('CRASHLYTICS_ENABLED', false),

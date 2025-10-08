@@ -233,7 +233,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         service_id: service.id,
         quantity: userInputs?.quantity || 1,
         user_inputs: userInputs || {},
-        // Let backend calculate the total price based on unit price and quantity
+        calculated_price: calculatedPrice, // Use the calculated total price
       };
 
       const response = await httpClient.post<{ success: boolean; data: CartItem }>('/cart/items', cartItemData);
