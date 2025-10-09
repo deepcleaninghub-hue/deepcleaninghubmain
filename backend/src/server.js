@@ -44,7 +44,7 @@ const emailRoutes = require('./routes/email');
 const whatsappRoutes = require('./routes/whatsapp');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Connect to database
 connectDB();

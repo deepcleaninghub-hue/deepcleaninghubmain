@@ -1,0 +1,27 @@
+module.exports = {
+  apps: [
+    {
+      name: 'deepclean-hub-backend',
+      script: './backend/src/server.js',
+      cwd: './',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '1G',
+      env: {
+        NODE_ENV: 'development',
+        PORT: 5001,
+        API_BASE_URL: 'http://192.168.29.112:5001/api'
+      },
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5001,
+        API_BASE_URL: 'http://13.211.76.43:5001/api'
+      },
+      error_file: './logs/err.log',
+      out_file: './logs/out.log',
+      log_file: './logs/combined.log',
+      time: true
+    }
+  ]
+};
