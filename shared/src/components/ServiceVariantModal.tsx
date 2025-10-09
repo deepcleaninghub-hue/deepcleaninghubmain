@@ -317,10 +317,18 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
       return hasEnoughDates;
     }
     
-    // For regular services, require at least one date and valid variants
+    // For regular services, require valid variants
+    // For cleaning services, also require dates if multi-day is enabled
     const hasValidVariants = Object.keys(selectedVariants).some(variantId => isVariantReadyForCart(variantId));
-    const hasDate = selectedDates.length > 0;
-    return hasValidVariants && hasDate;
+    
+    // Only require dates for cleaning services with multi-day enabled
+    if (isCleaningService && isMultiDay) {
+      const hasDate = selectedDates.length > 0;
+      return hasValidVariants && hasDate;
+    }
+    
+    // For other services, only require valid variants
+    return hasValidVariants;
   };
 
   const handleAddToCart = async () => {
@@ -483,11 +491,15 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
       }
 
       // Add date selection data
-      if (isMultiDay) {
+      if (isMultiDay && selectedDates.length > 0) {
         userInputs.selectedDates = selectedDates;
         userInputs.isMultiDay = true;
       } else {
         userInputs.isMultiDay = false;
+        // For regular services without date selection, add a default service time
+        if (serviceTime) {
+          userInputs.serviceTime = serviceTime.toISOString();
+        }
       }
 
       const serviceData = {
@@ -513,10 +525,8 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
         updatedAt: new Date().toISOString(),
       };
 
-          // For per-unit services, calculate total price. For fixed-price services, pass unit price only
-          const calculatedPrice = variant.pricingType === 'per_unit' 
-            ? calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement)
-            : variant.price; // For fixed-price, pass unit price only
+          // Calculate total price for both per-unit and fixed pricing services
+          const calculatedPrice = calculateTotalPrice(variant, selectedVariant.quantity, selectedVariant.customMeasurement);
           await addToCart(serviceData, calculatedPrice, userInputs);
           addedVariants.push(variant.title);
         }
@@ -757,13 +767,13 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
                         {variant.pricingType === 'per_unit' && (
                           <View style={styles.measurementInputContainer}>
                   <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
-                              {variant.measurementPlaceholder || t('services.measurement')}:
+                              {t('services.measurementLabel')}:
                   </Text>
                   <TextInput
                     mode="outlined"
                               value={selectedVariant.customMeasurement || ''}
                               onChangeText={(text) => handleMeasurementChange(variantId, text)}
-                              placeholder={variant.measurementPlaceholder || t('services.enterMeasurement')}
+                              placeholder={t('services.enterMeasurement')}
                     keyboardType="numeric"
                     style={styles.measurementInput}
                               error={!isVariantReadyForCart(variantId) && selectedVariant.customMeasurement !== ''}
@@ -935,7 +945,7 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
       )}
               </View>
 
-              {isWeeklyCleaningService ? (
+              {isWeeklyCleaningService && (
                 <>
                   <MultiDateSelector
                     selectedDates={selectedDates}
@@ -947,40 +957,10 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
                   />
                   {selectedDates.length > 0 && selectedDates.length < 2 && (
                     <Text variant="bodySmall" style={[styles.validationText, { color: theme.colors.error }]}>
-                      Minimum 2 dates required for weekly cleaning service
+                      {t('services.minimumDatesRequired')}
                     </Text>
                   )}
                 </>
-              ) : (
-                <View style={styles.singleDateContainer}>
-                  <Text variant="bodyMedium" style={[styles.singleDateText, { color: theme.colors.onSurfaceVariant }]}>
-                    {isCleaningService ? t('checkout.singleDateService') : t('checkout.singleDayService')}
-                  </Text>
-                  <Button
-                    mode="outlined"
-                    onPress={() => {
-                      // For single date selection, we'll use the first date from selectedDates or create a new one
-                      if (selectedDates.length === 0) {
-                        const today = new Date();
-                        const isoString = today.toISOString();
-                        const dateString = isoString.split('T')[0] || '';
-                        const timeString = today.toTimeString().split(' ')[0]?.substring(0, 5) || '09:00';
-                        setSelectedDates([{
-                          id: `date_${Date.now()}`,
-                          date: dateString,
-                          time: timeString
-                        }]);
-                      }
-                    }}
-                    style={styles.datePickerButton}
-                    labelStyle={styles.datePickerButtonLabel}
-                  >
-                    {selectedDates.length > 0 
-                      ? new Date(selectedDates[0]?.date || '').toLocaleDateString()
-                      : t('checkout.selectDate')
-                    }
-                  </Button>
-                </View>
               )}
             </View>
 
@@ -1411,22 +1391,6 @@ const styles = StyleSheet.create({
   },
   multiDayLabel: {
     marginRight: 8,
-  },
-  singleDateContainer: {
-    padding: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  singleDateText: {
-    fontStyle: 'italic',
-    marginBottom: 12,
-  },
-  datePickerButton: {
-    marginTop: 8,
-  },
-  datePickerButtonLabel: {
-    fontSize: 14,
   },
   selectedVariantsSection: {
     paddingHorizontal: 16,

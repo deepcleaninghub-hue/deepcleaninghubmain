@@ -479,56 +479,81 @@ router.post('/', [
     }
 
 
-    // Use new booking group system
+    // Create separate individual bookings for each selected date
     if (isMultiDay) {
-      // Create booking group for multi-day bookings
-      const { data: groupId, error: groupError } = await supabase
-        .rpc('create_booking_group', {
-          p_user_id: req.user.id,
-          p_group_name: `${serviceVariant.services.title} - ${datesToProcess.length} Days`,
-          p_service_id: serviceVariant.services.id,
-          p_service_variant_id: service_id,
-          p_booking_dates: JSON.stringify(datesToProcess),
-          p_duration_minutes: duration_minutes,
-          p_customer_name: customer_name,
-          p_customer_email: customer_email,
-          p_customer_phone: customer_phone || req.user.phone,
-          p_service_address: service_address,
-          p_special_instructions: special_instructions || null,
-          p_total_amount: total_amount,
-          p_payment_method: payment_method
-        });
+      const createdBookings = [];
+      const errors = [];
 
-      if (groupError) {
-        console.error('Error creating booking group:', groupError);
-        console.error('Group error details:', JSON.stringify(groupError, null, 2));
+      // Create individual booking for each selected date
+      for (let i = 0; i < datesToProcess.length; i++) {
+        const dateInfo = datesToProcess[i];
+        
+        try {
+          // Create individual booking for this specific date
+          const { data: booking, error: bookingError } = await supabase
+            .from('service_bookings')
+            .insert({
+              user_id: req.user.id,
+              service_id: serviceVariant.services.id,
+              service_variant_id: service_id,
+              booking_date: dateInfo.date,
+              booking_time: dateInfo.time,
+              duration_minutes: duration_minutes,
+              customer_name: customer_name,
+              customer_email: customer_email,
+              customer_phone: customer_phone || req.user.phone,
+              service_address: service_address,
+              special_instructions: special_instructions || null,
+              total_amount: total_amount / datesToProcess.length, // Split total across dates
+              payment_method: payment_method,
+              status: 'scheduled',
+              payment_status: 'pending'
+            })
+            .select(`
+              *,
+              services (
+                id,
+                title,
+                description,
+                category
+              ),
+              service_variants (
+                id,
+                title,
+                duration,
+                price
+              )
+            `);
+
+          if (bookingError) {
+            console.error(`Error creating booking for date ${dateInfo.date}:`, bookingError);
+            errors.push({
+              date: dateInfo.date,
+              error: bookingError.message
+            });
+          } else {
+            createdBookings.push(booking[0]);
+            console.log(`✅ Created individual booking for ${dateInfo.date} at ${dateInfo.time}`);
+          }
+        } catch (error) {
+          console.error(`Error creating booking for date ${dateInfo.date}:`, error);
+          errors.push({
+            date: dateInfo.date,
+            error: error.message
+          });
+        }
+      }
+
+      // Check if any bookings were created successfully
+      if (createdBookings.length === 0) {
         return res.status(500).json({
           success: false,
-          error: 'Failed to create booking group',
-          details: groupError.message || 'Unknown error'
+          error: 'Failed to create any bookings',
+          details: errors
         });
       }
 
-      // Get the created booking group with all dates
-      const { data: bookingGroup, error: fetchError } = await supabase
-        .rpc('get_booking_group_with_dates', { p_group_id: groupId });
-
-      if (fetchError) {
-        console.error('Error fetching booking group:', fetchError);
-        return res.status(500).json({
-          success: false,
-          error: 'Failed to fetch booking group details'
-        });
-      }
-
-      const responseData = {
-        ...bookingGroup[0],
-        isMultiDay: true,
-        totalDays: datesToProcess.length,
-        allBookingDates: bookingGroup[0].booking_dates || []
-      };
-
-      // Send confirmation email for multi-day booking
+      // Send confirmation email for all created bookings
       setImmediate(async () => {
         try {
           console.log('📧 Sending multi-day booking confirmation email...');
@@ -537,7 +562,7 @@ router.post('/', [
             customerName: customer_name,
             customerEmail: customer_email,
             customerPhone: customer_phone || req.user.phone || '',
-            orderId: groupId.slice(-8),
+            orderId: createdBookings[0].id.slice(-8),
             orderDate: new Date().toLocaleDateString(),
             serviceDate: 'Multiple dates',
             serviceTime: 'Multiple times',
@@ -554,7 +579,7 @@ router.post('/', [
             },
             specialInstructions: special_instructions || '',
             isMultiDay: true,
-            allBookingDates: responseData.allBookingDates || []
+            allBookingDates: datesToProcess
           };
 
           const emailResults = await emailService.sendOrderConfirmationEmails(emailData);
@@ -579,8 +604,14 @@ router.post('/', [
 
       res.status(201).json({
         success: true,
-        data: responseData,
-        message: `Multi-day booking group created with ${datesToProcess.length} days`
+        data: {
+          bookings: createdBookings,
+          isMultiDay: true,
+          totalDays: datesToProcess.length,
+          allBookingDates: datesToProcess
+        },
+        message: `Created ${createdBookings.length} individual bookings successfully`,
+        errors: errors.length > 0 ? errors : undefined
       });
 
     } else {

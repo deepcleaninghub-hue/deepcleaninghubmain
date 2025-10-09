@@ -206,7 +206,9 @@ router.post('/items', verifyToken, async (req, res) => {
       // Update existing item
       const newQuantity = existingItem.quantity + quantity;
       const priceToUse = finalCalculatedPrice || calculated_price || service.price;
-      const totalPrice = priceToUse * newQuantity;
+      // If calculated_price is provided, it's already the total price for the new quantity
+      // Otherwise, multiply by new quantity
+      const totalPrice = calculated_price || (priceToUse * newQuantity);
 
       const { data, error } = await supabase
         .from('cart_items')
@@ -229,9 +231,9 @@ router.post('/items', verifyToken, async (req, res) => {
     } else {
       // Add new item
       const priceToUse = finalCalculatedPrice || calculated_price || service.price;
-      // For per-unit services, if calculated_price is provided, it's already the total price
-      // For fixed-price services, multiply by quantity
-      const totalPrice = calculated_price ? calculated_price : (priceToUse * quantity);
+      // If calculated_price is provided, it's already the total price (includes quantity)
+      // Otherwise, multiply by quantity
+      const totalPrice = calculated_price || (priceToUse * quantity);
 
       const { data, error } = await supabase
         .from('cart_items')
