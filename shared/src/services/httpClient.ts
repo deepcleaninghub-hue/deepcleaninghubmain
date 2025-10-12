@@ -5,8 +5,8 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
 import { API_BASE_URL } from '../config/environment';
+import { modalService } from './modalService';
 
 // Use environment configuration for proper API URL
 const BASE_URL = API_BASE_URL;
@@ -32,23 +32,18 @@ class SimpleHttpClient {
       await AsyncStorage.multiRemove(['auth_token', 'auth_user']);
       console.log('🔐 User logged out due to session expiration');
       
-      // Show session expired alert
-      Alert.alert(
-        'Session Expired',
-        'Your session has expired. Please log in again.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Trigger the logout callback if set
-              if (this.logoutCallback) {
-                this.logoutCallback();
-              }
-            }
-          }
-        ],
-        { cancelable: false }
+      // Show session expired modal - will be translated in the component
+      modalService.showError(
+        'Session Expired', // Will be translated in component
+        'Your session has expired. Please log in again.' // Will be translated in component
       );
+      
+      // Trigger the logout callback if set
+      setTimeout(() => {
+        if (this.logoutCallback) {
+          this.logoutCallback();
+        }
+      }, 2000); // Give user time to read the message
     } catch (error) {
       console.error('Error during logout:', error);
     }

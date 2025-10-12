@@ -419,9 +419,9 @@ router.post('/', [
       // Regular multi-day booking
       isMultiDay = true;
       datesToProcess = booking_dates;
-    } else if (selected_dates && selected_dates.length > 1) {
-      // Weekly cleaning with selected_dates
-      isMultiDay = true;
+    } else if (selected_dates && selected_dates.length >= 1) {
+      // Weekly cleaning with selected_dates (1 or more dates)
+      isMultiDay = selected_dates.length > 1;
       datesToProcess = selected_dates;
     } else {
       // Single day booking

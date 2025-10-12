@@ -39,13 +39,9 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     try {
       const phoneNumber = '+4916097044182'; // DeepClean Hub admin contact number
       const phoneUrl = `tel:${phoneNumber}`;
-      const canOpen = await Linking.canOpenURL(phoneUrl);
       
-      if (canOpen) {
-        await Linking.openURL(phoneUrl);
-      } else {
-        modalService.showError(t('common.error'), t('home.cta.couldNotOpenPhoneApp'));
-      }
+      // Try to open directly - canOpenURL can be restrictive on iOS
+      await Linking.openURL(phoneUrl);
     } catch (error) {
       console.error('Error opening phone app:', error);
       modalService.showError(t('common.error'), t('home.cta.couldNotOpenPhoneApp'));
@@ -83,31 +79,31 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const carouselImages = [
     {
       id: '1',
-      uri: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=800&h=400&fit=crop',
+      uri: require('../../../assets/services/cleaning-image.jpeg'),
       title: t('home.welcome'),
       description: t('home.subtitle'),
     },
     {
       id: '2',
-      uri: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=800&h=400&fit=crop',
+      uri: require('../../../assets/services/furniture-image.jpeg'),
       title: t('home.carousel.professional'),
       description: t('home.carousel.professionalDesc'),
     },
     {
       id: '3',
-      uri: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop',
+      uri: require('../../../assets/services/moving.jpeg'),
       title: t('home.carousel.deepCleaning'),
       description: t('home.carousel.deepCleaningDesc'),
     },
     {
       id: '4',
-      uri: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=800&h=400&fit=crop',
+      uri: require('../../../assets/services/office-setup-image.jpeg'),
       title: t('home.carousel.reliable'),
       description: t('home.carousel.reliableDesc'),
     },
     {
       id: '5',
-      uri: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop',
+      uri: require('../../../assets/services/paint-image.jpeg'),
       title: t('home.carousel.quality'),
       description: t('home.carousel.qualityDesc'),
     },

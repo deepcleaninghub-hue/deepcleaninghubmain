@@ -2,6 +2,7 @@ export const hi = {
   app: {
     title: 'डीप क्लीनिंग हब',
   },
+
   home: {
     title: 'होम',
     welcome: 'DeepClean Hub में आपका स्वागत है',
@@ -14,7 +15,11 @@ export const hi = {
       callNow: 'कॉल करें',
       whatsapp: 'WhatsApp',
       inquire: 'पूछताछ करें',
+      whatsappMessage: 'नमस्ते! मैं आपकी सफाई सेवाओं के बारे में पूछताछ करना चाहता हूं।',
+      couldNotOpenPhoneApp: 'फोन ऐप खोला नहीं जा सका',
+      couldNotOpenWhatsApp: 'WhatsApp खोला नहीं जा सका',
     },
+
     features: {
       title: 'हमें क्यों चुनें?',
       trusted: 'भरोसेमंद और विश्वसनीय',
@@ -22,6 +27,7 @@ export const hi = {
       onTime: 'समय पर सेवा',
       customerFirst: 'ग्राहक पहले',
     },
+
     carousel: {
       professional: 'पेशेवर सफाई',
       professionalDesc: 'आपके घर के लिए विशेषज्ञ सफाई सेवाएं',
@@ -33,6 +39,7 @@ export const hi = {
       qualityDesc: '100% संतुष्टि की गारंटी',
     },
   },
+
   common: {
     loading: 'लोड हो रहा है...',
     error: 'त्रुटि',
@@ -66,6 +73,7 @@ export const hi = {
     germany: 'जर्मनी',
     changeLanguage: 'भाषा बदलें',
   },
+
   auth: {
     login: 'लॉग इन',
     signup: 'साइन अप',
@@ -82,8 +90,8 @@ export const hi = {
     rememberMe: 'मुझे याद रखें',
     createAccount: 'खाता बनाएं',
     alreadyHaveAccount: 'पहले से खाता है?',
-    dontHaveAccount: 'Don\'t have an account?',
-    noAccount: 'Don\'t have an account?',
+    dontHaveAccount: 'खाता नहीं है?',
+    noAccount: 'खाता नहीं है?',
     welcomeBack: 'वापस स्वागत है',
     signInToAccount: 'अपने Deep Cleaning Hub खाते में साइन इन करें',
     signIn: 'साइन इन',
@@ -113,7 +121,35 @@ export const hi = {
     confirmPasswordRequired: 'कृपया अपने पासवर्ड की पुष्टि करें',
     joinDeepCleaningHub: 'Deep Cleaning Hub में शामिल हों और आज ही शुरू करें',
     creatingAccount: 'खाता बनाया जा रहा है...',
+    forgotPasswordDescription: 'अपना ईमेल पता दर्ज करें और हम आपको पासवर्ड रीसेट करने के लिए एक सत्यापन कोड भेजेंगे।',
+    sendOTP: 'सत्यापन कोड भेजें',
+    otpSentToEmail: 'सत्यापन कोड आपके ईमेल पते पर भेज दिया गया है।',
+    verifyOTP: 'कोड सत्यापित करें',
+    otpSentTo: 'सत्यापन कोड भेजा गया',
+    enterCompleteOTP: 'कृपया पूर्ण 6-अंकीय कोड दर्ज करें।',
+    invalidOTP: 'अमान्य सत्यापन कोड। कृपया पुनः प्रयास करें।',
+    otpVerified: 'कोड सफलतापूर्वक सत्यापित हुआ!',
+    didntReceiveOTP: 'कोड प्राप्त नहीं हुआ?',
+    resendOTP: 'कोड पुनः भेजें',
+    resendIn: 'पुनः भेजें',
+    setNewPassword: 'नया पासवर्ड सेट करें',
+    setNewPasswordDescription: 'कृपया नीचे अपना नया पासवर्ड दर्ज करें।',
+    newPassword: 'नया पासवर्ड',
+    confirmNewPassword: 'नया पासवर्ड पुष्टि करें',
+    resetPassword: 'पासवर्ड रीसेट करें',
+    passwordResetSuccess: 'पासवर्ड सफलतापूर्वक रीसेट हो गया! अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं।',
+    passwordResetComplete: 'पासवर्ड रीसेट सफलतापूर्वक पूर्ण हुआ!',
+    passwordRequirements: 'पासवर्ड में शामिल होना चाहिए',
+    minimum8Characters: 'कम से कम 8 वर्ण',
+    oneUppercaseLetter: 'एक बड़ा अक्षर',
+    oneLowercaseLetter: 'एक छोटा अक्षर',
+    oneNumber: 'एक संख्या',
+    failedToSendOTP: 'सत्यापन कोड भेजने में विफल। कृपया पुनः प्रयास करें।',
+    failedToResendOTP: 'सत्यापन कोड पुनः भेजने में विफल। कृपया पुनः प्रयास करें।',
+    failedToResetPassword: 'पासवर्ड रीसेट करने में विफल। कृपया पुनः प्रयास करें।',
+    networkError: 'नेटवर्क त्रुटि। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।'
   },
+
   cart: {
     title: 'कार्ट',
     pleaseLogin: 'कृपया लॉग इन करें',
@@ -144,12 +180,12 @@ export const hi = {
     measurement: 'माप',
     area: 'क्षेत्र',
     distance: 'दूरी',
-    boxes: 'बॉक्स',
-    boxesCost: 'बॉक्स लागत',
+    boxes: 'बक्से',
+    boxesCost: 'बक्से की लागत',
     multiDayBooking: 'बहु-दिवसीय बुकिंग',
     days: 'दिन',
     weeklyCleaning: 'साप्ताहिक सफाई',
-    daysSelected: 'चयनित दिन',
+    daysSelected: 'दिन चयनित',
     pricingType: 'मूल्य निर्धारण प्रकार',
     orderSummary: 'ऑर्डर सारांश',
     proceedToCheckout: 'चेकआउट के लिए आगे बढ़ें',
@@ -167,7 +203,10 @@ export const hi = {
     failedToClearCart: 'कार्ट साफ करने में असफल',
     twoHours: '2 घंटे',
     qty: 'मात्रा',
+    addMoreServices: 'अधिक सेवाएं जोड़ें',
+    itemNotFound: 'कार्ट में आइटम नहीं मिला',
   },
+
   orders: {
     title: 'मेरे ऑर्डर',
     orderDetails: 'ऑर्डर विवरण',
@@ -239,7 +278,7 @@ export const hi = {
     notes: 'नोट्स:',
     servicesOrdered: 'आदेशित सेवाएँ',
     twoHours: '2 घंटे',
-    qty: 'Qty:',
+    qty: 'Qty: ',
     viewOrders: 'ऑर्डर देखें',
     continueShopping: 'खरीदारी जारी रखें',
     bookingConfirmedNotification: '✅ बुकिंग पुष्टि हुई!',
@@ -250,7 +289,18 @@ export const hi = {
     total: 'कुल',
     trackOrder: 'ऑर्डर ट्रैक करें',
     reorder: 'पुनः ऑर्डर करें',
+    multiDayService: 'बहु-दिवसीय सेवा',
+    serviceDetails: 'सेवा विवरण',
+    measurement: 'माप',
+    area: 'क्षेत्र',
+    distance: 'दूरी',
+    boxes: 'बक्से',
+    boxesCost: 'बक्से की लागत',
+    days: 'दिन',
+    weeklyCleaning: 'साप्ताहिक सफाई',
+    daysSelected: 'दिन चयनित'
   },
+
   checkout: {
     title: 'चेकआउट',
     streetAddress: 'सड़क का पता',
@@ -269,9 +319,9 @@ export const hi = {
     orderSummary: 'ऑर्डर सारांश',
     service: 'सेवा',
     twoHours: '2 घंटे',
-    qty: 'Qty:',
-    basePricePerDay: 'मूल्य (प्रति दिन):',
-    numberOfDays: 'दिनों की संख्या:',
+    qty: 'Qty: ',
+    basePricePerDay: 'आधार मूल्य (प्रति दिन): ',
+    numberOfDays: 'दिनों की संख्या: ',
     total: 'कुल',
     serviceDetails: 'सेवा विवरण',
     multipleDays: 'बहु-दिन',
@@ -292,7 +342,7 @@ export const hi = {
     selectServiceDates: 'सेवा दिनांक चुनें',
     ofDaysSelected: 'में से',
     multiDayOnlyForCleaning: 'बहु-दिवसीय बुकिंग केवल डीप क्लीनिंग और किचन क्लीनिंग सेवाओं के लिए उपलब्ध है।',
-    daysSelected: 'दिन चुने गए',
+    daysSelected: 'दिन चयनित',
     serviceTimeSameForAll: 'सेवा समय (सभी दिनों के लिए समान)',
     addServiceDate: 'सेवा दिनांक जोड़ें',
     add: 'जोड़ें',
@@ -301,7 +351,12 @@ export const hi = {
     sameTimeForAll: 'सभी चयनित दिनांक के लिए समान समय लागू होगा',
     selectDate: 'दिनांक चुनें',
     selectTime: 'समय चुनें',
+    multiDayService: 'बहु-दिवसीय सेवा',
+    weeklyCleaningDates: 'साप्ताहिक सफाई - चयनित तिथियां',
+    datesFromCart: 'सेवा कॉन्फ़िगरेशन से चयनित तिथियां',
+    minimumDatesRequired: 'साप्ताहिक सफाई सेवा के लिए न्यूनतम {{min}} दिन आवश्यक हैं'
   },
+
   cta: {
     getInTouch: 'संपर्क करें',
     readyToTransform: 'क्या आप अपने स्थान को बदलने के लिए तैयार हैं? नि:शुल्क परामर्श और उद्धरण के लिए हमसे संपर्क करें।',
@@ -340,6 +395,7 @@ export const hi = {
     selectServiceTitle: 'सेवा चुनें',
     chooseService: 'एक सेवा चुनें:',
   },
+
   serviceCard: {
     numberOfItems: 'आइटम की संख्या',
     enterNumberOfItems: 'आइटम की संख्या दर्ज करें',
@@ -353,9 +409,11 @@ export const hi = {
     items: 'आइटम',
     area: 'क्षेत्र',
   },
+
   autoTranslate: {
     translating: 'अनुवाद हो रहा है...',
   },
+
   services: {
     title: 'सेवाएं',
     order: 'ऑर्डर',
@@ -372,7 +430,7 @@ export const hi = {
     customService: 'कस्टम सेवा',
     weeklyCleaning: 'साप्ताहिक सफाई',
     service: 'सेवा',
-    
+
     // ServiceVariantModal specific translations
     addToCart: 'कार्ट में जोड़ें',
     addingToCart: 'जोड़ा जा रहा है...',
@@ -387,6 +445,18 @@ export const hi = {
     boxesPlaceholder: 'बॉक्स की संख्या दर्ज करें (वैकल्पिक)',
     measurementLabel: 'माप',
     measurementPlaceholder: '{{unit}} दर्ज करें',
+    ourServices: 'हमारी सेवाएं',
+    availableServices: 'उपलब्ध सेवाएं',
+    fixedPrice: 'निश्चित मूल्य',
+    perUnit: 'प्रति इकाई',
+    availableVariants: 'उपलब्ध वेरिएंट',
+    selectedVariant: 'चयनित:',
+    selectedVariants: 'चयनित वेरिएंट',
+    boxes: 'बक्से',
+    addMoreServices: 'अधिक सेवाएं जोड़ें',
+    enter: 'दर्ज करें'
+    ,
+    range: 'सीमा:',
     enterMeasurement: 'माप दर्ज करें',
     measurement: 'माप',
     minimumInput: 'न्यूनतम इनपुट: {{min}} {{unit}}',
@@ -405,7 +475,7 @@ export const hi = {
     features: 'विशेषताएं',
     retry: 'पुनः प्रयास करें',
     loadingVariants: 'सेवा विकल्प लोड हो रहे हैं...',
-    minimumDatesRequired: 'साप्ताहिक सफाई सेवा के लिए कम से कम 2 तिथियां आवश्यक हैं',
+    minimumDatesRequired: 'साप्ताहिक सफाई सेवा के लिए न्यूनतम {{min}} दिन आवश्यक हैं',
     calculationArea: 'क्षेत्र: {{area}} वर्ग मी × €{{rate}}/वर्ग मी = €{{cost}}',
     calculationDistance: 'दूरी: {{distance}}किमी × €0.5/किमी = €{{cost}}',
     calculationBoxes: 'बॉक्स: {{boxes}} × €{{price}} = €{{cost}}',
@@ -414,7 +484,7 @@ export const hi = {
     calculationTotal: 'कुल: €{{total}}',
     areaCost: 'क्षेत्र लागत',
     distanceCost: 'दूरी लागत',
-    boxesCost: 'बॉक्स लागत',
+    boxesCost: 'बक्से की लागत',
     subtotal: 'उप-योग',
     vat: 'वैट',
     total: 'कुल',
@@ -423,17 +493,17 @@ export const hi = {
     each: 'प्रत्येक',
     per: 'प्रति',
     units: 'इकाइयां',
-    
+
     // Service category names
     cleaning: 'सफाई',
     moving: 'स्थानांतरण',
     officeSetup: 'ऑफिस सेटअप',
     housePainting: 'घर की पेंटिंग',
-    
+
     // Service descriptions
     comprehensiveDeepCleaning: 'व्यापक गहन सफाई सेवाएं',
     standardCleaning: 'मानक सफाई सेवाएं',
-    
+
     browseServices: 'सेवाएँ ब्राउज़ करें',
     allServices: 'सभी सेवाएँ',
     categories: 'श्रेणियाँ',
@@ -488,11 +558,12 @@ export const hi = {
     serviceDetails: 'सेवा विवरण',
     viewingDetails: 'विवरण देख रहे हैं',
   },
+
   contact: {
     title: 'संपर्क करें',
     fullName: 'पूरा नाम',
     emailAddress: 'ईमेल पता',
-    phoneNumber: 'फोन नंबर',
+    phoneNumber: 'एक संख्या',
     serviceRequired: 'आवश्यक सेवा',
     message: 'संदेश',
     submit: 'पूछताछ भेजें',
@@ -513,6 +584,7 @@ export const hi = {
     email: 'ईमेल',
     whatsapp: 'व्हाट्सएप',
   },
+
   profile: {
     title: 'प्रोफ़ाइल',
     changePassword: 'पासवर्ड बदलें',
@@ -594,6 +666,7 @@ export const hi = {
     pleaseEnterValidDateOfBirth: 'कृपया एक वैध जन्म तिथि दर्ज करें',
     germany: 'जर्मनी',
   },
+
   navigation: {
     home: 'होम',
     services: 'सेवाएँ',
@@ -602,10 +675,11 @@ export const hi = {
     profile: 'प्रोफ़ाइल',
     contact: 'संपर्क',
   },
+
   errors: {
     somethingWentWrong: 'ओह! कुछ गलत हो गया',
     unexpectedError: 'हमें खेद है, लेकिन कुछ अप्रत्याशित हुआ। कृपया पुनः प्रयास करें।',
-    networkError: 'नेटवर्क त्रुटि। कृपया अपना कनेक्शन जांचें।',
+    networkError: 'नेटवर्क त्रुटि। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।',
     serverError: 'सर्वर त्रुटि। कृपया बाद में पुनः प्रयास करें।',
     notFound: 'नहीं मिला',
     unauthorized: 'अनधिकृत पहुँच',
@@ -620,7 +694,22 @@ export const hi = {
     maximumItemsAllowed: 'अनुमत अधिकतम आइटम संख्या है',
     minimumAreaRequired: 'आवश्यक न्यूनतम क्षेत्र है',
     maximumAreaAllowed: 'अनुमत अधिकतम क्षेत्र है',
+    failedToFetch: 'डेटा लाने में विफल। कृपया पुनः प्रयास करें।',
+    failedToUpdate: 'अपडेट करने में विफल। कृपया पुनः प्रयास करें।',
+    failedToDelete: 'हटाने में विफल। कृपया पुनः प्रयास करें।',
+    failedToCreate: 'बनाने में विफल। कृपया पुनः प्रयास करें।',
+    sessionExpired: 'सत्र समाप्त हो गया',
+    sessionExpiredMessage: 'आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।',
+    failedToSendEmail: 'ईमेल भेजने में विफल। कृपया पुनः प्रयास करें।',
+    failedToSendOrderConfirmation: 'ऑर्डर पुष्टिकरण ईमेल भेजने में विफल। कृपया पुनः प्रयास करें।',
+    failedToSendCustomerConfirmation: 'ग्राहक पुष्टिकरण ईमेल भेजने में विफल। कृपया पुनः प्रयास करें।',
+    failedToSendAdminNotification: 'व्यवस्थापक सूचना ईमेल भेजने में विफल। कृपया पुनः प्रयास करें।',
+    failedToTestEmail: 'ईमेल सेवा का परीक्षण करने में विफल। कृपया पुनः प्रयास करें।',
+    failedToUpdateProfile: 'प्रोफ़ाइल अपडेट करने में विफल',
+    failedToChangePassword: 'पासवर्ड बदलने में विफल',
+    failedToUploadImage: 'प्रोफ़ाइल छवि अपलोड करने में विफल',
   },
+
   language: {
     selectLanguage: 'भाषा चुनें',
     currentLanguage: 'वर्तमान भाषा',
@@ -643,5 +732,20 @@ export const hi = {
     popularLanguages: 'लोकप्रिय भाषाएँ',
     recentlyUsed: 'हाल ही में उपयोग की गई',
     searchLanguages: 'भाषाएँ खोजें...'
+  },
+
+  notifications: {
+    test: 'सूचना परीक्षण',
+    initializing: 'सूचनाएं प्रारंभ हो रही हैं...',
+    token: 'टोकन',
+    status: 'स्थिति',
+    initialized: 'प्रारंभ किया गया',
+    notInitialized: 'प्रारंभ नहीं किया गया',
+    scheduled: 'निर्धारित',
+    notificationsCount: 'सूचनाएं',
+    sendTest: 'परीक्षण भेजें',
+    getScheduled: 'निर्धारित प्राप्त करें',
+    cancelAll: 'सभी रद्द करें',
+    notAvailable: 'उपलब्ध नहीं',
   },
 };

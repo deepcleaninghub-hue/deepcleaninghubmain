@@ -34,37 +34,37 @@ const ServicesScreen = ({ navigation }: Props) => {
     {
       id: 'cleaning',
       title: t('services.cleaning'),
-      image: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80',
+      image: require('../../../assets/services/cleaning-image.jpeg'),
       category: 'Cleaning',
     },
     {
       id: 'furniture-assembly',
       title: t('services.furnitureAssembly'),
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80',
+      image: require('../../../assets/services/furniture-image.jpeg'),
       category: 'Furniture Assembly',
     },
     {
       id: 'furniture-disassembly',
       title: t('services.furnitureDisassembly'),
-      image: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80',
+      image: require('../../../assets/services/furniture-image.jpeg'),
       category: 'Furniture Disassembly',
     },
     {
       id: 'moving',
       title: t('services.moving'),
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80',
+      image: require('../../../assets/services/moving.jpeg'),
       category: 'Moving',
     },
     {
       id: 'office-setup',
       title: t('services.officeSetup'),
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop&q=80',
+      image: require('../../../assets/services/office-setup-image.jpeg'),
       category: 'Office Setup',
     },
     {
       id: 'house-painting',
       title: t('services.housePainting'),
-      image: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80',
+      image: require('../../../assets/services/paint-image.jpeg'),
       category: 'House Painting',
     },
   ];
@@ -186,7 +186,7 @@ const ServicesScreen = ({ navigation }: Props) => {
                       </View>
                     )}
                     <Image 
-                      source={{ uri: service.image || 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80' }} 
+                      source={typeof service.image === 'string' ? { uri: service.image } : service.image} 
                       style={styles.serviceImage}
                       onLoadStart={() => setImageLoading(prev => ({ ...prev, [service.id]: true }))}
                       onLoadEnd={() => setImageLoading(prev => ({ ...prev, [service.id]: false }))}

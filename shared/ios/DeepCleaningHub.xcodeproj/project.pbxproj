@@ -9,27 +9,27 @@
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		9679CE6BAB3E8C7900130FE3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F3CC5D7466DFA6B52333EA46 /* PrivacyInfo.xcprivacy */; };
-		AED478815F1AEFC013BC6463 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74B4B3F311B9AD4F400119E1 /* ExpoModulesProvider.swift */; };
+		404983BB1742237C399388B6 /* libPods-DeepCleaningHub.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B2AB9D08B5B74D7E1169505E /* libPods-DeepCleaningHub.a */; };
+		9D172C91656A0B1B2A300333 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785D6017353F2E2A2A90BF69 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		BDC5C4950E35ECF61743C530 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 994949143B1235240DB897DC /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		FD7841EB2FF6CAA0519E56E3 /* libPods-DeepCleaningHub.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E3569CAD8E55A0BC5CA4AC2B /* libPods-DeepCleaningHub.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* DeepCleaningHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DeepCleaningHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = DeepCleaningHub/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = DeepCleaningHub/Info.plist; sourceTree = "<group>"; };
-		74B4B3F311B9AD4F400119E1 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-DeepCleaningHub/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		7E47704825CEFDA8599D84D3 /* Pods-DeepCleaningHub.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DeepCleaningHub.release.xcconfig"; path = "Target Support Files/Pods-DeepCleaningHub/Pods-DeepCleaningHub.release.xcconfig"; sourceTree = "<group>"; };
+		785D6017353F2E2A2A90BF69 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-DeepCleaningHub/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		8719C204F8836FFFFA1BB846 /* Pods-DeepCleaningHub.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DeepCleaningHub.debug.xcconfig"; path = "Target Support Files/Pods-DeepCleaningHub/Pods-DeepCleaningHub.debug.xcconfig"; sourceTree = "<group>"; };
+		994949143B1235240DB897DC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = DeepCleaningHub/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = DeepCleaningHub/SplashScreen.storyboard; sourceTree = "<group>"; };
-		B43C57A995EA5359128282BF /* Pods-DeepCleaningHub.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DeepCleaningHub.debug.xcconfig"; path = "Target Support Files/Pods-DeepCleaningHub/Pods-DeepCleaningHub.debug.xcconfig"; sourceTree = "<group>"; };
+		B2AB9D08B5B74D7E1169505E /* libPods-DeepCleaningHub.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DeepCleaningHub.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		E3569CAD8E55A0BC5CA4AC2B /* libPods-DeepCleaningHub.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DeepCleaningHub.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB4E04F9CE8D32BE1D7801CC /* Pods-DeepCleaningHub.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DeepCleaningHub.release.xcconfig"; path = "Target Support Files/Pods-DeepCleaningHub/Pods-DeepCleaningHub.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = DeepCleaningHub/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* DeepCleaningHub-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "DeepCleaningHub-Bridging-Header.h"; path = "DeepCleaningHub/DeepCleaningHub-Bridging-Header.h"; sourceTree = "<group>"; };
-		F3CC5D7466DFA6B52333EA46 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = DeepCleaningHub/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FD7841EB2FF6CAA0519E56E3 /* libPods-DeepCleaningHub.a in Frameworks */,
+				404983BB1742237C399388B6 /* libPods-DeepCleaningHub.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,41 +53,42 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				F3CC5D7466DFA6B52333EA46 /* PrivacyInfo.xcprivacy */,
+				994949143B1235240DB897DC /* PrivacyInfo.xcprivacy */,
 			);
 			name = DeepCleaningHub;
+			sourceTree = "<group>";
+		};
+		1A47A1E706918A0517AE91B6 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				822E1AE77304496131CF27BC /* DeepCleaningHub */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				E3569CAD8E55A0BC5CA4AC2B /* libPods-DeepCleaningHub.a */,
+				B2AB9D08B5B74D7E1169505E /* libPods-DeepCleaningHub.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		3BC99F34A5210941F2A21520 /* ExpoModulesProviders */ = {
+		7ACACCAD364D7228BE398AC2 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				5A27BDDDD21EA877ED71177D /* DeepCleaningHub */,
+				8719C204F8836FFFFA1BB846 /* Pods-DeepCleaningHub.debug.xcconfig */,
+				EB4E04F9CE8D32BE1D7801CC /* Pods-DeepCleaningHub.release.xcconfig */,
 			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
-		5584CE53F1BD4B62A18CEC0D /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				B43C57A995EA5359128282BF /* Pods-DeepCleaningHub.debug.xcconfig */,
-				7E47704825CEFDA8599D84D3 /* Pods-DeepCleaningHub.release.xcconfig */,
-			);
+			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		5A27BDDDD21EA877ED71177D /* DeepCleaningHub */ = {
+		822E1AE77304496131CF27BC /* DeepCleaningHub */ = {
 			isa = PBXGroup;
 			children = (
-				74B4B3F311B9AD4F400119E1 /* ExpoModulesProvider.swift */,
+				785D6017353F2E2A2A90BF69 /* ExpoModulesProvider.swift */,
 			);
 			name = DeepCleaningHub;
 			sourceTree = "<group>";
@@ -106,8 +107,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				5584CE53F1BD4B62A18CEC0D /* Pods */,
-				3BC99F34A5210941F2A21520 /* ExpoModulesProviders */,
+				7ACACCAD364D7228BE398AC2 /* Pods */,
+				1A47A1E706918A0517AE91B6 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -139,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "DeepCleaningHub" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				2C17AAC7ABB174445AD74AD9 /* [Expo] Configure project */,
+				5F5D77ED284291623B8381D8 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				8E29A46DFA12BE827F7BBF79 /* [CP] Embed Pods Frameworks */,
+				7D10B934F81DAEBD78DD697D /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -195,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				9679CE6BAB3E8C7900130FE3 /* PrivacyInfo.xcprivacy in Resources */,
+				BDC5C4950E35ECF61743C530 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,7 +242,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		2C17AAC7ABB174445AD74AD9 /* [Expo] Configure project */ = {
+		5F5D77ED284291623B8381D8 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -264,6 +265,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-DeepCleaningHub/expo-configure-project.sh\"\n";
+		};
+		7D10B934F81DAEBD78DD697D /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-DeepCleaningHub/Pods-DeepCleaningHub-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DeepCleaningHub/Pods-DeepCleaningHub-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -301,28 +324,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DeepCleaningHub/Pods-DeepCleaningHub-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8E29A46DFA12BE827F7BBF79 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-DeepCleaningHub/Pods-DeepCleaningHub-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DeepCleaningHub/Pods-DeepCleaningHub-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -331,7 +332,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				AED478815F1AEFC013BC6463 /* ExpoModulesProvider.swift in Sources */,
+				9D172C91656A0B1B2A300333 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -340,20 +341,19 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B43C57A995EA5359128282BF /* Pods-DeepCleaningHub.debug.xcconfig */;
+			baseConfigurationReference = 8719C204F8836FFFFA1BB846 /* Pods-DeepCleaningHub.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DeepCleaningHub/DeepCleaningHub.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D2H3R3L4Z9;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = DeepCleaningHub/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -377,15 +377,14 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7E47704825CEFDA8599D84D3 /* Pods-DeepCleaningHub.release.xcconfig */;
+			baseConfigurationReference = EB4E04F9CE8D32BE1D7801CC /* Pods-DeepCleaningHub.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DeepCleaningHub/DeepCleaningHub.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D2H3R3L4Z9;
 				INFOPLIST_FILE = DeepCleaningHub/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -453,7 +452,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -509,7 +508,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",

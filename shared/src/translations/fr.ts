@@ -2,6 +2,7 @@ export const fr = {
   app: {
     title: 'Centre de Nettoyage en Profondeur',
   },
+
   home: {
     title: 'Accueil',
     welcome: 'Bienvenue chez DeepClean Hub',
@@ -14,14 +15,19 @@ export const fr = {
       callNow: 'Appeler',
       whatsapp: 'WhatsApp',
       inquire: 'Demander',
+      whatsappMessage: 'Bonjour ! Je souhaiterais me renseigner sur vos services de nettoyage.',
+      couldNotOpenPhoneApp: 'Impossible d\'ouvrir l\'application téléphone',
+      couldNotOpenWhatsApp: 'Impossible d\'ouvrir WhatsApp',
     },
+
     features: {
       title: 'Pourquoi Nous Choisir?',
       trusted: 'Fiable et Sûr',
       quality: 'Qualité Garantie',
       onTime: 'Service Ponctuel',
-      customerFirst: 'Client d\'Abord',
+      customerFirst: 'Client d\'abord',
     },
+
     carousel: {
       professional: 'Nettoyage Professionnel',
       professionalDesc: 'Services de nettoyage experts pour votre maison',
@@ -33,6 +39,7 @@ export const fr = {
       qualityDesc: '100% garantie de satisfaction',
     },
   },
+
   common: {
     loading: 'Chargement...',
     error: 'Erreur',
@@ -66,6 +73,7 @@ export const fr = {
     germany: 'Allemagne',
     changeLanguage: 'Changer de langue',
   },
+
   auth: {
     login: 'Connexion',
     signup: 'Inscription',
@@ -113,7 +121,35 @@ export const fr = {
     confirmPasswordRequired: 'Veuillez confirmer votre mot de passe',
     joinDeepCleaningHub: 'Rejoignez Deep Cleaning Hub dès aujourd\'hui',
     creatingAccount: 'Création du compte...',
+    forgotPasswordDescription: 'Entrez votre adresse e-mail et nous vous enverrons un code de vérification pour réinitialiser votre mot de passe.',
+    sendOTP: 'Envoyer le code de vérification',
+    otpSentToEmail: 'Code de vérification envoyé à votre adresse e-mail.',
+    verifyOTP: 'Vérifier le code',
+    otpSentTo: 'Code de vérification envoyé à',
+    enterCompleteOTP: 'Veuillez entrer le code complet à 6 chiffres.',
+    invalidOTP: 'Code de vérification invalide. Veuillez réessayer.',
+    otpVerified: 'Code vérifié avec succès!',
+    didntReceiveOTP: 'Vous n\'avez pas reçu le code?',
+    resendOTP: 'Renvoyer le code',
+    resendIn: 'Renvoyer dans',
+    setNewPassword: 'Définir un nouveau mot de passe',
+    setNewPasswordDescription: 'Veuillez entrer votre nouveau mot de passe ci-dessous.',
+    newPassword: 'Nouveau mot de passe',
+    confirmNewPassword: 'Confirmer le nouveau mot de passe',
+    resetPassword: 'Réinitialiser le mot de passe',
+    passwordResetSuccess: 'Mot de passe réinitialisé avec succès! Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
+    passwordResetComplete: 'Réinitialisation du mot de passe terminée avec succès!',
+    passwordRequirements: 'Le mot de passe doit contenir',
+    minimum8Characters: 'Au moins 8 caractères',
+    oneUppercaseLetter: 'Une lettre majuscule',
+    oneLowercaseLetter: 'Une lettre minuscule',
+    oneNumber: 'Un chiffre',
+    failedToSendOTP: 'Échec de l\'envoi du code de vérification. Veuillez réessayer.',
+    failedToResendOTP: 'Échec du renvoi du code de vérification. Veuillez réessayer.',
+    failedToResetPassword: 'Échec de la réinitialisation du mot de passe. Veuillez réessayer.',
+    networkError: 'Erreur réseau. Veuillez vérifier votre connexion et réessayer.',
   },
+
   cart: {
     title: 'Panier',
     pleaseLogin: 'Veuillez vous connecter',
@@ -129,7 +165,7 @@ export const fr = {
     addedToCart: 'ajouté au panier !',
     viewCart: 'Voir le panier',
     continue: 'Continuer',
-    failedToAdd: 'Échec de l\'ajout au panier',
+    failedToAdd: 'Échec de l\'ajout de l\'article au panier',
     addMoreServices: 'Ajouter plus de services',
     removeItem: 'Retirer l\'article',
     refreshing: 'Actualisation...',
@@ -140,16 +176,16 @@ export const fr = {
     unknown: 'Inconnu',
     service: 'Service',
     noDescriptionAvailable: 'Aucune description disponible',
-    serviceDetails: 'Détails du Service',
+    serviceDetails: 'Détails du service',
     quantity: 'Quantité',
     measurement: 'Mesure',
-    area: 'Superficie',
+    area: 'Zone',
     distance: 'Distance',
     boxes: 'Boîtes',
-    boxesCost: 'Coût des Boîtes',
+    boxesCost: 'Coût des boîtes',
     multiDayBooking: 'Réservation Multi-jours',
     days: 'jours',
-    weeklyCleaning: 'Nettoyage Hebdomadaire',
+    weeklyCleaning: 'Nettoyage hebdomadaire',
     daysSelected: 'jours sélectionnés',
     pricingType: 'Type de Prix',
     orderSummary: 'Résumé de la commande',
@@ -168,12 +204,14 @@ export const fr = {
     failedToClearCart: 'Échec de la suppression du panier',
     twoHours: '2 heures',
     qty: 'Qté',
+    itemNotFound: 'Article non trouvé dans le panier',
   },
+
   orders: {
     title: 'Mes commandes',
     orderDetails: 'Détails de la commande',
     orderConfirmation: 'Confirmation de commande',
-    scheduled: 'Planifiée',
+    scheduled: 'Programmé',
     completed: 'Terminée',
     cancelled: 'Annulée',
     inProgress: 'En Cours',
@@ -189,8 +227,8 @@ export const fr = {
     loadingBookings: 'Chargement des réservations...',
     noScheduledBookings: 'Aucune réservation planifiée',
     noCompletedBookings: 'Aucune réservation terminée',
-    noScheduledBookingsYet: 'Vous n\'avez pas encore de réservation planifiée',
-    noCompletedBookingsYet: 'Vous n\'avez pas encore de réservation terminée',
+    noScheduledBookingsYet: 'Vous n\'avez pas encore de réservations planifiées',
+    noCompletedBookingsYet: 'Vous n\'avez pas encore de réservations terminées',
     browseServices: 'Parcourir les services',
     bookingNumber: 'Réservation n°',
     service: 'Service',
@@ -252,7 +290,18 @@ export const fr = {
     total: 'Total',
     trackOrder: 'Suivre la commande',
     reorder: 'Commander à nouveau',
+    serviceDetails: 'Détails du service',
+    measurement: 'Mesure',
+    area: 'Zone',
+    distance: 'Distance',
+    boxes: 'Boîtes',
+    boxesCost: 'Coût des boîtes',
+    days: 'jours',
+    weeklyCleaning: 'Nettoyage hebdomadaire'
+    ,
+    daysSelected: 'jours sélectionnés'
   },
+
   checkout: {
     title: 'Caisse',
     streetAddress: 'Adresse',
@@ -293,7 +342,7 @@ export const fr = {
     dateAlreadyAdded: 'Cette date a déjà été ajoutée à votre réservation.',
     selectServiceDates: 'Sélectionner les dates de service',
     ofDaysSelected: 'sur',
-    multiDayOnlyForCleaning: 'La réservation multi-jours n\'est disponible que pour les services de Nettoyage en Profondeur et Nettoyage de Cuisine.',
+    multiDayOnlyForCleaning: 'La réservation multi-jours n\'est disponible que pour les services de Nettoyage en Profondeur et de Nettoyage de Cuisine.',
     daysSelected: 'jours sélectionnés',
     serviceTimeSameForAll: 'Heure du service (identique pour tous les jours)',
     addServiceDate: 'Ajouter une date de service',
@@ -314,7 +363,12 @@ export const fr = {
     date: 'Date',
     trackOrder: 'Suivre la commande',
     reorder: 'Commander à nouveau',
+    multiDayService: 'Service multi-jours',
+    weeklyCleaningDates: 'Nettoyage hebdomadaire - Dates sélectionnées',
+    datesFromCart: 'Dates sélectionnées à partir de la configuration du service',
+    minimumDatesRequired: 'Le service de nettoyage hebdomadaire nécessite un minimum de {{min}} jours'
   },
+
   cta: {
     getInTouch: 'Contactez-nous',
     readyToTransform: 'Prêt à transformer votre espace ? Contactez-nous pour une consultation et un devis gratuits.',
@@ -344,8 +398,8 @@ export const fr = {
     thankYouInquiry: 'Merci pour votre demande. Nous vous répondrons dans les 24 heures.',
     ok: 'OK',
     error: 'Erreur',
-    failedToSubmitInquiry: 'Échec de l\'envoi. Veuillez réessayer.',
-    failedToSubmitInquiryConnection: 'Échec de l\'envoi. Vérifiez votre connexion et réessayez.',
+    failedToSubmitInquiry: 'Échec de l\'envoi de la demande. Veuillez réessayer.',
+    failedToSubmitInquiryConnection: 'Échec de l\'envoi de la demande. Veuillez vérifier votre connexion et réessayer.',
     couldNotOpenPhoneApp: 'Impossible d\'ouvrir l\'application téléphone',
     couldNotOpenEmailApp: 'Impossible d\'ouvrir l\'application email',
     couldNotOpenWhatsApp: 'Impossible d\'ouvrir WhatsApp',
@@ -353,6 +407,7 @@ export const fr = {
     selectServiceTitle: 'Sélectionner un service',
     chooseService: 'Choisissez un service :',
   },
+
   serviceCard: {
     numberOfItems: 'Nombre d\'articles',
     enterNumberOfItems: 'Entrez le nombre d\'articles',
@@ -364,11 +419,13 @@ export const fr = {
     inCart: 'Dans le panier',
     addToCart: 'Ajouter au panier',
     items: 'Articles',
-    area: 'Surface',
+    area: 'Zone',
   },
+
   autoTranslate: {
     translating: 'Traduction en cours...',
   },
+
   services: {
     kitchenDeepCleaning: 'Nettoyage en profondeur de la cuisine',
     houseMoving: 'Déménagement de maison',
@@ -377,7 +434,7 @@ export const fr = {
     carpetUpholsteryCleaning: 'Nettoyage de tapis et de tissus d\'ameublement',
     windowGlassCleaning: 'Nettoyage de vitres et de verre',
     customService: 'Service personnalisé',
-    
+
     // ServiceVariantModal specific translations
     addToCart: 'Ajouter au Panier',
     addingToCart: 'Ajout en cours...',
@@ -392,6 +449,13 @@ export const fr = {
     boxesPlaceholder: 'Entrez le nombre de boîtes (optionnel)',
     measurementLabel: 'Mesure',
     measurementPlaceholder: 'Entrez {{unit}}',
+    availableVariants: 'Variantes disponibles',
+    selectedVariant: 'Sélectionné : ',
+    selectedVariants: 'Variantes sélectionnées',
+    boxes: 'Boîtes',
+    addMoreServices: 'Ajouter plus de services',
+    enter: 'Entrer',
+    range: 'Plage : ',
     enterMeasurement: 'Entrez la mesure',
     measurement: 'Mesure',
     minimumInput: 'Entrée minimale: {{min}} {{unit}}',
@@ -410,7 +474,7 @@ export const fr = {
     features: 'Caractéristiques',
     retry: 'Réessayer',
     loadingVariants: 'Chargement des options de service...',
-    minimumDatesRequired: 'Minimum 2 dates requises pour le service de nettoyage hebdomadaire',
+    minimumDatesRequired: 'Le service de nettoyage hebdomadaire nécessite un minimum de {{min}} jours',
     calculationArea: 'Superficie: {{area}} m² × €{{rate}}/m² = €{{cost}}',
     calculationDistance: 'Distance: {{distance}}km × €0.5/km = €{{cost}}',
     calculationBoxes: 'Boîtes: {{boxes}} × €{{price}} = €{{cost}}',
@@ -419,7 +483,7 @@ export const fr = {
     calculationTotal: 'Total: €{{total}}',
     areaCost: 'Coût de la Superficie',
     distanceCost: 'Coût de la Distance',
-    boxesCost: 'Coût des Boîtes',
+    boxesCost: 'Coût des boîtes',
     subtotal: 'Sous-total',
     vat: 'TVA',
     total: 'Total',
@@ -428,24 +492,24 @@ export const fr = {
     each: 'chacun',
     per: 'par',
     units: 'unités',
-    
+
     // Service category names
     cleaning: 'Nettoyage',
     furnitureDisassembly: 'Démontage de meubles',
     moving: 'Déménagement',
     officeSetup: 'Configuration de bureau',
     housePainting: 'Peinture de maison',
-    
+
     // Service descriptions
     comprehensiveDeepCleaning: 'Services de nettoyage en profondeur complets',
     standardCleaning: 'Services de nettoyage standard',
-    
+
     // UI Text
     ourServices: 'Nos Services',
     availableServices: 'Services Disponibles',
     fixedPrice: 'Prix Fixe',
     perUnit: 'Par Unité',
-    
+
     title: 'Services',
     order: 'Commander',
     couldNotOpenPhoneApp: 'Impossible d\'ouvrir l\'application téléphone',
@@ -479,7 +543,7 @@ export const fr = {
     clear: 'Effacer',
     recommendedForYou: 'Recommandé pour vous',
     customQuotesFast: 'Devis personnalisés, rapides',
-    needTailoredEstimate: 'Besoin d\'un devis sur mesure ?',
+    needTailoredEstimate: 'Besoin d\'un devis personnalisé?',
     tellUsRequirements: 'Faites-nous part de vos besoins et nous vous répondrons dans les minutes qui suivent.',
     getQuote: 'Obtenir un devis',
     call: 'Appeler',
@@ -497,19 +561,20 @@ export const fr = {
     tomorrowSchedulingComingSoon: 'La fonction de planification pour demain sera bientôt disponible !',
     options: 'options',
     enterValid: 'Veuillez entrer une',
-    numberOfItems: 'nombre d\'articles valide',
-    area: 'surface valide',
+    numberOfItems: 'nombre d\'articles',
+    area: 'Zone',
     items: 'articles',
     maximum: 'Maximum',
     is: 'est',
     serviceDetails: 'Détails du service',
     viewingDetails: 'Affichage des détails pour',
   },
+
   contact: {
     title: 'Contactez-nous',
     fullName: 'Nom complet',
     emailAddress: 'Adresse e-mail',
-    phoneNumber: 'Numéro de téléphone',
+    phoneNumber: 'Un chiffre',
     serviceRequired: 'Service requis',
     message: 'Message',
     submit: 'Envoyer la demande',
@@ -518,7 +583,7 @@ export const fr = {
     error: 'Échec de l\'envoi de la demande',
     contactUs: 'Contactez-nous',
     getInTouch: 'Entrer en contact',
-    contactDescription: 'Vous avez des questions ou besoin d\'aide ? Nous sommes là pour vous aider.',
+    contactDescription: 'Vous avez des questions ou besoin d\'aide? Nous sommes là pour vous aider.',
     serviceArea: 'Zone de service',
     preferredDate: 'Date préférée',
     sendMessage: 'Envoyer le message',
@@ -530,6 +595,7 @@ export const fr = {
     email: 'E-mail',
     whatsapp: 'WhatsApp',
   },
+
   profile: {
     title: 'Profil',
     changePassword: 'Changer le mot de passe',
@@ -555,7 +621,7 @@ export const fr = {
     deleteAccountFinal: 'AVERTISSEMENT FINAL : Vous êtes sur le point de supprimer définitivement votre compte.\n\nPour confirmer, veuillez taper "DELETE" dans le champ de texte ci-dessous et appuyer sur "Supprimer définitivement".',
     typeDeleteToConfirm: 'Tapez "DELETE" exactement comme indiqué pour supprimer définitivement votre compte :',
     deleteForever: 'Supprimer définitivement',
-    invalidConfirmation: 'Vous devez taper "DELETE" exactement comme indiqué. Suppression du compte annulée.',
+    invalidConfirmation: 'Confirmation invalide. Tapez "DELETE" pour continuer.',
     accountDeleted: 'Votre compte a été définitivement supprimé. Cette fonctionnalité sera implémentée avec l\'API backend.',
     typeDeleteToConfirmButton: 'Tapez DELETE pour confirmer',
     settings: 'Paramètres',
@@ -596,7 +662,7 @@ export const fr = {
     profileUpdatedSuccess: 'Profil mis à jour avec succès',
     failedToUpdateProfile: 'Échec de la mise à jour du profil',
     noChanges: 'Aucun changement',
-    noChangesMade: 'Aucun changement n\'a été apporté à enregistrer.',
+    noChangesMade: 'Aucun changement n\'a été effectué pour être enregistré.',
     firstNameCannotBeEmpty: 'Le prénom ne peut pas être vide',
     lastNameCannotBeEmpty: 'Le nom ne peut pas être vide',
     emailCannotBeEmpty: 'L\'e-mail ne peut pas être vide',
@@ -611,6 +677,7 @@ export const fr = {
     pleaseEnterValidDateOfBirth: 'Veuillez entrer une date de naissance valide',
     germany: 'Allemagne',
   },
+
   navigation: {
     home: 'Accueil',
     services: 'Services',
@@ -619,10 +686,11 @@ export const fr = {
     profile: 'Profil',
     contact: 'Contact',
   },
+
   errors: {
     somethingWentWrong: 'Oups! Quelque chose a mal tourné',
     unexpectedError: 'Nous sommes désolés, mais quelque chose d\'inattendu s\'est produit. Veuillez réessayer.',
-    networkError: 'Erreur de réseau. Veuillez vérifier votre connexion.',
+    networkError: 'Erreur réseau. Veuillez vérifier votre connexion et réessayer.',
     serverError: 'Erreur de serveur. Veuillez réessayer plus tard.',
     notFound: 'Non trouvé',
     unauthorized: 'Accès non autorisé',
@@ -634,10 +702,25 @@ export const fr = {
     enterValidArea: 'Veuillez entrer une surface valide',
     enterValidDistance: 'Veuillez entrer une distance valide',
     minimumItemsRequired: 'Le nombre minimum d\'articles requis est',
-    maximumItemsAllowed: 'Le nombre maximum d\'articles autorisés est',
+    maximumItemsAllowed: 'Le nombre maximum d\'articles autorisé est',
     minimumAreaRequired: 'La surface minimale requise est',
     maximumAreaAllowed: 'La surface maximale autorisée est',
+    failedToFetch: 'Échec de la récupération des données. Veuillez réessayer.',
+    failedToUpdate: 'Échec de la mise à jour. Veuillez réessayer.',
+    failedToDelete: 'Échec de la suppression. Veuillez réessayer.',
+    failedToCreate: 'Échec de la création. Veuillez réessayer.',
+    sessionExpired: 'Session expirée',
+    sessionExpiredMessage: 'Votre session a expiré. Veuillez vous reconnecter.',
+    failedToSendEmail: 'Échec de l\'envoi de l\'email. Veuillez réessayer.',
+    failedToSendOrderConfirmation: 'Échec de l\'envoi des e-mails de confirmation de commande. Veuillez réessayer.',
+    failedToSendCustomerConfirmation: 'Échec de l\'envoi de l\'email de confirmation au client. Veuillez réessayer.',
+    failedToSendAdminNotification: 'Échec de l\'envoi de l\'email de notification à l\'administrateur. Veuillez réessayer.',
+    failedToTestEmail: 'Échec du test du service email. Veuillez réessayer.',
+    failedToUpdateProfile: 'Échec de la mise à jour du profil',
+    failedToChangePassword: 'Échec du changement de mot de passe',
+    failedToUploadImage: 'Échec du téléchargement de l\'image de profil',
   },
+
   language: {
     selectLanguage: 'Sélectionner la langue',
     currentLanguage: 'Langue actuelle',
@@ -660,5 +743,20 @@ export const fr = {
     popularLanguages: 'Langues populaires',
     recentlyUsed: 'Utilisées récemment',
     searchLanguages: 'Rechercher des langues...',
+  },
+
+  notifications: {
+    test: 'Test de notification',
+    initializing: 'Initialisation des notifications...',
+    token: 'Jeton',
+    status: 'Statut',
+    initialized: 'Initialisé',
+    notInitialized: 'Non initialisé',
+    scheduled: 'Programmé',
+    notificationsCount: 'notifications',
+    sendTest: 'Envoyer un test',
+    getScheduled: 'Obtenir les programmées',
+    cancelAll: 'Tout annuler',
+    notAvailable: 'Non disponible',
   },
 };

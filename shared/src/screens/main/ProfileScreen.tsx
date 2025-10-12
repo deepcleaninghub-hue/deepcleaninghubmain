@@ -12,6 +12,7 @@ import { ProfileStackScreenProps } from '../../navigation/types';
 import { profileAPI, ChangePasswordData } from '../../services/profileAPI';
 import AppModal from '../../components/common/AppModal';
 import { useAppModal } from '../../hooks/useAppModal';
+import NotificationTest from '../../components/NotificationTest';
 
 type Props = ProfileStackScreenProps<'ProfileMain'>;
 
@@ -366,6 +367,9 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
             </Card.Content>
           </Card>
         </View>
+
+        {/* Notification Test Section (for testing promotional notifications) */}
+        <NotificationTest />
 
         {/* Logout Section */}
         <View style={styles.logoutSection}>

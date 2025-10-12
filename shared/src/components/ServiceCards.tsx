@@ -16,32 +16,32 @@ const ServiceCards: React.FC<ServiceCardsProps> = ({ onServicePress }) => {
     {
       id: 'furniture-disassembly',
       title: t('services.furnitureDisassembly'),
-      image: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f4f4b1?w=400&h=300&fit=crop&q=80'
+      image: require('../../assets/services/furniture-image.jpeg')
     },
     {
       id: 'moving',
       title: t('services.moving'),
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80'
+      image: require('../../assets/services/moving.jpeg')
     },
     {
       id: 'cleaning',
       title: t('services.cleaning'),
-      image: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop&q=80'
+      image: require('../../assets/services/cleaning-image.jpeg')
     },
     {
       id: 'office-setup',
       title: t('services.officeSetup'),
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop&q=80'
+      image: require('../../assets/services/office-setup-image.jpeg')
     },
     {
       id: 'furniture-assembly',
       title: t('services.furnitureAssembly'),
-      image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop&q=80'
+      image: require('../../assets/services/furniture-image.jpeg')
     },
     {
       id: 'house-painting',
       title: t('services.housePainting'),
-      image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop&q=80'
+      image: require('../../assets/services/paint-image.jpeg')
     }
   ];
 
@@ -84,7 +84,7 @@ const ServiceCards: React.FC<ServiceCardsProps> = ({ onServicePress }) => {
           >
             <View style={styles.categoryImageContainer}>
               <Image 
-                source={{ uri: service.image }} 
+                source={service.image} 
                 style={styles.categoryImage}
               />
               <View style={styles.categoryImageOverlay} />

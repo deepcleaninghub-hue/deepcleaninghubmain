@@ -18,21 +18,28 @@
       "buildNumber": "9",
       "bundleIdentifier": "com.deepcleanhub.mobile",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "LSApplicationQueriesSchemes": [
+          "tel",
+          "telprompt",
+          "whatsapp"
+        ]
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/AppIcons/appstore.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#2d5016"
       },
+      "icon": "./assets/AppIcons/playstore.png",
       "package": "com.deepcleanhub.mobile",
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE"
-      ]
+      ],
+      "versionCode": 9
     },
     "web": {
       "favicon": "./assets/AppIcons/appstore.png"

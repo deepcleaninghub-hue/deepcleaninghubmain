@@ -2,6 +2,7 @@ export const ru = {
   app: {
     title: 'Центр Глубокой Очистки',
   },
+
   home: {
     title: 'Главная',
     welcome: 'Добро пожаловать в Центр Глубокой Очистки',
@@ -14,7 +15,11 @@ export const ru = {
       callNow: 'Позвонить',
       whatsapp: 'WhatsApp',
       inquire: 'Узнать',
+      whatsappMessage: 'Здравствуйте! Я хотел бы узнать о ваших услугах по уборке.',
+      couldNotOpenPhoneApp: 'Не удалось открыть приложение телефона',
+      couldNotOpenWhatsApp: 'Не удалось открыть WhatsApp',
     },
+
     features: {
       title: 'Почему Выбрать Нас?',
       trusted: 'Надежный и Безопасный',
@@ -22,6 +27,7 @@ export const ru = {
       onTime: 'Своевременное Обслуживание',
       customerFirst: 'Клиент на Первом Месте',
     },
+
     carousel: {
       professional: 'Профессиональная Уборка',
       professionalDesc: 'Экспертные услуги по уборке для вашего дома',
@@ -33,6 +39,7 @@ export const ru = {
       qualityDesc: '100% гарантия удовлетворения',
     },
   },
+
   common: {
     loading: 'Загрузка...',
     error: 'Ошибка',
@@ -66,6 +73,7 @@ export const ru = {
     germany: 'Германия',
     changeLanguage: 'Изменить язык',
   },
+
   auth: {
     login: 'Войти',
     signup: 'Регистрация',
@@ -82,8 +90,8 @@ export const ru = {
     rememberMe: 'Запомнить меня',
     createAccount: 'Создать аккаунт',
     alreadyHaveAccount: 'Уже есть аккаунт?',
-    dontHaveAccount: 'Don\'t have an account?',
-    noAccount: 'Don\'t have an account?',
+    dontHaveAccount: 'Нет аккаунта?',
+    noAccount: 'Нет аккаунта?',
     welcomeBack: 'Добро пожаловать',
     signInToAccount: 'Войдите в свой аккаунт Deep Cleaning Hub',
     signIn: 'Войти',
@@ -113,7 +121,35 @@ export const ru = {
     confirmPasswordRequired: 'Подтвердите ваш пароль',
     joinDeepCleaningHub: 'Присоединяйтесь к Deep Cleaning Hub и начните сегодня',
     creatingAccount: 'Создание аккаунта...',
+    forgotPasswordDescription: 'Введите свой адрес электронной почты, и мы отправим вам код подтверждения для сброса пароля.',
+    sendOTP: 'Отправить код подтверждения',
+    otpSentToEmail: 'Код подтверждения отправлен на ваш адрес электронной почты.',
+    verifyOTP: 'Проверить код',
+    otpSentTo: 'Код подтверждения отправлен на',
+    enterCompleteOTP: 'Пожалуйста, введите полный 6-значный код.',
+    invalidOTP: 'Неверный код подтверждения. Попробуйте еще раз.',
+    otpVerified: 'Код успешно подтвержден!',
+    didntReceiveOTP: 'Не получили код?',
+    resendOTP: 'Отправить код повторно',
+    resendIn: 'Повторная отправка через',
+    setNewPassword: 'Установить новый пароль',
+    setNewPasswordDescription: 'Пожалуйста, введите новый пароль ниже.',
+    newPassword: 'Новый пароль',
+    confirmNewPassword: 'Подтвердите новый пароль',
+    resetPassword: 'Сбросить пароль',
+    passwordResetSuccess: 'Пароль успешно сброшен! Теперь вы можете войти с новым паролем.',
+    passwordResetComplete: 'Сброс пароля успешно завершен!',
+    passwordRequirements: 'Пароль должен содержать',
+    minimum8Characters: 'Минимум 8 символов',
+    oneUppercaseLetter: 'Одна заглавная буква',
+    oneLowercaseLetter: 'Одна строчная буква',
+    oneNumber: 'Одна цифра',
+    failedToSendOTP: 'Не удалось отправить код подтверждения. Попробуйте еще раз.',
+    failedToResendOTP: 'Не удалось повторно отправить код подтверждения. Попробуйте еще раз.',
+    failedToResetPassword: 'Не удалось сбросить пароль. Попробуйте еще раз.',
+    networkError: 'Ошибка сети. Проверьте подключение и попробуйте еще раз.'
   },
+
   cart: {
     title: 'Корзина',
     pleaseLogin: 'Пожалуйста, войдите',
@@ -149,7 +185,7 @@ export const ru = {
     multiDayBooking: 'Многодневное бронирование',
     days: 'дней',
     weeklyCleaning: 'Еженедельная уборка',
-    daysSelected: 'выбранных дней',
+    daysSelected: 'дней выбрано',
     pricingType: 'Тип ценообразования',
     orderSummary: 'Сводка заказа',
     proceedToCheckout: 'Перейти к оформлению',
@@ -167,7 +203,10 @@ export const ru = {
     failedToClearCart: 'Не удалось очистить корзину',
     twoHours: '2 часа',
     qty: 'Кол-во',
+    addMoreServices: 'Добавить больше услуг',
+    itemNotFound: 'Товар не найден в корзине'
   },
+
   orders: {
     title: 'Мои заказы',
     orderDetails: 'Детали заказа',
@@ -250,7 +289,18 @@ export const ru = {
     total: 'Итого',
     trackOrder: 'Отследить заказ',
     reorder: 'Повторить заказ',
+    multiDayService: 'Многодневный сервис',
+    serviceDetails: 'Детали услуги',
+    measurement: 'Измерение',
+    area: 'Площадь',
+    distance: 'Расстояние',
+    boxes: 'Коробки',
+    boxesCost: 'Стоимость коробок',
+    days: 'дней',
+    weeklyCleaning: 'Еженедельная уборка',
+    daysSelected: 'дней выбрано'
   },
+
   checkout: {
     title: 'Оформить заказ',
     streetAddress: 'Адрес улицы',
@@ -291,7 +341,7 @@ export const ru = {
     dateAlreadyAdded: 'Эта дата уже добавлена к вашему бронированию.',
     selectServiceDates: 'Выбрать даты услуги',
     ofDaysSelected: 'из',
-    daysSelected: 'выбранных дней',
+    daysSelected: 'дней выбрано',
     serviceTimeSameForAll: 'Время услуги (одинаково для всех дней)',
     addServiceDate: 'Добавить дату услуги',
     add: 'Добавить',
@@ -300,7 +350,13 @@ export const ru = {
     sameTimeForAll: 'Одно и то же время будет использоваться для всех выбранных дат',
     selectDate: 'Выбрать дату',
     selectTime: 'Выбрать время',
+    multiDayService: 'Многодневный сервис',
+    multiDayOnlyForCleaning: 'Многодневное бронирование доступно только для услуг "Глубокая чистка" и "Чистка кухни".',
+    weeklyCleaningDates: 'Еженедельная уборка - Выбранные даты',
+    datesFromCart: 'Даты, выбранные из конфигурации услуг',
+    minimumDatesRequired: 'Для еженедельной уборки требуется минимум {{min}} дней'
   },
+
   cta: {
     getInTouch: 'Связаться',
     readyToTransform: 'Готовы преобразить ваше пространство? Свяжитесь с нами для бесплатной консультации и расценки.',
@@ -339,6 +395,7 @@ export const ru = {
     selectServiceTitle: 'Выбрать услугу',
     chooseService: 'Выберите услугу:',
   },
+
   serviceCard: {
     numberOfItems: 'Количество предметов',
     enterNumberOfItems: 'Введите количество предметов',
@@ -352,9 +409,11 @@ export const ru = {
     items: 'Предметы',
     area: 'Площадь',
   },
+
   autoTranslate: {
     translating: 'Перевод...',
   },
+
   services: {
     kitchenDeepCleaning: 'Глубокая чистка кухни',
     houseMoving: 'Переезд',
@@ -396,6 +455,43 @@ export const ru = {
     totalPrice: 'Общая цена',
     measurementLabel: 'Измерение',
     measurementPlaceholder: 'Введите {{unit}}',
+    addingToCart: 'Добавление в корзину...',
+    select: 'Выбрать',
+    selected: 'Выбрано',
+    configure: 'Настроить',
+    distanceInput: 'Ввод расстояния',
+    calculationArea: 'Площадь: {{area}} м² × €{{rate}}/м² = €{{cost}}',
+    calculationDistance: 'Расстояние: {{distance}} км × €0.5/км = €{{cost}}',
+    calculationBoxes: 'Коробки: {{boxes}} шт × €{{price}} = €{{cost}}',
+    calculationSubtotal: 'Промежуточный итог: €{{areaCost}} + €{{distanceCost}}{{boxesText}} = €{{subtotal}}',
+    calculationVat: 'НДС (19%): €{{vat}}',
+    calculationTotal: 'Итого: €{{total}}',
+    areaCost: 'Стоимость площади',
+    distanceCost: 'Стоимость расстояния',
+    boxesCost: 'Стоимость коробок',
+    subtotal: 'Промежуточный итог',
+    vat: 'НДС',
+    sqm: 'м²',
+    km: 'км',
+    each: 'шт',
+    units: 'единиц',
+    cleaning: 'Уборка',
+    moving: 'Переезд',
+    officeSetup: 'Офисная Установка',
+    housePainting: 'Покраска Дома',
+    comprehensiveDeepCleaning: 'Комплексные услуги глубокой очистки',
+    standardCleaning: 'Стандартные услуги уборки',
+    ourServices: 'Наши Услуги',
+    availableServices: 'Доступные Услуги',
+    fixedPrice: 'Фиксированная Цена',
+    perUnit: 'За Единицу',
+    availableVariants: 'Доступные варианты',
+    selectedVariant: 'Выбрано:',
+    selectedVariants: 'Выбранные варианты',
+    boxes: 'Коробки',
+    addMoreServices: 'Добавить больше услуг',
+    enter: 'Введите',
+    range: 'Диапазон:',
     enterMeasurement: 'Введите измерение',
     measurement: 'Измерение',
     minimumInput: 'Минимальный ввод: {{min}} {{unit}}',
@@ -414,7 +510,7 @@ export const ru = {
     costBreakdown: 'Детализация затрат',
     retry: 'Повторить',
     loadingVariants: 'Загрузка вариантов услуг...',
-    minimumDatesRequired: 'Минимум 2 даты требуется для еженедельной услуги уборки',
+    minimumDatesRequired: 'Для еженедельной уборки требуется минимум {{min}} дней',
     bookNow: 'Забронировать сейчас',
     selectOptions: 'Выбрать варианты',
     all: 'Все',
@@ -447,18 +543,19 @@ export const ru = {
     options: 'варианты',
     enterValid: 'Пожалуйста, введите действительный',
     numberOfItems: 'количество предметов',
-    area: 'площадь',
+    area: 'Площадь',
     items: 'товары',
     maximum: 'Максимум',
     is: 'это',
     serviceDetails: 'Детали услуги',
     viewingDetails: 'Просмотр деталей для',
   },
+
   contact: {
     title: 'Свяжитесь с нами',
     fullName: 'Полное имя',
     emailAddress: 'Адрес электронной почты',
-    phoneNumber: 'Номер телефона',
+    phoneNumber: 'Телефонный номер',
     serviceRequired: 'Требуемая услуга',
     message: 'Сообщение',
     submit: 'Отправить запрос',
@@ -479,6 +576,7 @@ export const ru = {
     email: 'Электронная почта',
     whatsapp: 'WhatsApp',
   },
+
   profile: {
     title: 'Профиль',
     changePassword: 'Сменить пароль',
@@ -560,6 +658,7 @@ export const ru = {
     pleaseEnterValidDateOfBirth: 'Пожалуйста, введите действительную дату рождения',
     germany: 'Германия',
   },
+
   navigation: {
     home: 'Главная',
     services: 'Услуги',
@@ -568,10 +667,11 @@ export const ru = {
     profile: 'Профиль',
     contact: 'Контакты',
   },
+
   errors: {
     somethingWentWrong: 'Упс! Что-то пошло не так',
     unexpectedError: 'Извините, но произошло что-то неожиданное. Пожалуйста, попробуйте еще раз.',
-    networkError: 'Ошибка сети. Пожалуйста, проверьте ваше соединение.',
+    networkError: 'Ошибка сети. Проверьте подключение и попробуйте еще раз.',
     serverError: 'Ошибка сервера. Пожалуйста, попробуйте позже.',
     notFound: 'Не найдено',
     unauthorized: 'Несанкционированный доступ',
@@ -586,7 +686,22 @@ export const ru = {
     maximumItemsAllowed: 'Максимальное количество разрешенных предметов',
     minimumAreaRequired: 'Минимальная требуемая площадь',
     maximumAreaAllowed: 'Максимально разрешенная площадь',
+    failedToFetch: 'Не удалось получить данные. Пожалуйста, попробуйте снова.',
+    failedToUpdate: 'Не удалось обновить. Пожалуйста, попробуйте снова.',
+    failedToDelete: 'Не удалось удалить. Пожалуйста, попробуйте снова.',
+    failedToCreate: 'Не удалось создать. Пожалуйста, попробуйте снова.',
+    sessionExpired: 'Сеанс истек',
+    sessionExpiredMessage: 'Ваш сеанс истек. Пожалуйста, войдите снова.',
+    failedToSendEmail: 'Не удалось отправить email. Пожалуйста, попробуйте снова.',
+    failedToSendOrderConfirmation: 'Не удалось отправить письма с подтверждением заказа. Пожалуйста, попробуйте снова.',
+    failedToSendCustomerConfirmation: 'Не удалось отправить письмо с подтверждением клиенту. Пожалуйста, попробуйте снова.',
+    failedToSendAdminNotification: 'Не удалось отправить уведомление администратору. Пожалуйста, попробуйте снова.',
+    failedToTestEmail: 'Не удалось протестировать почтовый сервис. Пожалуйста, попробуйте снова.',
+    failedToUpdateProfile: 'Не удалось обновить профиль',
+    failedToChangePassword: 'Не удалось изменить пароль',
+    failedToUploadImage: 'Не удалось загрузить изображение профиля',
   },
+
   language: {
     selectLanguage: 'Выберите язык',
     currentLanguage: 'Текущий язык',
@@ -609,5 +724,20 @@ export const ru = {
     popularLanguages: 'Популярные языки',
     recentlyUsed: 'Недавно использованные',
     searchLanguages: 'Поиск языков...'
+  },
+
+  notifications: {
+    test: 'Тест уведомлений',
+    initializing: 'Инициализация уведомлений...',
+    token: 'Токен',
+    status: 'Статус',
+    initialized: 'Инициализировано',
+    notInitialized: 'Не инициализировано',
+    scheduled: 'Запланировано',
+    notificationsCount: 'уведомлений',
+    sendTest: 'Отправить тест',
+    getScheduled: 'Получить запланированные',
+    cancelAll: 'Отменить все',
+    notAvailable: 'Недоступно',
   },
 };

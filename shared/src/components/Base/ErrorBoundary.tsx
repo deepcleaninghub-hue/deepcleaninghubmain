@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { secureLog, isDevelopment } from '../../config/environment';
 import { BaseComponentProps } from '../../types';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface Props extends BaseComponentProps {
   children: ReactNode;
@@ -81,6 +82,7 @@ interface ErrorFallbackProps {
 
 const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onRetry, error }) => {
   const theme = useTheme();
+  const { t } = useLanguage();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -98,14 +100,14 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onRetry, error }) => {
               variant="headlineSmall" 
               style={[styles.title, { color: theme.colors.error }]}
             >
-              Oops! Something went wrong
+              {t('errors.somethingWentWrong')}
             </Text>
             
             <Text 
               variant="bodyLarge" 
               style={[styles.message, { color: theme.colors.onSurface }]}
             >
-              We're sorry, but something unexpected happened. Please try again.
+              {t('errors.unexpectedError')}
             </Text>
 
             {isDevelopment() && error && (
@@ -114,7 +116,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onRetry, error }) => {
                   variant="labelMedium" 
                   style={[styles.errorTitle, { color: theme.colors.onErrorContainer }]}
                 >
-                  Error Details (Development Only):
+                  {t('errors.errorDetails')}
                 </Text>
                 <Text 
                   variant="bodySmall" 
@@ -142,7 +144,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onRetry, error }) => {
                 <Ionicons name="refresh" size={size} color={color} />
               )}
             >
-              Try Again
+              {t('common.retry')}
             </Button>
           </Card.Content>
         </Card>

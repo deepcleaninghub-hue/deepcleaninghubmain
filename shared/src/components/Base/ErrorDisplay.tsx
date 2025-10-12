@@ -10,6 +10,7 @@ import { View, StyleSheet } from 'react-native';
 import { Text, Button, Card, useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseComponentProps } from '../../types';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ErrorDisplayProps extends BaseComponentProps {
   error: string;
@@ -22,14 +23,18 @@ interface ErrorDisplayProps extends BaseComponentProps {
 export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   error,
   onRetry,
-  retryText = 'Try Again',
+  retryText,
   showIcon = true,
   variant = 'card',
   testID = 'error-display',
-  accessibilityLabel = 'Error message',
+  accessibilityLabel,
   accessibilityRole = 'alert',
 }) => {
   const theme = useTheme();
+  const { t } = useLanguage();
+  
+  const defaultRetryText = retryText || t('common.retry');
+  const defaultAccessibilityLabel = accessibilityLabel || t('common.error');
 
   const content = (
     <View style={styles.content}>
@@ -56,7 +61,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
           contentStyle={styles.buttonContent}
           testID={`${testID}-retry-button`}
         >
-          {retryText}
+          {defaultRetryText}
         </Button>
       )}
     </View>
@@ -67,7 +72,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
       <View 
         style={styles.inlineContainer}
         testID={testID}
-        accessibilityLabel={accessibilityLabel}
+        accessibilityLabel={defaultAccessibilityLabel}
         accessibilityRole={accessibilityRole as any}
       >
         {content}
@@ -79,7 +84,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
     <Card 
       style={[styles.card, { backgroundColor: theme.colors.surface }]}
       testID={testID}
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={defaultAccessibilityLabel}
       accessibilityRole={accessibilityRole as any}
     >
       <Card.Content style={styles.cardContent}>

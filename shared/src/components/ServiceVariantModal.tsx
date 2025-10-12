@@ -311,11 +311,11 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
       return hasArea && hasDistance && dateValid;
     }
     
-    // For weekly cleaning service, require at least 2 dates and no quantity input needed
-    if (isWeeklyCleaningService) {
-      const hasEnoughDates = selectedDates.length >= 2;
-      return hasEnoughDates;
-    }
+  // For weekly cleaning service, require at least 1 date and no quantity input needed
+  if (isWeeklyCleaningService) {
+    const hasEnoughDates = selectedDates.length >= 1;
+    return hasEnoughDates;
+  }
     
     // For regular services, require valid variants
     // For cleaning services, also require dates if multi-day is enabled
@@ -955,15 +955,9 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
                     maxDays={7}
                     t={t}
                   />
-                  {selectedDates.length > 0 && selectedDates.length < 2 && (
-                    <Text variant="bodySmall" style={[styles.validationText, { color: theme.colors.error }]}>
-                      {t('services.minimumDatesRequired')}
-                    </Text>
-                  )}
                 </>
               )}
             </View>
-
                   {/* Add to Cart Button */}
                   <View style={styles.inputSection}>
                     <Button
