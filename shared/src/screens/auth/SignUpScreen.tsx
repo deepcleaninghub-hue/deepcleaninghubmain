@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import {
   Text,
@@ -19,6 +20,7 @@ import {
   Card,
   useTheme,
   Surface,
+  Checkbox,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -43,6 +45,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
     password: '',
     confirmPassword: '',
   });
+  const [acceptedPrivacyPolicy, setAcceptedPrivacyPolicy] = useState(false);
   const [errors, setErrors] = useState({
     firstName: '',
     lastName: '',
@@ -144,6 +147,12 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
   const handleSignUp = useCallback(async () => {
     if (!validateForm()) return;
 
+    if (!acceptedPrivacyPolicy) {
+      // Show error or alert
+      alert('Please accept the Privacy Policy to continue');
+      return;
+    }
+
     const success = await signUp(
       formData.email.trim(),
       formData.password,
@@ -157,10 +166,14 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
       // Navigation will be handled by the auth context
       console.log('Sign up successful');
     }
-  }, [formData, validateForm, signUp]);
+  }, [formData, validateForm, signUp, acceptedPrivacyPolicy]);
 
   const handleSignIn = useCallback(() => {
     navigation.navigate('Login');
+  }, [navigation]);
+
+  const handlePrivacyPolicyPress = useCallback(() => {
+    navigation.navigate('PrivacyPolicy' as any);
   }, [navigation]);
 
   return (
@@ -392,12 +405,31 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                 ) : null}
               </View>
 
+              {/* Privacy Policy Checkbox */}
+              <View style={styles.privacyPolicyContainer}>
+                <Checkbox
+                  status={acceptedPrivacyPolicy ? 'checked' : 'unchecked'}
+                  onPress={() => setAcceptedPrivacyPolicy(!acceptedPrivacyPolicy)}
+                  color={theme.colors.primary}
+                />
+                <View style={styles.privacyPolicyTextContainer}>
+                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                    I agree to the{' '}
+                  </Text>
+                  <TouchableOpacity onPress={handlePrivacyPolicyPress}>
+                    <Text variant="bodySmall" style={[styles.privacyPolicyLink, { color: theme.colors.primary }]}>
+                      Privacy Policy
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
               {/* Sign Up Button */}
               <Button
                 mode="contained"
                 onPress={handleSignUp}
                 loading={loading}
-                disabled={loading}
+                disabled={loading || !acceptedPrivacyPolicy}
                 style={styles.signUpButton}
                 contentStyle={styles.buttonContent}
                 testID="signup-button"
@@ -512,5 +544,22 @@ const styles = StyleSheet.create({
   },
   signInButton: {
     marginLeft: -8,
+  },
+  privacyPolicyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  privacyPolicyTextContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    flex: 1,
+    marginLeft: 8,
+  },
+  privacyPolicyLink: {
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
 });

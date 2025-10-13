@@ -19,6 +19,7 @@ export type AuthStackParamList = {
   Login: undefined;
   SignUp: undefined;
   ForgotPassword: undefined;
+  PrivacyPolicy: undefined;
 };
 
 // Main Tab Navigator
@@ -49,7 +50,7 @@ export type CartStackParamList = {
   CartMain: undefined;
   ServiceOptions: { serviceId: string };
   Checkout: undefined;
-  OrderConfirmation: { 
+  OrderConfirmation: {
     bookingId: string;
     orderData?: {
       service_date: string;

@@ -9,6 +9,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { AuthStackParamList } from './types';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { SignUpScreen } from '../screens/auth/SignUpScreen';
+import PrivacyPolicyScreen from '../screens/auth/PrivacyPolicyScreen';
 
 const Stack = createStackNavigator<AuthStackParamList>();
 
@@ -46,6 +47,13 @@ export const AuthNavigator: React.FC = () => {
         component={SignUpScreen}
         options={{
           title: 'Create Account',
+        }}
+      />
+      <Stack.Screen 
+        name="PrivacyPolicy" 
+        component={PrivacyPolicyScreen}
+        options={{
+          title: 'Privacy Policy',
         }}
       />
     </Stack.Navigator>
