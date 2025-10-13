@@ -83,10 +83,8 @@ const stagingConfig: EnvironmentConfig = {
 };
 
 const productionConfig: EnvironmentConfig = {
-  // ⚠️ IMPORTANT: Setup HTTPS first! See TECHNICAL_SUBMISSION_CHECKLIST.md
-  // Current HTTP URL will be REJECTED by App Store & Play Store
-  // After setting up CloudFlare/Nginx SSL, change to: 'https://api.deepcleaninghub.com/api'
-  API_BASE_URL: getEnvVar('API_BASE_URL', 'http://13.211.76.43:5001/api'),
+  // ✅ HTTPS is now configured with Nginx + Let's Encrypt SSL
+  API_BASE_URL: getEnvVar('API_BASE_URL', 'https://deepcleaninghub.com/api'),
   ENVIRONMENT: 'production',
   SENTRY_DSN: getEnvVar('SENTRY_DSN'),
   CRASHLYTICS_ENABLED: getBooleanEnvVar('CRASHLYTICS_ENABLED', true),
