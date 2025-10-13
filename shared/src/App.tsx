@@ -21,6 +21,7 @@ import { MainNavigator } from './navigation/MainNavigator';
 import { NotificationProvider } from './components/NotificationProvider';
 import { GlobalModalProvider } from './components/GlobalModalProvider';
 import { config } from './config/environment';
+import './utils/logger'; // Initialize production-safe logging
 
 export default function App() {
   // Log API URL when app starts
