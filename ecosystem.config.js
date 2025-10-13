@@ -16,7 +16,7 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         PORT: 5001,
-        API_BASE_URL: 'https://deepcleaninghub.com/api'
+        API_BASE_URL: 'https://app.deepcleaninghub.com/api'
       },
       error_file: './logs/err.log',
       out_file: './logs/out.log',

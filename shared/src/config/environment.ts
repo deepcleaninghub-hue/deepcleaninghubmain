@@ -46,11 +46,11 @@ const getNumberEnvVar = (key: string, defaultValue: number): number => {
 // Environment-specific configurations
 const developmentConfig: EnvironmentConfig = {
   API_BASE_URL: (() => {
-    const envValue = getEnvVar('API_BASE_URL', 'http://13.211.76.43:5001/api');
+    const envValue = getEnvVar('API_BASE_URL', 'https://app.deepcleaninghub.com/api');
     console.log('🔍 Development API_BASE_URL Debug:', {
       envValue,
       processEnv: process.env.EXPO_PUBLIC_API_BASE_URL,
-      fallback: 'http://13.211.76.43:5001/api'
+      fallback: 'https://app.deepcleaninghub.com/api'
     });
     return envValue;
   })(),
@@ -84,7 +84,7 @@ const stagingConfig: EnvironmentConfig = {
 
 const productionConfig: EnvironmentConfig = {
   // ✅ HTTPS is now configured with Nginx + Let's Encrypt SSL
-  API_BASE_URL: getEnvVar('API_BASE_URL', 'https://deepcleaninghub.com/api'),
+  API_BASE_URL: getEnvVar('API_BASE_URL', 'https://app.deepcleaninghub.com/api'),
   ENVIRONMENT: 'production',
   SENTRY_DSN: getEnvVar('SENTRY_DSN'),
   CRASHLYTICS_ENABLED: getBooleanEnvVar('CRASHLYTICS_ENABLED', true),
@@ -113,7 +113,7 @@ const getConfig = (): EnvironmentConfig => {
   // Force recreation of development config to pick up latest env vars
   if (currentEnv === 'development') {
     return {
-      API_BASE_URL: getEnvVar('API_BASE_URL', 'http://13.211.76.43:5001/api'),
+      API_BASE_URL: getEnvVar('API_BASE_URL', 'https://app.deepcleaninghub.com/api'),
       ENVIRONMENT: 'development',
       SENTRY_DSN: getEnvVar('SENTRY_DSN'),
       CRASHLYTICS_ENABLED: getBooleanEnvVar('CRASHLYTICS_ENABLED', false),

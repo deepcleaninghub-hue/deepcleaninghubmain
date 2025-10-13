@@ -15,7 +15,7 @@ const isProduction = NODE_ENV === 'production';
 // API URL configuration based on environment
 const getApiBaseUrl = () => {
   if (isProduction) {
-    return process.env.API_BASE_URL || 'https://deepcleaninghub.com/api';
+    return process.env.API_BASE_URL || 'https://app.deepcleaninghub.com/api';
   } else {
     return process.env.API_BASE_URL || 'http://192.168.29.112:5001/api';
   }
