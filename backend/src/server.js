@@ -159,7 +159,7 @@ app.use(errorHandler);
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
-  const baseIp = isProduction ? '13.211.76.43' : '192.168.29.112';
+  const baseIp = isProduction ? '54.252.116.156' : '192.168.29.112';
   
   console.log(`🚀 Deep Cleaning Hub API server running on port ${PORT}`);
   console.log(`📱 Environment: ${NODE_ENV}`);

@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAppModal } from '../hooks/useAppModal';
+import { API_BASE_URL } from '../config/environment';
 
 interface ForgotPasswordModalProps {
   visible: boolean;
@@ -50,7 +51,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5001/api/auth/forgot-password', {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

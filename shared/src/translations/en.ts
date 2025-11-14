@@ -613,7 +613,7 @@ export const en = {
     typeDeleteToConfirm: 'Type "DELETE" exactly as shown to permanently delete your account: ',
     deleteForever: 'Delete Forever',
     invalidConfirmation: 'Invalid confirmation. Type "DELETE" to continue.',
-    accountDeleted: 'Your account has been permanently deleted. This feature will be implemented with the backend API.',
+    accountDeleted: 'Your account has been permanently deleted.',
     typeDeleteToConfirmButton: 'Type DELETE to Confirm',
     // Additional missing keys
     settings: 'Settings',
@@ -628,7 +628,7 @@ export const en = {
     passwordChangeError: 'Failed to change password',
     unexpectedError: 'An unexpected error occurred',
     accountDeletedTitle: 'Account Deleted',
-    accountDeletedMessage: 'Your account has been permanently deleted. This feature will be implemented with the backend API.',
+    accountDeletedMessage: 'Your account has been permanently deleted.',
     // Additional missing keys for delete account flow
     deleteAccountStep1Title: '⚠️ Delete Account - Step 1 of 2',
     deleteAccountStep1Message: 'This action will permanently delete your account and ALL associated data including:\n\n• All your bookings and orders\n• Personal information\n• Payment history\n• Account settings\n\nThis action CANNOT be undone.\n\nAre you sure you want to continue?',

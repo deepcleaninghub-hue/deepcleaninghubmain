@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAppModal } from '../hooks/useAppModal';
+import { API_BASE_URL } from '../config/environment';
 
 interface NewPasswordModalProps {
   visible: boolean;
@@ -64,7 +65,7 @@ export const NewPasswordModal: React.FC<NewPasswordModalProps> = ({
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5001/api/auth/reset-password', {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

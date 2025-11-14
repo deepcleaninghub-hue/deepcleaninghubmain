@@ -170,7 +170,9 @@ const BASE_TRANSLATIONS = {
     typeDeleteToConfirm: 'Type "DELETE" exactly as shown to permanently delete your account:',
     deleteForever: 'Delete Forever',
     invalidConfirmation: 'You must type "DELETE" exactly as shown. Account deletion cancelled.',
-    accountDeleted: 'Your account has been permanently deleted. This feature will be implemented with the backend API.',
+    accountDeleted: 'Your account has been permanently deleted.',
+    accountDeletedTitle: 'Account Deleted',
+    accountDeletedMessage: 'Your account has been permanently deleted.',
     iUnderstandContinue: 'I Understand, Continue',
     typeDeleteToConfirmButton: 'Type DELETE to Confirm',
   },
@@ -258,10 +260,10 @@ class DynamicTranslationService {
 
       // Translate using Google Translate
       const result = await googleTranslateService.translateText(englishText, language, 'en');
-      
+
       // Cache the translation
       await this.cacheTranslation(cacheKey, result.translatedText);
-      
+
       return result.translatedText;
     } catch (error) {
       console.error('Dynamic translation error:', error);
@@ -287,10 +289,10 @@ class DynamicTranslationService {
     try {
       // Translate the entire object
       const translated = await googleTranslateService.translateObject(BASE_TRANSLATIONS, language, 'en');
-      
+
       // Cache the full translation set
       await this.cacheTranslation(cacheKey, translated);
-      
+
       return translated;
     } catch (error) {
       console.error('Full translation error:', error);

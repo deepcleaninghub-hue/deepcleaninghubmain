@@ -66,19 +66,19 @@ const AppModal: React.FC<AppModalProps> = ({
   };
 
   const handleConfirm = () => {
+    // Always dismiss after invoking provided handler to avoid stuck modals
     if (onConfirm) {
       onConfirm();
-    } else {
-      onDismiss();
     }
+    onDismiss();
   };
 
   const handleCancel = () => {
+    // Always dismiss after invoking provided handler for a consistent UX
     if (onCancel) {
       onCancel();
-    } else {
-      onDismiss();
     }
+    onDismiss();
   };
 
   return (

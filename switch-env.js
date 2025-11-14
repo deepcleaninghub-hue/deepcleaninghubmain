@@ -18,7 +18,7 @@ if (!environment || !['development', 'production'].includes(environment)) {
   console.log('');
   console.log('Examples:');
   console.log('  node switch-env.js development  # Switch to development (192.168.29.112)');
-  console.log('  node switch-env.js production   # Switch to production (13.211.76.43)');
+  console.log('  node switch-env.js production   # Switch to production (54.252.116.156)');
   process.exit(1);
 }
 
@@ -32,8 +32,8 @@ const configs = {
   production: {
     NODE_ENV: 'production',
     EXPO_PUBLIC_ENVIRONMENT: 'production',
-    EXPO_PUBLIC_API_BASE_URL: 'http://13.211.76.43:5001/api',
-    API_BASE_URL: 'http://13.211.76.43:5001/api'
+    EXPO_PUBLIC_API_BASE_URL: 'http://54.252.116.156:5001/api',
+    API_BASE_URL: 'http://54.252.116.156:5001/api'
   }
 };
 

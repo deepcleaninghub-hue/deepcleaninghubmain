@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAppModal } from '../hooks/useAppModal';
+import { API_BASE_URL } from '../config/environment';
 
 interface OTPVerificationModalProps {
   visible: boolean;
@@ -78,7 +79,7 @@ export const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5001/api/auth/verify-otp', {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +110,7 @@ export const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
   const handleResendOTP = async () => {
     setResendLoading(true);
     try {
-      const response = await fetch('http://localhost:5001/api/auth/resend-otp', {
+      const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

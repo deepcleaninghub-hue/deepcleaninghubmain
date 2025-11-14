@@ -12,9 +12,9 @@ const getEnvironment = (): 'development' | 'production' => {
 // Get API URL based on environment
 const getApiBaseUrl = (): string => {
   const environment = getEnvironment();
-  
+
   if (environment === 'production') {
-    return process.env.EXPO_PUBLIC_API_BASE_URL || 'http://13.211.76.43:5001/api';
+    return process.env.EXPO_PUBLIC_API_BASE_URL || 'https://app.deepcleaninghub.com/api';
   } else {
     return process.env.EXPO_PUBLIC_API_BASE_URL || 'http://192.168.29.112:5001/api';
   }

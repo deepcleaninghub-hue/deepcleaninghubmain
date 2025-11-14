@@ -83,7 +83,7 @@ const stagingConfig: EnvironmentConfig = {
 };
 
 const productionConfig: EnvironmentConfig = {
-  API_BASE_URL: getEnvVar('API_BASE_URL', 'http://13.211.76.43:5001/api'),
+  API_BASE_URL: getEnvVar('API_BASE_URL', 'https://app.deepcleaninghub.com/api'),
   ENVIRONMENT: 'production',
   SENTRY_DSN: getEnvVar('SENTRY_DSN'),
   CRASHLYTICS_ENABLED: getBooleanEnvVar('CRASHLYTICS_ENABLED', true),
@@ -109,7 +109,7 @@ const getCurrentEnvironment = (): 'development' | 'staging' | 'production' => {
 // Get configuration based on current environment
 const getConfig = (): EnvironmentConfig => {
   const currentEnv = getCurrentEnvironment();
-  
+
   // Force recreation of development config to pick up latest env vars
   if (currentEnv === 'development') {
     return {
@@ -127,7 +127,7 @@ const getConfig = (): EnvironmentConfig => {
       REQUEST_TIMEOUT: getNumberEnvVar('REQUEST_TIMEOUT', 10000), // 10 seconds
     };
   }
-  
+
   switch (currentEnv) {
     case 'staging':
       return stagingConfig;
@@ -172,9 +172,9 @@ export const shouldLog = (level: 'debug' | 'info' | 'warn' | 'error'): boolean =
 // Secure logging utility
 export const secureLog = (level: 'debug' | 'info' | 'warn' | 'error', message: string, data?: any) => {
   if (!shouldLog(level)) return;
-  
+
   const sanitizedData = data ? sanitizeLogData(data) : undefined;
-  
+
   switch (level) {
     case 'debug':
       console.log(`[DEBUG] ${message}`, sanitizedData);
@@ -194,10 +194,10 @@ export const secureLog = (level: 'debug' | 'info' | 'warn' | 'error', message: s
 // Sanitize sensitive data from logs
 const sanitizeLogData = (data: any): any => {
   if (!data || typeof data !== 'object') return data;
-  
+
   const sensitiveKeys = ['password', 'token', 'authorization', 'auth', 'secret', 'key'];
   const sanitized = { ...data };
-  
+
   Object.keys(sanitized).forEach(key => {
     if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive))) {
       sanitized[key] = '[REDACTED]';
@@ -205,7 +205,7 @@ const sanitizeLogData = (data: any): any => {
       sanitized[key] = sanitizeLogData(sanitized[key]);
     }
   });
-  
+
   return sanitized;
 };
 
@@ -216,7 +216,7 @@ if (isDevelopment()) {
     'EXPO_PUBLIC_ENVIRONMENT': process.env.EXPO_PUBLIC_ENVIRONMENT,
     'All EXPO_PUBLIC_ vars': Object.keys(process.env || {}).filter(key => key.startsWith('EXPO_PUBLIC_'))
   });
-  
+
   secureLog('info', '🔧 Environment Configuration:', {
     environment: ENVIRONMENT,
     apiBaseUrl: API_BASE_URL,
