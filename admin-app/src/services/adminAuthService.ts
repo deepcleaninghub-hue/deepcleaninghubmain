@@ -10,11 +10,14 @@ interface SignInResponse {
 export const adminAuthService = {
   async signIn(email: string, password: string): Promise<AdminApiResponse<SignInResponse>> {
     try {
+      console.log('🔐 Attempting to sign in...');
       const response = await httpClient.post('/auth/login', {
         email,
         password,
       });
-      
+
+      console.log('✅ Sign in response received:', response.data);
+
       if (response.data.success) {
         const { user, token } = response.data.data;
         const admin: AdminUser = {
@@ -35,7 +38,7 @@ export const adminAuthService = {
           lastActive: user.last_login || new Date().toISOString(),
           isOnline: true,
         };
-        
+
         return {
           success: true,
           data: {
@@ -44,29 +47,50 @@ export const adminAuthService = {
           },
         };
       }
-      
+
       return {
         success: false,
         error: response.data.error || 'Login failed',
       };
-    } catch (error) {
-      console.error('Sign in error:', error);
+    } catch (error: any) {
+      console.error('❌ Sign in error:', error);
+
+      // Handle timeout errors specifically
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        return {
+          success: false,
+          error: 'Connection timeout. Please check your internet connection and try again.',
+        };
+      }
+
+      // Handle network errors
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+        return {
+          success: false,
+          error: 'Network error. Please check your connection and try again.',
+        };
+      }
+
+      // Handle other errors
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to sign in. Please try again.';
       return {
         success: false,
-        error: 'Failed to sign in. Please check your credentials.',
+        error: errorMessage,
       };
     }
   },
 
   async signOut(): Promise<AdminApiResponse> {
     try {
-      const response = await httpClient.post('/admin/auth/logout');
+      const response = await httpClient.post('/auth/logout');
       return response.data;
     } catch (error) {
       console.error('Sign out error:', error);
+      // Even if the API call fails, we should still return success
+      // because logout is primarily a client-side operation
       return {
-        success: false,
-        error: 'Failed to sign out.',
+        success: true,
+        message: 'Signed out successfully',
       };
     }
   },

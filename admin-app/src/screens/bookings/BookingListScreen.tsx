@@ -19,7 +19,7 @@ export function BookingListScreen({ navigation }: any) {
   const [filteredBookings, setFilteredBookings] = useState<AdminBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'scheduled' | 'completed'>('scheduled');
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'completed'>('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -50,8 +50,10 @@ export function BookingListScreen({ navigation }: any) {
 
   const filterBookings = () => {
     let filtered = bookings.filter(booking => {
-      const matchesTab = activeTab === 'scheduled' 
-        ? booking.status === 'pending' || booking.status === 'confirmed'
+      // Upcoming tab: show all bookings that are not completed or cancelled
+      // This includes: pending, confirmed, scheduled, in_progress
+      const matchesTab = activeTab === 'upcoming' 
+        ? booking.status !== 'completed' && booking.status !== 'cancelled'
         : booking.status === 'completed';
       
       const matchesSearch = searchQuery === '' || 
@@ -160,11 +162,11 @@ export function BookingListScreen({ navigation }: any) {
         <View style={styles.tabContainer}>
           <SegmentedButtons
             value={activeTab}
-            onValueChange={(value) => setActiveTab(value as 'scheduled' | 'completed')}
+            onValueChange={(value) => setActiveTab(value as 'upcoming' | 'completed')}
             buttons={[
               {
-                value: 'scheduled',
-                label: `Scheduled (${bookings.filter(b => b.status === 'pending' || b.status === 'confirmed').length})`,
+                value: 'upcoming',
+                label: `Upcoming (${bookings.filter(b => b.status !== 'completed' && b.status !== 'cancelled').length})`,
                 icon: 'calendar-clock',
               },
               {
@@ -190,8 +192,8 @@ export function BookingListScreen({ navigation }: any) {
                 No {activeTab} bookings found
               </Text>
               <Text variant="bodyMedium" style={[styles.emptySubtitle, { color: theme.colors.onSurfaceVariant }]}>
-                {activeTab === 'scheduled' 
-                  ? "No scheduled bookings at the moment"
+                {activeTab === 'upcoming' 
+                  ? "No upcoming bookings at the moment"
                   : "No completed bookings yet"
                 }
               </Text>
@@ -257,9 +259,45 @@ export function BookingListScreen({ navigation }: any) {
                           {formatDate(booking.booking_date || booking.date)} at {formatTime(booking.booking_time || booking.time)}
                         </Text>
                       )}
-                      <Text variant="bodySmall" style={[styles.serviceAddress, { color: theme.colors.onSurfaceVariant }]}>
-                        {booking.customer_name || `Customer: ${booking.customerId}`}
-                      </Text>
+                      <View style={styles.customerInfo}>
+                        <Text variant="bodySmall" style={[styles.customerName, { color: theme.colors.onSurface }]}>
+                          {booking.mobile_users 
+                            ? `${booking.mobile_users.first_name} ${booking.mobile_users.last_name}`.trim()
+                            : booking.customer_name || 'Customer'}
+                        </Text>
+                        {booking.mobile_users?.email && (
+                          <View style={styles.customerDetailRow}>
+                            <Ionicons name="mail-outline" size={12} color={theme.colors.onSurfaceVariant} />
+                            <Text variant="bodySmall" style={[styles.customerDetail, { color: theme.colors.onSurfaceVariant }]}>
+                              {booking.mobile_users.email}
+                            </Text>
+                          </View>
+                        )}
+                        {booking.mobile_users?.phone && (
+                          <View style={styles.customerDetailRow}>
+                            <Ionicons name="call-outline" size={12} color={theme.colors.onSurfaceVariant} />
+                            <Text variant="bodySmall" style={[styles.customerDetail, { color: theme.colors.onSurfaceVariant }]}>
+                              {booking.mobile_users.phone}
+                            </Text>
+                          </View>
+                        )}
+                        {!booking.mobile_users && booking.customer_email && (
+                          <View style={styles.customerDetailRow}>
+                            <Ionicons name="mail-outline" size={12} color={theme.colors.onSurfaceVariant} />
+                            <Text variant="bodySmall" style={[styles.customerDetail, { color: theme.colors.onSurfaceVariant }]}>
+                              {booking.customer_email}
+                            </Text>
+                          </View>
+                        )}
+                        {!booking.mobile_users && booking.customer_phone && (
+                          <View style={styles.customerDetailRow}>
+                            <Ionicons name="call-outline" size={12} color={theme.colors.onSurfaceVariant} />
+                            <Text variant="bodySmall" style={[styles.customerDetail, { color: theme.colors.onSurfaceVariant }]}>
+                              {booking.customer_phone}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
                     </View>
                     <Text variant="titleLarge" style={[styles.bookingTotal, { color: theme.colors.primary }]}>
                       €{(booking.total_amount || 0).toFixed(2)}
@@ -412,6 +450,23 @@ const styles = StyleSheet.create({
   },
   serviceAddress: {
     fontSize: 11,
+  },
+  customerInfo: {
+    marginTop: 8,
+  },
+  customerName: {
+    fontWeight: '500',
+    marginBottom: 4,
+    fontSize: 13,
+  },
+  customerDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  customerDetail: {
+    fontSize: 11,
+    marginLeft: 6,
   },
   bookingTotal: {
     fontWeight: '700',

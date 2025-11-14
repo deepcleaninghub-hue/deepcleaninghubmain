@@ -282,24 +282,6 @@ export function BookingDetailsScreen({ navigation, route }: any) {
             
             <View style={styles.infoRow}>
               <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                Priority
-              </Text>
-              <Text variant="titleMedium" style={[styles.infoValue, { color: theme.colors.primary, fontWeight: 'bold' }]}>
-                {(booking.priority || 'medium').toUpperCase()}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                Customer
-              </Text>
-              <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
-                {booking.customer_name || booking.customerId}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
                 Service
               </Text>
               <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
@@ -315,6 +297,102 @@ export function BookingDetailsScreen({ navigation, route }: any) {
                 €{(booking.total_amount || 0).toFixed(2)}
               </Text>
             </View>
+          </Card.Content>
+        </Card>
+
+        {/* Customer Information */}
+        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+          <Card.Content>
+            <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+              Customer Information
+            </Text>
+            <Divider style={styles.divider} />
+            
+            {booking.mobile_users ? (
+              <>
+                <View style={styles.infoRow}>
+                  <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                    Full Name
+                  </Text>
+                  <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                    {`${booking.mobile_users.first_name} ${booking.mobile_users.last_name}`.trim()}
+                  </Text>
+                </View>
+                
+                <View style={styles.infoRow}>
+                  <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                    Email
+                  </Text>
+                  <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                    {booking.mobile_users.email}
+                  </Text>
+                </View>
+                
+                {booking.mobile_users.phone && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      Phone
+                    </Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                      {booking.mobile_users.phone}
+                    </Text>
+                  </View>
+                )}
+                
+                <View style={styles.infoRow}>
+                  <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                    User ID
+                  </Text>
+                  <Text variant="bodySmall" style={[styles.infoValue, { color: theme.colors.onSurfaceVariant }]}>
+                    {booking.mobile_users.id}
+                  </Text>
+                </View>
+              </>
+            ) : (
+              <>
+                <View style={styles.infoRow}>
+                  <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                    Name
+                  </Text>
+                  <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                    {booking.customer_name || booking.customerId || 'Not provided'}
+                  </Text>
+                </View>
+                
+                {booking.customer_email && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      Email
+                    </Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                      {booking.customer_email}
+                    </Text>
+                  </View>
+                )}
+                
+                {booking.customer_phone && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      Phone
+                    </Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                      {booking.customer_phone}
+                    </Text>
+                  </View>
+                )}
+              </>
+            )}
+            
+            {booking.service_address && (
+              <View style={styles.infoRow}>
+                <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                  Service Address
+                </Text>
+                <Text variant="bodySmall" style={[styles.infoValue, { color: theme.colors.onSurface, flex: 1, textAlign: 'right' }]}>
+                  {booking.service_address}
+                </Text>
+              </View>
+            )}
           </Card.Content>
         </Card>
 

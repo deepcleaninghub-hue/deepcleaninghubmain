@@ -12,14 +12,22 @@ class HttpClient {
   private logoutCallback: (() => void) | null = null;
 
   constructor() {
+    // Increase timeout for production environments (30 seconds)
+    // Development can use shorter timeout (10 seconds)
+    const isProduction = BASE_URL.includes('deepcleaninghub.com') ||
+      BASE_URL.includes('54.252.116.156') ||
+      BASE_URL.includes('13.211.76.43'); // Keep old IP for backward compatibility
+    const timeout = isProduction ? 30000 : 10000;
+
     this.client = axios.create({
       baseURL: BASE_URL,
-      timeout: 10000,
+      timeout: timeout,
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
+    console.log(`🔧 HTTP Client configured: ${BASE_URL}, timeout: ${timeout}ms`);
     this.setupInterceptors();
   }
 
@@ -34,7 +42,7 @@ class HttpClient {
       // Clear all stored tokens
       await AsyncStorage.multiRemove(['admin_token', 'admin_refresh_token', 'admin_user']);
       console.log('🔐 Admin logged out due to session expiration');
-      
+
       // Show session expired alert
       Alert.alert(
         'Session Expired',

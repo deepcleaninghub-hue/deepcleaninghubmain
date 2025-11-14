@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, TextInput, Button, Card, Snackbar } from 'react-native-paper';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
@@ -6,12 +6,23 @@ import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Icon } from '@/components/common/Icon';
 
 export function LoginScreen() {
-  const { signIn, loading } = useAdminAuth();
+  const { signIn, loading, lastError } = useAdminAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Update error when lastError changes
+  useEffect(() => {
+    if (lastError) {
+      console.log('📢 Setting error message from context:', lastError);
+      setError(lastError);
+    } else {
+      // Clear error if lastError is cleared
+      setError('');
+    }
+  }, [lastError]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -21,16 +32,28 @@ export function LoginScreen() {
 
     setIsLoading(true);
     setError('');
+    console.log('🔐 Login button pressed, starting login process...');
 
     try {
       const success = await signIn(email, password);
+      console.log('📋 Login result:', success);
+      
       if (!success) {
-        setError('Invalid email or password');
+        // Error message should already be set by the useEffect watching lastError
+        // But ensure it's set if somehow it wasn't
+        if (!error && lastError) {
+          setError(lastError);
+        } else if (!error && !lastError) {
+          setError('Invalid email or password. Please check your credentials and try again.');
+        }
       }
-    } catch (err) {
-      setError('Login failed. Please try again.');
+    } catch (err: any) {
+      console.error('❌ Login exception:', err);
+      const errorMessage = err?.message || err?.error || 'Login failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
+      console.log('🏁 Login process completed, loading set to false');
     }
   };
 

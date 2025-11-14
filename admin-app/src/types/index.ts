@@ -256,6 +256,7 @@ export interface AdminAuthContextType {
   updateProfile: (updates: Partial<AdminUser>) => Promise<boolean>;
   refreshToken: () => Promise<boolean>;
   hasPermission: (resource: string, action: string) => boolean;
+  lastError: string | null;
 }
 
 export interface AdminDataContextType {

@@ -14,6 +14,7 @@ interface AdminAuthProviderProps {
 export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastError, setLastError] = useState<string | null>(null);
 
   const isAuthenticated = !!admin;
 
@@ -57,18 +58,31 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
   const signIn = async (email: string, password: string): Promise<boolean> => {
     try {
       setLoading(true);
+      setLastError(null);
+      console.log('🔐 Starting sign in process...');
       const result = await adminAuthService.signIn(email, password);
+      console.log('📋 Sign in result:', result);
+      
       if (result.success && result.data) {
         setAdmin(result.data.admin);
         await AsyncStorage.setItem('admin_token', result.data.token);
+        console.log('✅ Sign in successful, admin token stored');
+        setLastError(null);
         return true;
+      } else {
+        const errorMsg = result.error || 'Login failed';
+        console.log('❌ Sign in failed:', errorMsg);
+        setLastError(errorMsg);
+        return false;
       }
-      return false;
-    } catch (error) {
-      console.error('Sign in failed:', error);
+    } catch (error: any) {
+      const errorMsg = error?.message || error?.error || 'An unexpected error occurred';
+      console.error('❌ Sign in exception:', error);
+      setLastError(errorMsg);
       return false;
     } finally {
       setLoading(false);
+      console.log('🏁 Sign in process completed, loading set to false');
     }
   };
 
@@ -131,6 +145,7 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
     updateProfile,
     refreshToken,
     hasPermission,
+    lastError,
   };
 
   return (
