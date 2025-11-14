@@ -59,7 +59,7 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     
     // Get the base IP for CORS origins
-    const baseIp = isProduction ? '13.211.76.43' : '192.168.29.112';
+    const baseIp = isProduction ? '54.252.116.156' : '192.168.29.112';
     
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
       'http://localhost:3000',

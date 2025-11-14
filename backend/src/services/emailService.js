@@ -1,19 +1,31 @@
 const AWS = require('aws-sdk');
 const nodemailer = require('nodemailer');
 
-// Configure AWS SES
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION || 'us-east-1'
-});
+// Function to get configured SES instance with current environment variables
+const getSESInstance = () => {
+  // Reconfigure AWS SDK with current environment variables
+  const region = process.env.AWS_REGION || 'us-east-1';
+  AWS.config.update({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: region
+  });
+  
+  // Create new SES instance with current configuration
+  return new AWS.SES({ region: region });
+};
 
-const ses = new AWS.SES();
-
-// Create nodemailer transporter (for fallback)
-const transporter = nodemailer.createTransport({
-  SES: { ses, aws: AWS }
-});
+// Create nodemailer transporter (for fallback) - will be created dynamically
+let transporter = null;
+const getTransporter = () => {
+  if (!transporter) {
+    const ses = getSESInstance();
+    transporter = nodemailer.createTransport({
+      SES: { ses, aws: AWS }
+    });
+  }
+  return transporter;
+};
 
 class EmailService {
   constructor() {
@@ -64,6 +76,8 @@ class EmailService {
             }
           };
 
+          // Get fresh SES instance with current configuration
+          const ses = getSESInstance();
           const result = await ses.sendEmail(params).promise();
           return {
             success: true,
@@ -153,6 +167,8 @@ class EmailService {
         }
       };
 
+      // Get fresh SES instance with current configuration
+      const ses = getSESInstance();
       const result = await ses.sendEmail(params).promise();
       console.log('📧 Customer email sent successfully! Message ID: ' + result.MessageId);
       return {
@@ -217,6 +233,10 @@ class EmailService {
       };
 
       console.log('📧 Attempting to send admin email via AWS SES...');
+      console.log('📧 Using AWS Region:', process.env.AWS_REGION || 'us-east-1');
+      
+      // Get fresh SES instance with current configuration
+      const ses = getSESInstance();
       const result = await ses.sendEmail(params).promise();
       console.log('✅ Admin email sent successfully! Message ID: ' + result.MessageId);
       return {
@@ -279,7 +299,7 @@ class EmailService {
       text: emailContent.text
     };
 
-    const result = await transporter.sendMail(mailOptions);
+    const result = await getTransporter().sendMail(mailOptions);
     return {
       type: 'customer',
       success: true,
@@ -299,7 +319,7 @@ class EmailService {
       text: emailContent.text
     };
 
-    const result = await transporter.sendMail(mailOptions);
+    const result = await getTransporter().sendMail(mailOptions);
     return {
       type: 'admin',
       success: true,
