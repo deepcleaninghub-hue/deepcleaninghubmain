@@ -566,10 +566,27 @@ router.post('/', [
           console.log('📧 Email service status:', emailService.getStatus());
           
           // Construct customer name with fallback to user's name
-          const fullCustomerName = customer_name || 
-            (req.user.first_name && req.user.last_name 
-              ? `${req.user.first_name} ${req.user.last_name}`.trim()
-              : req.user.first_name || req.user.last_name || customer_email || 'Customer');
+          // If customer_name is empty or just "Customer", use user's profile name
+          let fullCustomerName = customer_name;
+          if (!fullCustomerName || fullCustomerName.trim() === '' || fullCustomerName.trim() === 'Customer') {
+            if (req.user.first_name && req.user.last_name) {
+              fullCustomerName = `${req.user.first_name} ${req.user.last_name}`.trim();
+            } else if (req.user.first_name) {
+              fullCustomerName = req.user.first_name;
+            } else if (req.user.last_name) {
+              fullCustomerName = req.user.last_name;
+            } else {
+              // Last resort: use email or default
+              fullCustomerName = customer_email || 'Customer';
+            }
+          }
+          
+          console.log('📧 Customer name for email:', {
+            received: customer_name,
+            final: fullCustomerName,
+            userFirstName: req.user.first_name,
+            userLastName: req.user.last_name
+          });
           
           const emailData = {
             customerName: fullCustomerName,
@@ -720,10 +737,27 @@ router.post('/', [
           console.log('📧 Email service status:', emailService.getStatus());
           
           // Construct customer name with fallback to user's name
-          const fullCustomerName = customer_name || 
-            (req.user.first_name && req.user.last_name 
-              ? `${req.user.first_name} ${req.user.last_name}`.trim()
-              : req.user.first_name || req.user.last_name || customer_email || 'Customer');
+          // If customer_name is empty or just "Customer", use user's profile name
+          let fullCustomerName = customer_name;
+          if (!fullCustomerName || fullCustomerName.trim() === '' || fullCustomerName.trim() === 'Customer') {
+            if (req.user.first_name && req.user.last_name) {
+              fullCustomerName = `${req.user.first_name} ${req.user.last_name}`.trim();
+            } else if (req.user.first_name) {
+              fullCustomerName = req.user.first_name;
+            } else if (req.user.last_name) {
+              fullCustomerName = req.user.last_name;
+            } else {
+              // Last resort: use email or default
+              fullCustomerName = customer_email || 'Customer';
+            }
+          }
+          
+          console.log('📧 Customer name for email:', {
+            received: customer_name,
+            final: fullCustomerName,
+            userFirstName: req.user.first_name,
+            userLastName: req.user.last_name
+          });
           
           const emailData = {
             customerName: fullCustomerName,
