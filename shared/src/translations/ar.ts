@@ -12,7 +12,7 @@ export const ar = {
       title: 'مستعد للتنظيف؟',
       subtitle: 'احصل على عرض أسعار مجاني في دقائق',
       callNow: 'اتصل',
-      whatsapp: 'واتساب',
+      whatsapp: 'نص',
       inquire: 'استفسر',
       whatsappMessage: 'مرحباً! أرغب في الاستفسار عن خدمات التنظيف الخاصة بكم.',
       couldNotOpenPhoneApp: 'تعذر فتح تطبيق الهاتف',

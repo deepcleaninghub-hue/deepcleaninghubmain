@@ -13,7 +13,7 @@ export const ko = {
       title: '청소할 준비가 되셨나요?',
       subtitle: '몇 분 안에 무료 견적을 받으세요',
       callNow: '전화',
-      whatsapp: 'WhatsApp',
+      whatsapp: '텍스트',
       inquire: '문의하기',
       whatsappMessage: '안녕하세요! 청소 서비스에 대해 문의하고 싶습니다.',
       couldNotOpenPhoneApp: '전화 앱을 열 수 없습니다',

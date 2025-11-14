@@ -13,7 +13,7 @@ export const fr = {
       title: 'Prêt à Nettoyer?',
       subtitle: 'Obtenez votre devis gratuit en quelques minutes',
       callNow: 'Appeler',
-      whatsapp: 'WhatsApp',
+      whatsapp: 'Texte',
       inquire: 'Demander',
       whatsappMessage: 'Bonjour ! Je souhaiterais me renseigner sur vos services de nettoyage.',
       couldNotOpenPhoneApp: 'Impossible d\'ouvrir l\'application téléphone',

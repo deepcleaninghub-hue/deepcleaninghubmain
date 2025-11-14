@@ -13,7 +13,7 @@ export const it = {
       title: 'Pronto a Pulire?',
       subtitle: 'Ottieni il tuo preventivo gratuito in pochi minuti',
       callNow: 'Chiama',
-      whatsapp: 'WhatsApp',
+      whatsapp: 'Testo',
       inquire: 'Richiedi informazioni',
       whatsappMessage: 'Ciao! Vorrei informarmi sui vostri servizi di pulizia.',
       couldNotOpenPhoneApp: 'Impossibile aprire l\'applicazione telefono',

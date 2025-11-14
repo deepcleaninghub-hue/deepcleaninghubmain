@@ -13,7 +13,7 @@ export const ja = {
       title: '清掃の準備はできましたか？',
       subtitle: '数分で無料見積もりを取得',
       callNow: '電話',
-      whatsapp: 'WhatsApp',
+      whatsapp: 'テキスト',
       inquire: 'お問い合わせ',
       whatsappMessage: 'こんにちは！清掃サービスについてお問い合わせしたいです。',
       couldNotOpenPhoneApp: '電話アプリを開けませんでした',

@@ -13,7 +13,7 @@ export const ru = {
       title: 'Готовы к Уборке?',
       subtitle: 'Получите бесплатную оценку за несколько минут',
       callNow: 'Позвонить',
-      whatsapp: 'WhatsApp',
+      whatsapp: 'Текст',
       inquire: 'Узнать',
       whatsappMessage: 'Здравствуйте! Я хотел бы узнать о ваших услугах по уборке.',
       couldNotOpenPhoneApp: 'Не удалось открыть приложение телефона',

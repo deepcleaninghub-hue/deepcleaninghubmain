@@ -169,12 +169,24 @@ class EmailService {
   }
 
   async sendAdminConfirmationEmail(bookingData) {
+    // Check if email service is configured
+    if (!this.isConfigured) {
+      const error = new Error('Email service not configured. Please set ADMIN_EMAIL and AWS_FROM_EMAIL in .env file');
+      console.error('❌ Email service not configured:', {
+        fromEmail: this.fromEmail,
+        adminEmail: this.adminEmail,
+        configured: this.isConfigured
+      });
+      throw error;
+    }
+
     const emailContent = this.generateAdminConfirmationEmail(bookingData);
     
     // Log email content for debugging
     console.log('📧 ADMIN EMAIL CONTENT:');
     console.log('📧 Subject: New Order Received - ' + bookingData.orderId);
     console.log('📧 To: ' + this.adminEmail);
+    console.log('📧 From: ' + this.fromEmail);
     console.log('📧 HTML Content Length: ' + emailContent.html.length + ' characters');
     console.log('📧 Text Content Length: ' + emailContent.text.length + ' characters');
     console.log('📧 Text Content Preview:');
@@ -204,8 +216,9 @@ class EmailService {
         }
       };
 
+      console.log('📧 Attempting to send admin email via AWS SES...');
       const result = await ses.sendEmail(params).promise();
-      console.log('📧 Admin email sent successfully! Message ID: ' + result.MessageId);
+      console.log('✅ Admin email sent successfully! Message ID: ' + result.MessageId);
       return {
         type: 'admin',
         success: true,
@@ -214,7 +227,13 @@ class EmailService {
         provider: 'AWS SES'
       };
     } catch (error) {
-      console.error('Error sending admin confirmation email:', error);
+      console.error('❌ Error sending admin confirmation email:');
+      console.error('   Error Message:', error.message);
+      console.error('   Error Code:', error.code);
+      console.error('   Status Code:', error.statusCode);
+      if (error.requestId) {
+        console.error('   Request ID:', error.requestId);
+      }
       throw error;
     }
   }

@@ -22,7 +22,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = DeepCleaningHub/Info.plist; sourceTree = "<group>"; };
 		785D6017353F2E2A2A90BF69 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-DeepCleaningHub/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		8719C204F8836FFFFA1BB846 /* Pods-DeepCleaningHub.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DeepCleaningHub.debug.xcconfig"; path = "Target Support Files/Pods-DeepCleaningHub/Pods-DeepCleaningHub.debug.xcconfig"; sourceTree = "<group>"; };
-		994949143B1235240DB897DC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = DeepCleaningHub/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		994949143B1235240DB897DC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = DeepCleaningHub/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = DeepCleaningHub/SplashScreen.storyboard; sourceTree = "<group>"; };
 		B2AB9D08B5B74D7E1169505E /* libPods-DeepCleaningHub.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DeepCleaningHub.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
@@ -81,7 +81,6 @@
 				8719C204F8836FFFFA1BB846 /* Pods-DeepCleaningHub.debug.xcconfig */,
 				EB4E04F9CE8D32BE1D7801CC /* Pods-DeepCleaningHub.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -347,6 +346,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DeepCleaningHub/DeepCleaningHub.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D2H3R3L4Z9;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -383,6 +383,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DeepCleaningHub/DeepCleaningHub.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D2H3R3L4Z9;
 				INFOPLIST_FILE = DeepCleaningHub/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (

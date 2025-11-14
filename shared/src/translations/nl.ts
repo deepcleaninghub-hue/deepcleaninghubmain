@@ -13,7 +13,7 @@ export const nl = {
       title: 'Klaar om te Reinigen?',
       subtitle: 'Krijg uw gratis offerte in minuten',
       callNow: 'Bellen',
-      whatsapp: 'WhatsApp',
+      whatsapp: 'Tekst',
       inquire: 'Informeer',
       whatsappMessage: 'Hallo! Ik wil graag informatie over uw schoonmaakdiensten.',
       couldNotOpenPhoneApp: 'Kan telefoon-app niet openen',

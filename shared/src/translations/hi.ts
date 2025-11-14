@@ -13,7 +13,7 @@ export const hi = {
       title: 'सफाई के लिए तैयार हैं?',
       subtitle: 'मिनटों में अपना मुफ्त कोटेशन प्राप्त करें',
       callNow: 'कॉल करें',
-      whatsapp: 'WhatsApp',
+      whatsapp: 'टेक्स्ट',
       inquire: 'पूछताछ करें',
       whatsappMessage: 'नमस्ते! मैं आपकी सफाई सेवाओं के बारे में पूछताछ करना चाहता हूं।',
       couldNotOpenPhoneApp: 'फोन ऐप खोला नहीं जा सका',

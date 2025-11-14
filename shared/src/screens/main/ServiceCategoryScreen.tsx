@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   },
   viewButton: {
     borderRadius: 25,
-    minWidth: 120,
+    minWidth: 140,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: {

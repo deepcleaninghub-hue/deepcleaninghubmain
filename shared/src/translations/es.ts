@@ -13,7 +13,7 @@ export const es = {
       title: '¿Listo para Limpiar?',
       subtitle: 'Obtenga su cotización gratuita en minutos',
       callNow: 'Llamar',
-      whatsapp: 'WhatsApp',
+      whatsapp: 'Texto',
       inquire: 'Consultar',
       whatsappMessage: '¡Hola! Me gustaría consultar sobre sus servicios de limpieza.',
       couldNotOpenPhoneApp: 'No se pudo abrir la aplicación de teléfono',

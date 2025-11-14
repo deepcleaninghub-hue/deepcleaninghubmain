@@ -367,13 +367,15 @@ const styles = StyleSheet.create({
   ctaButtonsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 6,
     justifyContent: 'center',
     width: '100%',
+    paddingHorizontal: 8,
   },
   ctaButton: {
     flex: 1,
-    minWidth: '30%',
+    minWidth: 105,
+    maxWidth: 115,
     borderRadius: 12,
     elevation: 3,
     shadowColor: '#000',
@@ -394,14 +396,15 @@ const styles = StyleSheet.create({
     // Secondary color already set
   },
   ctaButtonContent: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    minHeight: 44,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    minHeight: 48,
   },
   ctaButtonLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
     textAlign: 'center',
+    letterSpacing: 0.1,
   },
   featuresCard: {
     elevation: 3,

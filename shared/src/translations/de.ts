@@ -12,7 +12,7 @@ export const de = {
       title: 'Bereit zum Reinigen?',
       subtitle: 'Holen Sie sich Ihr kostenloses Angebot in Minuten',
       callNow: 'Anrufen',
-      whatsapp: 'WhatsApp',
+      whatsapp: 'Text',
       inquire: 'Anfragen',
       whatsappMessage: 'Hallo! Ich möchte mich über Ihre Reinigungsdienste informieren.',
       couldNotOpenPhoneApp: 'Telefon-App konnte nicht geöffnet werden',

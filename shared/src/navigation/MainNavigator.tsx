@@ -2,14 +2,14 @@
  * Main Navigator
  * 
  * Handles authentication state and routes between auth and main app.
+ * Now allows guest browsing of services without authentication.
  */
 
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
 import { useAuth } from '../contexts/AuthContext';
-import { AuthNavigator } from './AuthNavigator';
-import { AppNavigator } from './AppNavigator';
+import { RootNavigator } from './RootNavigator';
 import { LoadingSpinner } from '../components/Base/LoadingSpinner';
 
 export const MainNavigator: React.FC = () => {
@@ -27,7 +27,7 @@ export const MainNavigator: React.FC = () => {
     );
   }
 
-  return isAuthenticated ? <AppNavigator /> : <AuthNavigator />;
+  return <RootNavigator />;
 };
 
 const styles = StyleSheet.create({

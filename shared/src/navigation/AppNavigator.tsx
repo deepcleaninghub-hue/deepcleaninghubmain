@@ -15,6 +15,7 @@ import { MainTabParamList, HomeStackParamList, ServicesStackParamList, CartStack
 import { theme } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
 
 // Import screens
 import HomeScreen from '../screens/main/HomeScreen';
@@ -28,6 +29,11 @@ import OrderDetailsScreen from '../screens/main/OrderDetailsScreen';
 import { ProfileScreen } from '../screens/main/ProfileScreen';
 import EditProfileScreen from '../screens/main/EditProfileScreen';
 import ContactScreen from '../screens/main/ContactScreen';
+
+// Import guest screens
+import { GuestCartScreen } from '../screens/guest/GuestCartScreen';
+import { GuestOrdersScreen } from '../screens/guest/GuestOrdersScreen';
+import { GuestProfileScreen } from '../screens/guest/GuestProfileScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const HomeStackNavigator = createStackNavigator<HomeStackParamList>();
@@ -81,31 +87,58 @@ const ServicesStack = () => {
 
 // Cart Stack
 const CartStack = () => {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <CartStackNavigator.Navigator screenOptions={{ headerShown: false }}>
-      <CartStackNavigator.Screen name="CartMain" component={CartScreen} />
-      <CartStackNavigator.Screen name="Checkout" component={CheckoutScreen} />
-      <CartStackNavigator.Screen name="OrderConfirmation" component={OrderConfirmationScreen} />
+      <CartStackNavigator.Screen 
+        name="CartMain" 
+        component={isAuthenticated ? CartScreen : GuestCartScreen} 
+      />
+      {isAuthenticated && (
+        <>
+          <CartStackNavigator.Screen name="Checkout" component={CheckoutScreen} />
+          <CartStackNavigator.Screen name="OrderConfirmation" component={OrderConfirmationScreen} />
+        </>
+      )}
     </CartStackNavigator.Navigator>
   );
 };
 
 // Orders Stack
 const OrdersStack = () => {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <OrdersStackNavigator.Navigator screenOptions={{ headerShown: false }}>
-      <OrdersStackNavigator.Screen name="OrdersMain" component={OrdersScreen} />
-      <OrdersStackNavigator.Screen name="OrderDetails" component={OrderDetailsScreen} />
+      <OrdersStackNavigator.Screen 
+        name="OrdersMain" 
+        component={isAuthenticated ? OrdersScreen : GuestOrdersScreen} 
+      />
+      {isAuthenticated && (
+        <>
+          <OrdersStackNavigator.Screen name="OrderDetails" component={OrderDetailsScreen} />
+        </>
+      )}
     </OrdersStackNavigator.Navigator>
   );
 };
 
 // Profile Stack
 const ProfileStack = () => {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <ProfileStackNavigator.Navigator screenOptions={{ headerShown: false }}>
-      <ProfileStackNavigator.Screen name="ProfileMain" component={ProfileScreen} />
-      <ProfileStackNavigator.Screen name="EditProfile" component={EditProfileScreen} />
+      <ProfileStackNavigator.Screen 
+        name="ProfileMain" 
+        component={isAuthenticated ? ProfileScreen : GuestProfileScreen} 
+      />
+      {isAuthenticated && (
+        <>
+          <ProfileStackNavigator.Screen name="EditProfile" component={EditProfileScreen} />
+        </>
+      )}
     </ProfileStackNavigator.Navigator>
   );
 };

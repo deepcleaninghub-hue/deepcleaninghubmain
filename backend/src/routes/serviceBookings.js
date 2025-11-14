@@ -553,10 +553,17 @@ router.post('/', [
         });
       }
 
-      // Send confirmation email for all created bookings
+      // Send confirmation email to admin only
       setImmediate(async () => {
         try {
-          console.log('📧 Sending multi-day booking confirmation email...');
+          // Check if email service is configured
+          if (!emailService.getStatus().configured) {
+            console.error('❌ Email service not configured. Skipping admin email.');
+            return;
+          }
+          
+          console.log('📧 Sending multi-day booking confirmation email to admin...');
+          console.log('📧 Email service status:', emailService.getStatus());
           
           const emailData = {
             customerName: customer_name,
@@ -582,8 +589,8 @@ router.post('/', [
             allBookingDates: datesToProcess
           };
 
-          const emailResults = await emailService.sendOrderConfirmationEmails(emailData);
-          console.log('📧 Multi-day email results:', emailResults);
+          const emailResult = await emailService.sendAdminConfirmationEmail(emailData);
+          console.log('📧 Multi-day admin email result:', emailResult);
 
           // Send WhatsApp notification
           try {
@@ -598,7 +605,10 @@ router.post('/', [
             console.error('❌ Failed to send WhatsApp notification:', whatsappError);
           }
         } catch (emailError) {
-          console.error('❌ Failed to send confirmation emails:', emailError);
+          console.error('❌ Failed to send admin confirmation email:');
+          console.error('   Error:', emailError.message);
+          console.error('   Error Code:', emailError.code);
+          console.error('   Stack:', emailError.stack);
         }
       });
 
@@ -691,10 +701,17 @@ router.post('/', [
         }]
       };
 
-      // Send confirmation email for single booking
+      // Send confirmation email to admin only
       setImmediate(async () => {
         try {
-          console.log('📧 Sending single booking confirmation email...');
+          // Check if email service is configured
+          if (!emailService.getStatus().configured) {
+            console.error('❌ Email service not configured. Skipping admin email.');
+            return;
+          }
+          
+          console.log('📧 Sending single booking confirmation email to admin...');
+          console.log('📧 Email service status:', emailService.getStatus());
           
           const emailData = {
             customerName: customer_name,
@@ -720,8 +737,8 @@ router.post('/', [
             allBookingDates: responseData.allBookingDates
           };
 
-          const emailResults = await emailService.sendOrderConfirmationEmails(emailData);
-          console.log('📧 Single booking email results:', emailResults);
+          const emailResult = await emailService.sendAdminConfirmationEmail(emailData);
+          console.log('📧 Single booking admin email result:', emailResult);
 
           // Send WhatsApp notification
           try {
@@ -736,7 +753,10 @@ router.post('/', [
             console.error('❌ Failed to send WhatsApp notification:', whatsappError);
           }
         } catch (emailError) {
-          console.error('❌ Failed to send confirmation emails:', emailError);
+          console.error('❌ Failed to send admin confirmation email:');
+          console.error('   Error:', emailError.message);
+          console.error('   Error Code:', emailError.code);
+          console.error('   Stack:', emailError.stack);
         }
       });
 

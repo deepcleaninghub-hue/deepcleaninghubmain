@@ -22,6 +22,7 @@ import {
   Switch
 } from 'react-native-paper';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
 import { servicesAPI } from '../services/api';
 import { ServiceVariant } from '../types';
 import { modalService } from '../services/modalService';
@@ -49,6 +50,7 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
 }) => {
   const theme = useTheme();
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
   const [variants, setVariants] = useState<ServiceVariant[]>([]);
   const [loading, setLoading] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -332,6 +334,11 @@ const ServiceVariantModal: React.FC<ServiceVariantModalProps> = ({
   };
 
   const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      modalService.showError(t('auth.loginRequired'), t('cart.loginToAddItems'));
+      return;
+    }
+
     try {
       setAddingToCart(true);
       

@@ -6,6 +6,7 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
+  ImageSourcePropType,
 } from 'react-native';
 import { Text, useTheme, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,7 +15,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 interface ServiceCategoryCardProps {
   id: string;
   title: string;
-  image: string;
+  image: string | ImageSourcePropType;
   onPress: () => void;
   compact?: boolean; // For horizontal scroll in cart
   showButton?: boolean; // Whether to show the order button
@@ -58,7 +59,7 @@ const ServiceCategoryCard: React.FC<ServiceCategoryCardProps> = ({
           </View>
         )}
         <Image 
-          source={{ uri: image }} 
+          source={typeof image === 'string' ? { uri: image } : image} 
           style={styles.serviceImage}
           onLoadStart={() => setImageLoading(true)}
           onLoadEnd={() => setImageLoading(false)}
@@ -192,13 +193,13 @@ const styles = StyleSheet.create({
   },
   viewButton: {
     borderRadius: 8,
-    minWidth: 100,
+    minWidth: 120,
     borderWidth: 1.5,
     borderColor: '#3F72AF',
     backgroundColor: 'transparent',
   },
   compactButton: {
-    minWidth: 80,
+    minWidth: 100,
     borderRadius: 8,
     borderWidth: 1.5,
     borderColor: '#3F72AF',
@@ -206,21 +207,23 @@ const styles = StyleSheet.create({
   },
   buttonContent: {
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
   },
   compactButtonContent: {
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   buttonLabel: {
     fontSize: 14,
     fontWeight: '700',
     color: '#3F72AF',
+    textAlign: 'center',
   },
   compactButtonLabel: {
     fontSize: 12,
     fontWeight: '700',
     color: '#3F72AF',
+    textAlign: 'center',
   },
 });
 

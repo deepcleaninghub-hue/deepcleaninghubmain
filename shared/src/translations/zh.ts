@@ -13,7 +13,7 @@ export const zh = {
       title: '准备清洁了吗？',
       subtitle: '几分钟内获得免费报价',
       callNow: '致电',
-      whatsapp: 'WhatsApp',
+      whatsapp: '短信',
       inquire: '咨询',
       whatsappMessage: '您好！我想咨询您的清洁服务。',
       couldNotOpenPhoneApp: '无法打开电话应用',
