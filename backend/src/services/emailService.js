@@ -477,9 +477,9 @@ Deep Cleaning Hub Team
           <div class="content">
             <h2>Customer Information</h2>
             <div class="order-details">
-              <p><strong>Name:</strong> ${bookingData.customerName}</p>
+              <p><strong>Name:</strong> ${bookingData.customerName || 'Not provided'}</p>
               <p><strong>Email:</strong> ${bookingData.customerEmail}</p>
-              <p><strong>Phone:</strong> ${bookingData.customerPhone}</p>
+              <p><strong>Phone:</strong> ${bookingData.customerPhone || 'Not provided'}</p>
               <p><strong>Service Date:</strong> ${serviceDate}</p>
               <p><strong>Service Time:</strong> ${serviceTime}</p>
               <p><strong>Total Amount:</strong> <span class="highlight">€${bookingData.totalAmount}</span></p>
@@ -522,9 +522,9 @@ Deep Cleaning Hub Team
 New Order Received - ${bookingData.orderId}
 
 Customer Information:
-- Name: ${bookingData.customerName}
+- Name: ${bookingData.customerName || 'Not provided'}
 - Email: ${bookingData.customerEmail}
-- Phone: ${bookingData.customerPhone}
+- Phone: ${bookingData.customerPhone || 'Not provided'}
 - Service Date: ${serviceDate}
 - Service Time: ${serviceTime}
 - Total Amount: €${bookingData.totalAmount}

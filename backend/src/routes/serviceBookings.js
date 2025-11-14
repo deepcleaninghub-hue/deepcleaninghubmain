@@ -565,8 +565,14 @@ router.post('/', [
           console.log('📧 Sending multi-day booking confirmation email to admin...');
           console.log('📧 Email service status:', emailService.getStatus());
           
+          // Construct customer name with fallback to user's name
+          const fullCustomerName = customer_name || 
+            (req.user.first_name && req.user.last_name 
+              ? `${req.user.first_name} ${req.user.last_name}`.trim()
+              : req.user.first_name || req.user.last_name || customer_email || 'Customer');
+          
           const emailData = {
-            customerName: customer_name,
+            customerName: fullCustomerName,
             customerEmail: customer_email,
             customerPhone: customer_phone || req.user.phone || '',
             orderId: createdBookings[0].id.slice(-8),
@@ -713,8 +719,14 @@ router.post('/', [
           console.log('📧 Sending single booking confirmation email to admin...');
           console.log('📧 Email service status:', emailService.getStatus());
           
+          // Construct customer name with fallback to user's name
+          const fullCustomerName = customer_name || 
+            (req.user.first_name && req.user.last_name 
+              ? `${req.user.first_name} ${req.user.last_name}`.trim()
+              : req.user.first_name || req.user.last_name || customer_email || 'Customer');
+          
           const emailData = {
-            customerName: customer_name,
+            customerName: fullCustomerName,
             customerEmail: customer_email,
             customerPhone: customer_phone || req.user.phone || '',
             orderId: createdBooking.id.slice(-8),
