@@ -5,13 +5,13 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import { Text, Card, Button, TextInput, useTheme, Divider, Switch, Menu } from 'react-native-paper';
+import { Text, Card, Button, TextInput, useTheme, Divider, Switch, Menu, Searchbar, Portal } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MultiDateSelector from '../../../../shared/src/components/MultiDateSelector';
 import { BookingDate } from '../../../../shared/src/types';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { adminDataService } from '@/services/adminDataService';
-import { AdminService } from '@/types';
+import { AdminService, AdminBooking } from '@/types';
 
 // Hardcoded service categories
 const SERVICE_CATEGORIES = [
@@ -34,10 +34,22 @@ type ServiceVariant = {
   display_order?: number;
 };
 
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+}
+
 export function BookingCreateScreen({ navigation }: any) {
   const theme = useTheme();
   const { services } = useAdminData();
-  const [customerId, setCustomerId] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
+  const [customerMenuVisible, setCustomerMenuVisible] = useState(false);
+  const [customerSearchQuery, setCustomerSearchQuery] = useState('');
   
   // Service selection state
   const [selectedServiceCategory, setSelectedServiceCategory] = useState<string>('');
@@ -63,6 +75,84 @@ export function BookingCreateScreen({ navigation }: any) {
   const [isMultiDay, setIsMultiDay] = useState(false);
   const [selectedDates, setSelectedDates] = useState<BookingDate[]>([]);
   const [serviceTime, setServiceTime] = useState(new Date());
+
+  // Load customers on mount
+  useEffect(() => {
+    loadCustomers();
+  }, []);
+
+  // Filter customers based on search query
+  useEffect(() => {
+    if (customerSearchQuery.trim()) {
+      const query = customerSearchQuery.toLowerCase();
+      const filtered = customers.filter(customer =>
+        customer.name.toLowerCase().includes(query) ||
+        customer.email.toLowerCase().includes(query) ||
+        customer.phone?.toLowerCase().includes(query) ||
+        customer.id.toLowerCase().includes(query)
+      );
+      setFilteredCustomers(filtered);
+    } else {
+      setFilteredCustomers(customers);
+    }
+  }, [customerSearchQuery, customers]);
+
+  const loadCustomers = async () => {
+    try {
+      setLoadingCustomers(true);
+      
+      // Load bookings to extract customer data
+      const bookingsResponse = await adminDataService.getBookings();
+      const bookings = bookingsResponse.data || [];
+      
+      // Group bookings by customer
+      const customerMap = new Map<string, {
+        bookings: AdminBooking[];
+      }>();
+
+      bookings.forEach((booking: AdminBooking) => {
+        const customerId = booking.user_id || booking.customer_email || 'unknown';
+        
+        if (!customerMap.has(customerId)) {
+          customerMap.set(customerId, {
+            bookings: [],
+          });
+        }
+        
+        const customerData = customerMap.get(customerId)!;
+        customerData.bookings.push(booking);
+      });
+
+      // Convert to customer list
+      const customerList: Customer[] = [];
+      for (const [id, data] of customerMap.entries()) {
+        const firstBooking = data.bookings[0];
+        if (!firstBooking) continue;
+        
+        const user = firstBooking.mobile_users;
+        const name = user 
+          ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || firstBooking.customer_name || 'Customer'
+          : firstBooking.customer_name || 'Customer';
+        
+        customerList.push({
+          id,
+          name,
+          email: user?.email || firstBooking.customer_email || '',
+          phone: user?.phone || firstBooking.customer_phone || '',
+        });
+      }
+
+      // Sort by name
+      customerList.sort((a, b) => a.name.localeCompare(b.name));
+      
+      setCustomers(customerList);
+      setFilteredCustomers(customerList);
+    } catch (error) {
+      console.error('Error loading customers:', error);
+    } finally {
+      setLoadingCustomers(false);
+    }
+  };
 
   // Filter services when category is selected
   useEffect(() => {
@@ -119,8 +209,8 @@ export function BookingCreateScreen({ navigation }: any) {
   };
 
   const handleCreateBooking = async () => {
-    if (!customerId) {
-      Alert.alert('Error', 'Please enter customer ID');
+    if (!selectedCustomer) {
+      Alert.alert('Error', 'Please select a customer');
       return;
     }
     
@@ -180,13 +270,67 @@ export function BookingCreateScreen({ navigation }: any) {
             </Text>
             <Divider style={styles.divider} />
             
-            <TextInput
-              label="Customer ID *"
-              value={customerId}
-              onChangeText={setCustomerId}
-              style={styles.input}
-              mode="outlined"
-            />
+            {/* Customer Dropdown with Search */}
+            <View style={styles.dropdownContainer}>
+              <Text variant="bodyMedium" style={[styles.dropdownLabel, { color: theme.colors.onSurface }]}>
+                Customer *
+              </Text>
+              <Menu
+                visible={customerMenuVisible}
+                onDismiss={() => {
+                  setCustomerMenuVisible(false);
+                  setCustomerSearchQuery('');
+                }}
+                anchor={
+                  <Button
+                    mode="outlined"
+                    onPress={() => setCustomerMenuVisible(true)}
+                    style={styles.dropdownButton}
+                    contentStyle={styles.dropdownButtonContent}
+                    loading={loadingCustomers}
+                    disabled={loadingCustomers}
+                  >
+                    {selectedCustomer 
+                      ? `${selectedCustomer.name} (${selectedCustomer.email})`
+                      : loadingCustomers
+                      ? 'Loading customers...'
+                      : 'Select Customer'}
+                  </Button>
+                }
+                contentStyle={styles.customerMenuContent}
+              >
+                <View style={styles.customerSearchContainer}>
+                  <Searchbar
+                    placeholder="Search by name, email, phone..."
+                    onChangeText={setCustomerSearchQuery}
+                    value={customerSearchQuery}
+                    style={styles.customerSearchBar}
+                  />
+                </View>
+                <ScrollView style={styles.customerListScroll} nestedScrollEnabled>
+                  {filteredCustomers.length === 0 ? (
+                    <View style={styles.emptyCustomerContainer}>
+                      <Text style={[styles.emptyCustomerText, { color: theme.colors.onSurfaceVariant }]}>
+                        {customerSearchQuery ? 'No customers found' : 'No customers available'}
+                      </Text>
+                    </View>
+                  ) : (
+                    filteredCustomers.map((customer) => (
+                      <Menu.Item
+                        key={customer.id}
+                        onPress={() => {
+                          setSelectedCustomer(customer);
+                          setCustomerMenuVisible(false);
+                          setCustomerSearchQuery('');
+                        }}
+                        title={`${customer.name}${customer.email ? ` - ${customer.email}` : ''}${customer.phone ? ` (${customer.phone})` : ''}`}
+                        titleStyle={styles.customerMenuItemTitle}
+                      />
+                    ))
+                  )}
+                </ScrollView>
+              </Menu>
+            </View>
             
             {/* Service Category Dropdown */}
             <View style={styles.dropdownContainer}>
@@ -460,5 +604,31 @@ const styles = StyleSheet.create({
   },
   dropdownButtonContent: {
     justifyContent: 'space-between',
+  },
+  customerMenuContent: {
+    width: '90%',
+    maxHeight: 400,
+  },
+  customerSearchContainer: {
+    padding: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  customerSearchBar: {
+    elevation: 0,
+  },
+  customerListScroll: {
+    maxHeight: 300,
+  },
+  emptyCustomerContainer: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  emptyCustomerText: {
+    fontSize: 14,
+  },
+  customerMenuItemTitle: {
+    fontSize: 13,
+    fontWeight: '500',
   },
 });
