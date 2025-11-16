@@ -285,9 +285,94 @@ export function BookingDetailsScreen({ navigation, route }: any) {
                 Service
               </Text>
               <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
-                {booking.services?.title || booking.serviceId}
+                {booking.services?.title || booking.serviceId || 'N/A'}
               </Text>
             </View>
+
+            {booking.service_variants && (
+              <>
+                <View style={styles.infoRow}>
+                  <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                    Service Variant
+                  </Text>
+                  <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                    {booking.service_variants.title || 'N/A'}
+                  </Text>
+                </View>
+
+                {booking.service_variants.duration && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      Duration
+                    </Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                      {typeof booking.service_variants.duration === 'number' 
+                        ? `${booking.service_variants.duration} ${booking.service_variants.duration === 1 ? 'hour' : 'hours'}`
+                        : booking.service_variants.duration}
+                    </Text>
+                  </View>
+                )}
+
+                {booking.duration_minutes && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      Duration (Minutes)
+                    </Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                      {booking.duration_minutes} minutes
+                    </Text>
+                  </View>
+                )}
+
+                {booking.service_variants.price && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      Base Price
+                    </Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                      €{typeof booking.service_variants.price === 'number' 
+                        ? booking.service_variants.price.toFixed(2)
+                        : parseFloat(String(booking.service_variants.price)).toFixed(2)}
+                    </Text>
+                  </View>
+                )}
+
+                {booking.service_variants.unit_price && booking.service_variants.unit_measure && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      Unit Price
+                    </Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                      €{typeof booking.service_variants.unit_price === 'number'
+                        ? booking.service_variants.unit_price.toFixed(2)
+                        : parseFloat(String(booking.service_variants.unit_price)).toFixed(2)} / {booking.service_variants.unit_measure}
+                    </Text>
+                  </View>
+                )}
+
+                {booking.service_variants.pricing_type && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      Pricing Type
+                    </Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                      {booking.service_variants.pricing_type}
+                    </Text>
+                  </View>
+                )}
+
+                {booking.service_variants.description && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      Description
+                    </Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
+                      {booking.service_variants.description}
+                    </Text>
+                  </View>
+                )}
+              </>
+            )}
 
             <View style={styles.infoRow}>
               <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>

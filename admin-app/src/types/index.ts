@@ -114,6 +114,16 @@ export interface AdminBooking extends Booking {
     description: string;
     category: string;
   };
+  service_variants?: {
+    id: string;
+    title: string;
+    description?: string;
+    duration?: number | string;
+    price?: number | string;
+    unit_price?: number | string;
+    unit_measure?: string;
+    pricing_type?: string;
+  };
   mobile_users?: {
     id: string;
     first_name: string;

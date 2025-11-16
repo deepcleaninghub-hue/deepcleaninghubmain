@@ -5,15 +5,15 @@ import {
   StyleSheet,
   RefreshControl,
   Alert,
-  Modal,
   TouchableOpacity,
 } from 'react-native';
-import { Text, Card, Button, Chip, useTheme, Divider, FAB, SegmentedButtons, Searchbar, Portal, Checkbox } from 'react-native-paper';
+import { Text, Card, Button, Chip, useTheme, Divider, FAB, SegmentedButtons, Searchbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { AdminBooking } from '@/types';
 import { adminDataService } from '@/services/adminDataService';
+import { CalendarView, CalendarViewMode } from '@/components/bookings/CalendarView';
 
 export function BookingListScreen({ navigation }: any) {
   const theme = useTheme();
@@ -23,15 +23,8 @@ export function BookingListScreen({ navigation }: any) {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'completed'>('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
-  
-  // Filter states
-  const [statusFilters, setStatusFilters] = useState<string[]>([]);
-  const [serviceTypeFilter, setServiceTypeFilter] = useState<string>('');
-  const [customerFilter, setCustomerFilter] = useState<string>('');
-  const [dateRangeStart, setDateRangeStart] = useState<string>('');
-  const [dateRangeEnd, setDateRangeEnd] = useState<string>('');
+  const [calendarViewMode, setCalendarViewMode] = useState<CalendarViewMode>('month');
 
   useEffect(() => {
     loadBookings();
@@ -39,7 +32,7 @@ export function BookingListScreen({ navigation }: any) {
 
   useEffect(() => {
     filterBookings();
-  }, [bookings, activeTab, searchQuery, statusFilters, serviceTypeFilter, customerFilter, dateRangeStart, dateRangeEnd]);
+  }, [bookings, activeTab, searchQuery]);
 
   const loadBookings = async () => {
     try {
@@ -81,53 +74,11 @@ export function BookingListScreen({ navigation }: any) {
         })() ||
         (booking.service_address && booking.service_address.toLowerCase().includes(query));
       
-      // Status filter
-      const matchesStatus = statusFilters.length === 0 || statusFilters.includes(booking.status);
-      
-      // Service type filter
-      const matchesServiceType = serviceTypeFilter === '' || 
-        booking.services?.category === serviceTypeFilter ||
-        booking.services?.title?.toLowerCase().includes(serviceTypeFilter.toLowerCase());
-      
-      // Customer filter
-      const filterCustomerName = getCustomerName(booking).toLowerCase();
-      const mobileUser = getMobileUser(booking);
-      const matchesCustomer = customerFilter === '' ||
-        filterCustomerName.includes(customerFilter.toLowerCase()) ||
-        booking.customer_email?.toLowerCase().includes(customerFilter.toLowerCase()) ||
-        (mobileUser?.email && mobileUser.email.toLowerCase().includes(customerFilter.toLowerCase()));
-      
-      // Date range filter
-      let matchesDateRange = true;
-      if (dateRangeStart || dateRangeEnd) {
-        const bookingDate = new Date(booking.booking_date || booking.created_at || '');
-        if (dateRangeStart) {
-          const startDate = new Date(dateRangeStart);
-          startDate.setHours(0, 0, 0, 0);
-          if (bookingDate < startDate) matchesDateRange = false;
-        }
-        if (dateRangeEnd) {
-          const endDate = new Date(dateRangeEnd);
-          endDate.setHours(23, 59, 59, 999);
-          if (bookingDate > endDate) matchesDateRange = false;
-        }
-      }
-      
-      return matchesTab && matchesSearch && matchesStatus && matchesServiceType && matchesCustomer && matchesDateRange;
+      return matchesTab && matchesSearch;
     });
     
     setFilteredBookings(filtered);
   };
-
-  const clearFilters = () => {
-    setStatusFilters([]);
-    setServiceTypeFilter('');
-    setCustomerFilter('');
-    setDateRangeStart('');
-    setDateRangeEnd('');
-  };
-
-  const hasActiveFilters = statusFilters.length > 0 || serviceTypeFilter !== '' || customerFilter !== '' || dateRangeStart !== '' || dateRangeEnd !== '';
 
   // Helper function to get mobile user (handles both object and array)
   const getMobileUser = (booking: AdminBooking): any => {
@@ -175,11 +126,6 @@ export function BookingListScreen({ navigation }: any) {
     return 'Customer';
   };
 
-  // Get unique service types and customers for filter dropdowns
-  const serviceTypes = Array.from(new Set(bookings.map(b => b.services?.category).filter(Boolean)));
-  const customers = Array.from(new Set(
-    bookings.map(b => getCustomerName(b)).filter(name => name !== 'Customer')
-  ));
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -245,6 +191,28 @@ export function BookingListScreen({ navigation }: any) {
     );
   };
 
+  const handleMarkAsComplete = async (bookingId: string) => {
+    Alert.alert(
+      'Mark as Complete',
+      'Are you sure you want to mark this booking as completed?',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes, Mark Complete',
+          onPress: async () => {
+            try {
+              await adminDataService.updateBookingStatus({ bookingId, status: 'completed' });
+              await loadBookings();
+              Alert.alert('Success', 'Booking marked as completed successfully');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to mark booking as completed');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -262,25 +230,14 @@ export function BookingListScreen({ navigation }: any) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* Search Bar and Filter Toggle */}
+        {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <View style={styles.searchRow}>
-            <Searchbar
-              placeholder="Search by ID, name, email, phone, or address..."
-              onChangeText={setSearchQuery}
-              value={searchQuery}
-              style={[styles.searchBar, { flex: 1 }]}
-            />
-            <Button
-              mode={hasActiveFilters ? 'contained' : 'outlined'}
-              onPress={() => setShowFilters(true)}
-              icon="filter"
-              style={styles.filterButton}
-              compact
-            >
-              {hasActiveFilters ? 'Filtered' : 'Filter'}
-            </Button>
-          </View>
+          <Searchbar
+            placeholder="Search by ID, name, email, phone, or address..."
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+            style={styles.searchBar}
+          />
           
           {/* View Mode Toggle */}
           <View style={styles.viewModeContainer}>
@@ -347,10 +304,14 @@ export function BookingListScreen({ navigation }: any) {
             </Card.Content>
           </Card>
         ) : viewMode === 'calendar' ? (
-          <View style={styles.bookingsContainer}>
-            <Text variant="bodyMedium" style={[styles.calendarSubtext, { color: theme.colors.onSurfaceVariant, textAlign: 'center', padding: 16 }]}>
-              Switch to List view to see bookings. Calendar view coming soon.
-            </Text>
+          <View style={styles.calendarContainer}>
+            <CalendarView
+              bookings={filteredBookings}
+              onBookingPress={handleBookingPress}
+              onMarkComplete={handleMarkAsComplete}
+              viewMode={calendarViewMode}
+              onViewModeChange={setCalendarViewMode}
+            />
           </View>
         ) : (
           <View style={styles.bookingsContainer}>
@@ -464,7 +425,7 @@ export function BookingListScreen({ navigation }: any) {
                             <Ionicons name="call-outline" size={12} color={theme.colors.onSurfaceVariant} />
                             <Text variant="bodySmall" style={[styles.customerDetail, { color: theme.colors.onSurfaceVariant }]}>
                               {booking.customer_phone}
-                            </Text>
+                      </Text>
                           </View>
                         )}
                       </View>
@@ -483,7 +444,18 @@ export function BookingListScreen({ navigation }: any) {
                     >
                       View Details
                     </Button>
-                    {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                    {booking.status !== 'completed' && booking.status !== 'cancelled' && (
+                      <Button
+                        mode="contained"
+                        onPress={() => handleMarkAsComplete(booking.id)}
+                        style={[styles.actionButton, styles.completeButton]}
+                        icon="check-circle"
+                        compact
+                      >
+                        Complete
+                      </Button>
+                    )}
+                    {booking.status !== 'completed' && booking.status !== 'cancelled' && (
                       <Button
                         mode="outlined"
                         onPress={() => handleCancelBooking(booking.id)}
@@ -507,144 +479,6 @@ export function BookingListScreen({ navigation }: any) {
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => navigation.navigate('BookingCreate')}
       />
-
-      {/* Filter Modal */}
-      <Portal>
-        <Modal
-          visible={showFilters}
-          onDismiss={() => setShowFilters(false)}
-        >
-          <View style={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}>
-            <View style={styles.modalHeader}>
-              <Text variant="headlineSmall" style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
-                Filter Bookings
-              </Text>
-              <Button onPress={() => setShowFilters(false)} icon="close">
-                Close
-              </Button>
-            </View>
-
-          <ScrollView style={styles.modalContent}>
-            {/* Status Filter */}
-            <View style={styles.filterSection}>
-              <Text variant="titleMedium" style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>
-                Status
-              </Text>
-              {['pending', 'confirmed', 'scheduled', 'in_progress', 'completed', 'cancelled'].map((status) => (
-                <View key={status} style={styles.checkboxRow}>
-                  <Checkbox
-                    status={statusFilters.includes(status) ? 'checked' : 'unchecked'}
-                    onPress={() => {
-                      setStatusFilters(prev => 
-                        prev.includes(status) 
-                          ? prev.filter(s => s !== status)
-                          : [...prev, status]
-                      );
-                    }}
-                  />
-                  <Text style={[styles.checkboxLabel, { color: theme.colors.onSurface }]}>
-                    {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
-                  </Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Service Type Filter */}
-            <View style={styles.filterSection}>
-              <Text variant="titleMedium" style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>
-                Service Type
-              </Text>
-              <Searchbar
-                placeholder="Search service type..."
-                onChangeText={setServiceTypeFilter}
-                value={serviceTypeFilter}
-                style={styles.filterSearch}
-              />
-            </View>
-
-            {/* Customer Filter */}
-            <View style={styles.filterSection}>
-              <Text variant="titleMedium" style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>
-                Customer
-              </Text>
-              <Searchbar
-                placeholder="Search customer..."
-                onChangeText={setCustomerFilter}
-                value={customerFilter}
-                style={styles.filterSearch}
-              />
-            </View>
-
-            {/* Date Range Filter */}
-            <View style={styles.filterSection}>
-              <Text variant="titleMedium" style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>
-                Date Range
-              </Text>
-              <View style={styles.dateRangeRow}>
-                <View style={styles.dateInput}>
-                  <Text variant="bodySmall" style={[styles.dateLabel, { color: theme.colors.onSurfaceVariant }]}>
-                    Start Date
-                  </Text>
-                  <Searchbar
-                    placeholder="YYYY-MM-DD"
-                    onChangeText={setDateRangeStart}
-                    value={dateRangeStart}
-                    style={styles.dateInputField}
-                  />
-                </View>
-                <View style={styles.dateInput}>
-                  <Text variant="bodySmall" style={[styles.dateLabel, { color: theme.colors.onSurfaceVariant }]}>
-                    End Date
-                  </Text>
-                  <Searchbar
-                    placeholder="YYYY-MM-DD"
-                    onChangeText={setDateRangeEnd}
-                    value={dateRangeEnd}
-                    style={styles.dateInputField}
-                  />
-                </View>
-              </View>
-            </View>
-
-            {/* Action Buttons */}
-            <View style={styles.modalActions}>
-              <Button
-                mode="outlined"
-                onPress={clearFilters}
-                style={styles.modalActionButton}
-              >
-                Clear All
-              </Button>
-              <Button
-                mode="contained"
-                onPress={() => setShowFilters(false)}
-                style={styles.modalActionButton}
-              >
-                Apply Filters
-              </Button>
-            </View>
-          </ScrollView>
-          </View>
-        </Modal>
-      </Portal>
-
-      {/* Calendar View Placeholder */}
-      {viewMode === 'calendar' && (
-        <Card style={[styles.calendarCard, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content style={styles.calendarContent}>
-            <Ionicons name="calendar-outline" size={48} color={theme.colors.onSurfaceVariant} />
-            <Text variant="titleMedium" style={[styles.calendarText, { color: theme.colors.onSurface }]}>
-              Calendar View
-            </Text>
-            <Text variant="bodyMedium" style={[styles.calendarSubtext, { color: theme.colors.onSurfaceVariant }]}>
-              Calendar view with monthly/daily/weekly options coming soon
-            </Text>
-            <Text variant="bodySmall" style={[styles.calendarSubtext, { color: theme.colors.onSurfaceVariant }]}>
-              Switch to List view to see bookings
-            </Text>
-          </Card.Content>
-        </Card>
-      )}
     </SafeAreaView>
   );
 }
@@ -788,6 +622,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 4,
   },
+  completeButton: {
+    backgroundColor: '#4CAF50',
+  },
   cancelButton: {
     borderColor: '#f44336',
   },
@@ -797,99 +634,17 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  searchRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 8,
-  },
-  filterButton: {
-    marginLeft: 8,
-  },
   viewModeContainer: {
     flexDirection: 'row',
     gap: 8,
+    marginTop: 8,
   },
   viewModeButton: {
     flex: 1,
   },
-  modalContainer: {
-    margin: 20,
-    borderRadius: 12,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  modalTitle: {
-    fontWeight: 'bold',
-  },
-  modalContent: {
-    padding: 16,
-  },
-  filterSection: {
-    marginBottom: 24,
-  },
-  filterSectionTitle: {
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  checkboxLabel: {
-    marginLeft: 8,
-  },
-  filterSearch: {
-    marginTop: 8,
-  },
-  dateRangeRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  dateInput: {
+  calendarContainer: {
     flex: 1,
-  },
-  dateLabel: {
-    marginBottom: 4,
-  },
-  dateInputField: {
-    marginTop: 4,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-  },
-  modalActionButton: {
-    flex: 1,
-  },
-  calendarCard: {
-    margin: 16,
-    borderRadius: 12,
-    elevation: 2,
-  },
-  calendarContent: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  calendarText: {
-    marginTop: 16,
-    marginBottom: 8,
-    fontWeight: '600',
-  },
-  calendarSubtext: {
-    textAlign: 'center',
-    marginTop: 4,
+    width: '100%',
+    minHeight: 600,
   },
 });

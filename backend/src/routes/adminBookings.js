@@ -75,6 +75,16 @@ router.get('/:id', [protect, admin], async (req, res) => {
           description,
           category
         ),
+        service_variants (
+          id,
+          title,
+          description,
+          duration,
+          price,
+          unit_price,
+          unit_measure,
+          pricing_type
+        ),
         mobile_users (
           id,
           first_name,

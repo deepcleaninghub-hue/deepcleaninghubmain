@@ -11,10 +11,8 @@ const router = express.Router();
 // @route   POST /api/auth/login
 // @access  Public
 router.post('/login', [
-  [
-    body('email').isEmail().withMessage('Valid email is required'),
-    body('password').notEmpty().withMessage('Password is required')
-  ]
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').notEmpty().withMessage('Password is required')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -27,6 +25,8 @@ router.post('/login', [
   try {
     const { email, password } = req.body;
 
+    console.log('🔐 Admin login attempt for email:', email);
+
     // Check if admin user exists
     const { data: user, error } = await supabase
       .from('admin_users')
@@ -34,7 +34,16 @@ router.post('/login', [
       .eq('email', email)
       .single();
 
-    if (error || !user) {
+    if (error) {
+      console.error('❌ Database error during login:', error);
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials'
+      });
+    }
+
+    if (!user) {
+      console.log('❌ Admin user not found for email:', email);
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
@@ -43,6 +52,7 @@ router.post('/login', [
 
     // Check if user is active
     if (!user.is_active) {
+      console.log('❌ Admin account is deactivated for email:', email);
       return res.status(401).json({
         success: false,
         error: 'Account is deactivated'
@@ -52,11 +62,14 @@ router.post('/login', [
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log('❌ Invalid password for email:', email);
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
       });
     }
+
+    console.log('✅ Login successful for admin:', user.email);
 
     // Create JWT token
     const token = jwt.sign(
@@ -85,6 +98,8 @@ router.post('/login', [
       }
     });
   } catch (error) {
+    console.error('❌ Login error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       error: 'Server error'
@@ -97,12 +112,10 @@ router.post('/login', [
 // @access  Private/Admin
 router.post('/register', [
   protect,
-  [
-    body('name').notEmpty().withMessage('Name is required'),
-    body('email').isEmail().withMessage('Valid email is required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-    body('role').isIn(['admin', 'super_admin']).withMessage('Invalid role')
-  ]
+  body('name').notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('role').isIn(['admin', 'super_admin']).withMessage('Invalid role')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
