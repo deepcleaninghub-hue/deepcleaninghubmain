@@ -287,7 +287,7 @@ export function BookingListScreen({ navigation }: any) {
             <Button
               mode={viewMode === 'list' ? 'contained' : 'outlined'}
               onPress={() => setViewMode('list')}
-              icon="list"
+              icon="format-list-bulleted"
               style={styles.viewModeButton}
               compact
             >
