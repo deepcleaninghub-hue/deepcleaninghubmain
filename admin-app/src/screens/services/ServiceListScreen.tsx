@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import { Text, useTheme, TextInput, Button, Divider, Portal, Modal, Card, IconButton, FAB } from 'react-native-paper';
+import { Text, useTheme, Button, Divider, Portal, Modal, Card, IconButton, FAB } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { AdminService } from '@/types';
@@ -146,22 +146,6 @@ export function ServiceListScreen({ navigation }: any) {
         </Text>
       </View>
       
-      {/* Fixed Search Bar */}
-      <View style={[styles.searchContainer, { backgroundColor: theme.colors.background }]}>
-        <TextInput
-          mode="outlined"
-          placeholder="Search services..."
-          style={[styles.searchInput, { backgroundColor: theme.colors.surface }]}
-          left={<TextInput.Icon icon="magnify" color={theme.colors.onSurfaceVariant} />}
-          outlineColor={theme.colors.outline}
-          activeOutlineColor={theme.colors.primary}
-          textColor={theme.colors.onSurface}
-          placeholderTextColor={theme.colors.onSurfaceVariant}
-          returnKeyType="done"
-          blurOnSubmit={true}
-        />
-      </View>
-        
       <ScrollView 
         style={styles.scrollView} 
         showsVerticalScrollIndicator={false}
@@ -380,8 +364,8 @@ export function ServiceListScreen({ navigation }: any) {
               <View style={styles.modalEmptyContainer}>
                 <Text style={[styles.modalEmptyText, { color: theme.colors.onSurfaceVariant }]}>
                   No variants available for this service.
-                </Text>
-              </View>
+        </Text>
+      </View>
             ) : (
               variants.map((variant) => (
                 <Card key={variant.id} style={[styles.variantCard, { backgroundColor: theme.colors.surface }]}>
@@ -428,24 +412,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-  },
-  searchContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  searchInput: {
-    borderRadius: 16,
-    elevation: 2,
   },
   scrollView: {
     flex: 1,
