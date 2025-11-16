@@ -157,16 +157,22 @@ class AdminDataService {
     }
   }
 
-  // Create service booking
+  // Create service booking (using same endpoint as shared app)
   async createBooking(bookingData: any): Promise<AdminApiResponse<any>> {
     try {
+      console.log('Sending booking data to API:', JSON.stringify(bookingData, null, 2));
+      // Use the same endpoint as shared app (/service-bookings) which accepts the full booking data format
       const res = await httpClient.post<AdminApiResponse<any>>('/service-bookings', bookingData);
+      console.log('Booking creation response:', res.data);
       return res.data;
     } catch (error: any) {
       console.error('Error creating booking:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      console.error('Error message:', error.message);
       return {
         success: false,
-        error: error.response?.data?.error || error.message || 'Failed to create booking',
+        error: error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to create booking',
       };
     }
   }

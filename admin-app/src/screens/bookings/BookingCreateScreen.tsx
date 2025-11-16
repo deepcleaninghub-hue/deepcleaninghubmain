@@ -4,12 +4,16 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
+  Platform,
+  TouchableWithoutFeedback,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text, Card, Button, TextInput, useTheme, Divider, Switch, Menu, Searchbar, Portal } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MultiDateSelector from '../../../../shared/src/components/MultiDateSelector';
 import { BookingDate } from '../../../../shared/src/types';
 import { useAdminData } from '@/contexts/AdminDataContext';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { adminDataService } from '@/services/adminDataService';
 import { AdminService, AdminBooking } from '@/types';
 import { buildBookingData } from './bookingDataBuilder';
@@ -49,9 +53,23 @@ interface Customer {
   phone?: string;
 }
 
+// Helper functions for initial date and time
+const getInitialDate = () => {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return now;
+};
+
+const getInitialTime = () => {
+  const now = new Date();
+  const futureTime = new Date(now.getTime() + 60 * 60 * 1000); // Add 1 hour
+  return futureTime;
+};
+
 export function BookingCreateScreen({ navigation }: any) {
   const theme = useTheme();
   const { services } = useAdminData();
+  const { signOut } = useAdminAuth();
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
@@ -80,6 +98,14 @@ export function BookingCreateScreen({ navigation }: any) {
   const [distance, setDistance] = useState('');
   const [numberOfBoxes, setNumberOfBoxes] = useState('');
   
+  // Date and time picker state
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  // Initialize with current date and time + 1 hour to ensure it's in the future
+  const [selectedDate, setSelectedDate] = useState<Date>(getInitialDate());
+  const [selectedTime, setSelectedTime] = useState<Date>(getInitialTime());
+  
+  // Formatted date and time strings for backend
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [serviceAddress, setServiceAddress] = useState('');
@@ -254,6 +280,102 @@ export function BookingCreateScreen({ navigation }: any) {
     }
   };
 
+  // Date picker handlers
+  const handleDateChange = (event: any, pickedDate?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+    if (pickedDate) {
+      // Ensure the date is today or later
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const pickedDateOnly = new Date(pickedDate);
+      pickedDateOnly.setHours(0, 0, 0, 0);
+      
+      if (pickedDateOnly < today) {
+        Alert.alert('Invalid Date', 'Please select a date from today onwards');
+        return;
+      }
+      
+      setSelectedDate(pickedDate);
+      // Format date as YYYY-MM-DD
+      const formattedDate = pickedDate.toISOString().split('T')[0] || '';
+      setDate(formattedDate);
+      
+      // If the selected date is today, reset time to current time + 1 hour to ensure it's in the future
+      if (pickedDateOnly.getTime() === today.getTime()) {
+        const now = new Date();
+        const futureTime = new Date(now.getTime() + 60 * 60 * 1000); // Add 1 hour
+        setSelectedTime(futureTime);
+        const formattedTime = futureTime.toTimeString().split(' ')[0]?.substring(0, 5) || '09:00';
+        setTime(formattedTime);
+      }
+    }
+  };
+
+  const handleTimeChange = (event: any, pickedTime?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowTimePicker(false);
+    }
+    if (pickedTime) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDateOnly = new Date(selectedDate);
+      selectedDateOnly.setHours(0, 0, 0, 0);
+      
+      // If the selected date is today, ensure the time is in the future
+      if (selectedDateOnly.getTime() === today.getTime()) {
+        const now = new Date();
+        const pickedDateTime = new Date(pickedTime);
+        pickedDateTime.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        if (pickedDateTime <= now) {
+          Alert.alert('Invalid Time', 'Please select a time after the current time');
+          return;
+        }
+      }
+      
+      setSelectedTime(pickedTime);
+      // Format time as HH:MM
+      const formattedTime = pickedTime.toTimeString().split(' ')[0]?.substring(0, 5) || '09:00';
+      setTime(formattedTime);
+    }
+  };
+
+  const handleDateConfirm = () => {
+    setShowDatePicker(false);
+  };
+
+  const handleTimeConfirm = () => {
+    setShowTimePicker(false);
+  };
+
+  // Format date for display
+  const formatDisplayDate = (date: Date): string => {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Format time for display
+  const formatDisplayTime = (time: Date): string => {
+    return time.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  };
+
+  // Initialize date and time strings on mount
+  useEffect(() => {
+    const initialDate = getInitialDate();
+    const initialTime = getInitialTime();
+    setDate(initialDate.toISOString().split('T')[0] || '');
+    setTime(initialTime.toTimeString().split(' ')[0]?.substring(0, 5) || '09:00');
+  }, []);
+
   // Load customers on mount
   useEffect(() => {
     loadCustomers();
@@ -289,7 +411,22 @@ export function BookingCreateScreen({ navigation }: any) {
       }>();
 
       bookings.forEach((booking: AdminBooking) => {
-        const customerId = booking.user_id || booking.customer_email || 'unknown';
+        // Only use user_id if it exists and is a valid UUID format
+        // Don't fall back to email as it's not a valid user_id
+        const customerId = booking.user_id;
+        
+        // Skip bookings without a valid user_id
+        if (!customerId || customerId === 'unknown') {
+          console.warn('Skipping booking without valid user_id:', booking.id);
+          return;
+        }
+        
+        // Validate UUID format (basic check)
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(customerId)) {
+          console.warn('Skipping booking with invalid user_id format:', customerId);
+          return;
+        }
         
         if (!customerMap.has(customerId)) {
           customerMap.set(customerId, {
@@ -313,7 +450,7 @@ export function BookingCreateScreen({ navigation }: any) {
           : firstBooking.customer_name || 'Customer';
         
         customerList.push({
-          id,
+          id, // This is now guaranteed to be a valid UUID
           name,
           email: user?.email || firstBooking.customer_email || '',
           phone: user?.phone || firstBooking.customer_phone || '',
@@ -414,8 +551,8 @@ export function BookingCreateScreen({ navigation }: any) {
       }
     } else {
       if (!date || !time) {
-        Alert.alert('Error', 'Please select service date and time');
-        return;
+      Alert.alert('Error', 'Please select service date and time');
+      return;
       }
     }
 
@@ -427,8 +564,21 @@ export function BookingCreateScreen({ navigation }: any) {
     setIsCreating(true);
 
     try {
-      // Build booking data matching shared app format
-      const bookingData = buildBookingData({
+      // Validate that customer ID is a valid UUID before sending
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(selectedCustomer.id)) {
+        Alert.alert(
+          'Invalid Customer',
+          'The selected customer does not have a valid user ID. Please select a different customer or ensure the customer has a valid account.',
+        );
+        setIsCreating(false);
+        return;
+      }
+
+      // Build booking data using the same format as shared app
+      // This includes all the additional fields like user_inputs, service_variant_data, etc.
+      // The buildBookingData function handles all the complex logic including duration parsing
+      const sharedAppBookingData = buildBookingData({
         customer: {
           id: selectedCustomer.id,
           name: selectedCustomer.name,
@@ -453,8 +603,12 @@ export function BookingCreateScreen({ navigation }: any) {
         ...(notes.trim() && { notes: notes.trim() }),
       });
 
-      // Create booking via API
-      const response = await adminDataService.createBooking(bookingData);
+      // Log the data being sent for debugging
+      console.log('Booking Data (Shared App Format):', JSON.stringify(sharedAppBookingData, null, 2));
+
+      // Create booking via API using the same endpoint as shared app
+      // This endpoint expects the full booking data format with all fields
+      const response = await adminDataService.createBooking(sharedAppBookingData);
 
       if (response.success) {
         Alert.alert('Success', 'Booking created successfully', [
@@ -464,11 +618,59 @@ export function BookingCreateScreen({ navigation }: any) {
           },
         ]);
       } else {
-        Alert.alert('Error', response.error || 'Failed to create booking');
+        // Check if it's an authentication error
+        const errorMessage = response.error || 'Failed to create booking';
+        console.error('Booking creation failed:', errorMessage);
+        
+        if (errorMessage.includes('401') || errorMessage.includes('unauthorized') || errorMessage.includes('token')) {
+          Alert.alert(
+            'Session Expired',
+            'Your session has expired. Please log in again to continue.',
+            [
+              {
+                text: 'OK',
+                onPress: async () => {
+                  await signOut();
+                  navigation.navigate('Login');
+                },
+              },
+            ]
+          );
+        } else {
+          Alert.alert('Error', `Failed to create booking: ${errorMessage}`);
+        }
       }
     } catch (error: any) {
       console.error('Error creating booking:', error);
-      Alert.alert('Error', error.message || 'Failed to create booking');
+      console.error('Full error details:', {
+        message: error?.message,
+        response: error?.response?.data,
+        status: error?.response?.status,
+      });
+      
+      // Check if it's an authentication error
+      const errorMessage = error?.response?.data?.error || error?.response?.data?.message || error?.message || 'Failed to create booking';
+      const statusCode = error?.response?.status;
+      
+      if (statusCode === 401 || errorMessage.toLowerCase().includes('unauthorized') || errorMessage.toLowerCase().includes('token')) {
+        Alert.alert(
+          'Session Expired',
+          'Your session has expired. Please log in again to continue.',
+          [
+            {
+              text: 'OK',
+              onPress: async () => {
+                await signOut();
+                navigation.navigate('Login');
+              },
+            },
+          ]
+        );
+      } else {
+        // Show detailed error message
+        const detailedError = error?.response?.data?.error || error?.response?.data?.message || errorMessage;
+        Alert.alert('Error', `Failed to create booking:\n\n${detailedError}`);
+      }
     } finally {
       setIsCreating(false);
     }
@@ -702,8 +904,8 @@ export function BookingCreateScreen({ navigation }: any) {
                       <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
                         Quantity:
                       </Text>
-                      <TextInput
-                        mode="outlined"
+            <TextInput
+              mode="outlined"
                         value={variantQuantity}
                         onChangeText={handleQuantityChange}
                         placeholder="Enter quantity"
@@ -725,13 +927,13 @@ export function BookingCreateScreen({ navigation }: any) {
                       <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
                         {selectedServiceVariant.unitMeasure || 'Measurement'}:
                       </Text>
-                      <TextInput
+            <TextInput
                         mode="outlined"
                         value={variantMeasurement}
                         onChangeText={handleMeasurementChange}
                         placeholder={selectedServiceVariant.measurementPlaceholder || `Enter ${selectedServiceVariant.unitMeasure || 'measurement'}`}
                         keyboardType="decimal-pad"
-                        style={styles.input}
+              style={styles.input}
                         error={
                           variantMeasurement !== '' ? (
                             isNaN(parseFloat(variantMeasurement)) ||
@@ -768,7 +970,7 @@ export function BookingCreateScreen({ navigation }: any) {
                         Distance (km) *:
                       </Text>
                       <TextInput
-                        mode="outlined"
+              mode="outlined"
                         value={distance}
                         onChangeText={handleDistanceChange}
                         placeholder="Enter distance in kilometers"
@@ -779,7 +981,7 @@ export function BookingCreateScreen({ navigation }: any) {
                       
                       <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface, marginTop: 16 }]}>
                         Number of Boxes (Optional):
-                      </Text>
+              </Text>
                       <TextInput
                         mode="outlined"
                         value={numberOfBoxes}
@@ -788,8 +990,8 @@ export function BookingCreateScreen({ navigation }: any) {
                         keyboardType="number-pad"
                         style={styles.input}
                         error={numberOfBoxes !== '' && (isNaN(parseInt(numberOfBoxes)) || parseInt(numberOfBoxes) < 0)}
-                      />
-                    </View>
+              />
+            </View>
                   )}
 
                   {/* Price Calculation Display */}
@@ -885,26 +1087,117 @@ export function BookingCreateScreen({ navigation }: any) {
               </>
             ) : (
               <>
-                <TextInput
-                  label="Date (YYYY-MM-DD) *"
-                  value={date}
-                  onChangeText={setDate}
-                  style={styles.input}
+                <View style={styles.dateTimeContainer}>
+                  <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
+                    Service Date *
+                  </Text>
+                  <Button
                   mode="outlined"
-                  placeholder="2024-01-15"
-                />
+                    onPress={() => setShowDatePicker(true)}
+                    style={styles.dateTimeButton}
+                    contentStyle={styles.dateTimeButtonContent}
+                    icon="calendar"
+                  >
+                    {date ? formatDisplayDate(selectedDate) : 'Select Date'}
+                  </Button>
+                </View>
                 
-                <TextInput
-                  label="Time (HH:MM) *"
-                  value={time}
-                  onChangeText={setTime}
-                  style={styles.input}
+                <View style={styles.dateTimeContainer}>
+                  <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
+                    Service Time *
+                  </Text>
+                  <Button
                   mode="outlined"
-                  placeholder="14:30"
-                />
+                    onPress={() => setShowTimePicker(true)}
+                    style={styles.dateTimeButton}
+                    contentStyle={styles.dateTimeButtonContent}
+                    icon="clock-outline"
+                  >
+                    {time ? formatDisplayTime(selectedTime) : 'Select Time'}
+                  </Button>
+                </View>
+
+                {/* Date Picker Modal */}
+                {showDatePicker && (
+                  <TouchableWithoutFeedback onPress={() => setShowDatePicker(false)}>
+                    <View style={styles.modalOverlay}>
+                      <TouchableWithoutFeedback onPress={() => {}}>
+                        <View style={styles.pickerContainer}>
+                          <Text variant="titleMedium" style={[styles.pickerTitle, { color: theme.colors.onSurface }]}>
+                            Select Date
+                          </Text>
+                          <DateTimePicker
+                            value={selectedDate}
+                            mode="date"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            onChange={handleDateChange}
+                            minimumDate={new Date()}
+                          />
+                          {Platform.OS === 'ios' && (
+                            <View style={styles.pickerButtons}>
+                              <Button
+                  mode="outlined"
+                                onPress={() => setShowDatePicker(false)}
+                                style={styles.pickerButton}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                mode="contained"
+                                onPress={handleDateConfirm}
+                                style={styles.pickerButton}
+                              >
+                                OK
+                              </Button>
+                            </View>
+                          )}
+                        </View>
+                      </TouchableWithoutFeedback>
+                    </View>
+                  </TouchableWithoutFeedback>
+                )}
+
+                {/* Time Picker Modal */}
+                {showTimePicker && (
+                  <TouchableWithoutFeedback onPress={() => setShowTimePicker(false)}>
+                    <View style={styles.modalOverlay}>
+                      <TouchableWithoutFeedback onPress={() => {}}>
+                        <View style={styles.pickerContainer}>
+                          <Text variant="titleMedium" style={[styles.pickerTitle, { color: theme.colors.onSurface }]}>
+                            Select Time
+                          </Text>
+                          <DateTimePicker
+                            value={selectedTime}
+                            mode="time"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            onChange={handleTimeChange}
+                          />
+                          {Platform.OS === 'ios' && (
+                            <View style={styles.pickerButtons}>
+                              <Button
+                                mode="outlined"
+                                onPress={() => setShowTimePicker(false)}
+                                style={styles.pickerButton}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                mode="contained"
+                                onPress={handleTimeConfirm}
+                                style={styles.pickerButton}
+                              >
+                                OK
+                              </Button>
+                            </View>
+                          )}
+                        </View>
+                      </TouchableWithoutFeedback>
+                    </View>
+                  </TouchableWithoutFeedback>
+                )}
               </>
             )}
-
+            
             <TextInput
               label="Service Address *"
               value={serviceAddress}
@@ -1110,5 +1403,52 @@ const styles = StyleSheet.create({
   totalPriceLabel: {
     fontWeight: '700',
     fontSize: 18,
+  },
+  dateTimeContainer: {
+    marginBottom: 16,
+  },
+  dateTimeButton: {
+    width: '100%',
+  },
+  dateTimeButtonContent: {
+    justifyContent: 'flex-start',
+    paddingVertical: 8,
+  },
+  pickerContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    marginHorizontal: 20,
+    maxWidth: 400,
+    width: '90%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  pickerTitle: {
+    marginBottom: 16,
+    fontWeight: '600',
+  },
+  pickerButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 16,
+    gap: 12,
+  },
+  pickerButton: {
+    minWidth: 80,
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
   },
 });

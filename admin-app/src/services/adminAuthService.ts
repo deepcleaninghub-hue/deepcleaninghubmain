@@ -172,7 +172,7 @@ export const adminAuthService = {
 
   async refreshToken(): Promise<AdminApiResponse<SignInResponse>> {
     try {
-      const response = await httpClient.post('/admin/auth/refresh');
+      const response = await httpClient.post('/auth/refresh');
       return response.data;
     } catch (error) {
       console.error('Refresh token error:', error);

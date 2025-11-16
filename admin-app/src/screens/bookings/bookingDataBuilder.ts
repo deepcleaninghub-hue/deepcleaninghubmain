@@ -205,9 +205,56 @@ export function buildBookingData(input: BuildBookingDataInput): CreateServiceBoo
         bookingTime = time;
     }
 
-    // Calculate duration
-    const durationMinutes = variant.duration ? variant.duration * 60 : 120; // Default 2 hours
-    const durationHours = variant.duration || 2;
+    // Calculate duration - handle both number and string formats
+    // Helper function to parse duration string
+    const parseDuration = (duration: any): number | null => {
+        if (duration === undefined || duration === null) {
+            return null;
+        }
+
+        // If it's already a number, return it
+        if (typeof duration === 'number' && !isNaN(duration) && duration > 0) {
+            return duration;
+        }
+
+        // If it's a string, try to parse it
+        if (typeof duration === 'string') {
+            const str = duration.trim().toLowerCase();
+
+            // Handle ranges like "4-10 hours" or "2-5 hours"
+            const rangeMatch = str.match(/(\d+)\s*-\s*(\d+)\s*(hour|hours|minute|minutes|min|mins|h|m)/);
+            if (rangeMatch && rangeMatch[1] && rangeMatch[2] && rangeMatch[3]) {
+                const min = parseInt(rangeMatch[1], 10);
+                const max = parseInt(rangeMatch[2], 10);
+                const unit = rangeMatch[3];
+                // Use the average of the range
+                const avg = Math.round((min + max) / 2);
+                return unit.startsWith('h') ? avg : avg / 60; // Return in hours
+            }
+
+            // Handle single values like "4 hours", "120 minutes", "2h", "30m"
+            const singleMatch = str.match(/(\d+)\s*(hour|hours|minute|minutes|min|mins|h|m)/);
+            if (singleMatch && singleMatch[1] && singleMatch[2]) {
+                const value = parseInt(singleMatch[1], 10);
+                const unit = singleMatch[2];
+                return unit.startsWith('h') ? value : value / 60; // Return in hours
+            }
+
+            // Try to parse as a plain number
+            const numValue = parseFloat(str);
+            if (!isNaN(numValue) && numValue > 0) {
+                // If less than 10, assume hours; otherwise assume minutes
+                return numValue < 10 ? numValue : numValue / 60; // Return in hours
+            }
+        }
+
+        return null;
+    };
+
+    // Parse duration from variant
+    const parsedDurationHours = parseDuration(variant.duration);
+    const durationHours = parsedDurationHours !== null ? parsedDurationHours : 2; // Default 2 hours
+    const durationMinutes = Math.round(durationHours * 60);
 
     // Calculate total amount and related fields
     let totalAmount = 0;
@@ -336,7 +383,9 @@ export function buildBookingData(input: BuildBookingDataInput): CreateServiceBoo
         : null;
 
     // Construct the booking data
-    const bookingData: CreateServiceBookingData = {
+    // Note: user_id is included for admin bookings (when admin creates booking for a customer)
+    // For regular user bookings, the backend will use req.user.id
+    const bookingData: CreateServiceBookingData & { user_id?: string } = {
         service_id: variant.id,
         booking_date: bookingDate,
         booking_time: bookingTime,
@@ -344,9 +393,9 @@ export function buildBookingData(input: BuildBookingDataInput): CreateServiceBoo
         duration_minutes: durationMinutes,
         customer_name: customer.name,
         customer_email: customer.email,
-        customer_phone: customer.phone,
+        ...(customer.phone && { customer_phone: customer.phone }),
         service_address: serviceAddress,
-        special_instructions: notes || null,
+        ...(notes && { special_instructions: notes }),
         total_amount: totalAmount,
         payment_method: 'pending',
         user_inputs: userInputs,
@@ -371,6 +420,8 @@ export function buildBookingData(input: BuildBookingDataInput): CreateServiceBoo
         pricing_type: pricingType,
         selected_dates: selectedDatesData,
         is_multi_day_booking: isMultiDay,
+        // Include user_id for admin bookings (customer's ID)
+        user_id: customer.id,
     };
 
     return bookingData;

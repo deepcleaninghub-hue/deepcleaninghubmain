@@ -460,11 +460,26 @@ router.post('/refresh', protect, async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
+    // Return admin data along with token to match frontend expectations
     res.json({
       success: true,
-      data: { token }
+      data: {
+        admin: {
+          id: req.user.id,
+          name: req.user.name,
+          email: req.user.email,
+          role: req.user.role,
+          is_active: req.user.is_active,
+          last_login: req.user.last_login,
+          created_at: req.user.created_at,
+          updated_at: req.user.updated_at,
+          permissions: req.user.permissions || []
+        },
+        token
+      }
     });
   } catch (error) {
+    console.error('Refresh token error:', error);
     res.status(500).json({
       success: false,
       error: 'Server error'

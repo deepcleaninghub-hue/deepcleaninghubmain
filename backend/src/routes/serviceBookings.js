@@ -36,7 +36,7 @@ router.get('/test', async (req, res) => {
 });
 
 
-// Middleware to verify JWT token and get user
+// Middleware to verify JWT token and get user (supports both mobile users and admin users)
 const verifyToken = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
@@ -44,11 +44,34 @@ const verifyToken = async (req, res, next) => {
       return res.status(401).json({ error: 'No token provided' });
     }
 
-    // Verify JWT token and get user from mobile_users table
+    // Verify JWT token
     const jwt = require('jsonwebtoken');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
 
-    // Get user from mobile_users table
+    // Try to get user from admin_users table first (for admin tokens)
+    // This allows admin users to create bookings for customers
+    const { data: adminUser, error: adminError } = await supabase
+      .from('admin_users')
+      .select('id, email, name, role, is_active')
+      .eq('id', decoded.id)
+      .eq('is_active', true)
+      .single();
+
+    if (adminUser && !adminError) {
+      // Admin user found - set as user with is_admin flag
+      req.user = {
+        id: adminUser.id,
+        email: adminUser.email,
+        first_name: adminUser.name?.split(' ')[0] || '',
+        last_name: adminUser.name?.split(' ').slice(1).join(' ') || '',
+        is_admin: true,
+        role: adminUser.role,
+      };
+      return next();
+    }
+
+    // If not admin, try to get user from mobile_users table (regular user flow)
+    // This maintains backward compatibility - regular users work exactly as before
     const { data: user, error } = await supabase
       .from('mobile_users')
       .select('id, email, first_name, last_name, phone, address, city, state, postal_code, country, date_of_birth, gender, profile_completion_percentage, is_active')
@@ -60,6 +83,8 @@ const verifyToken = async (req, res, next) => {
       return res.status(401).json({ error: 'Invalid token or user not found' });
     }
 
+    // Regular user - set user object (without is_admin property)
+    // This ensures req.user.is_admin is undefined for regular users
     req.user = user;
     next();
   } catch (error) {
@@ -406,8 +431,17 @@ router.post('/', [
       unit_price,
       pricing_type = 'fixed',
       selected_dates,
-      is_multi_day_booking = false
+      is_multi_day_booking = false,
+      // For admin bookings - customer's user_id
+      user_id
     } = req.body;
+
+    // Determine the user_id to use for the booking
+    // - For admin users: If user_id is provided in request body, use that (customer's ID)
+    //   Otherwise, use admin's ID (though this shouldn't happen for admin bookings)
+    // - For regular users: Always use req.user.id (the authenticated user's ID)
+    //   Regular users don't send user_id in request body, and req.user.is_admin is undefined
+    const bookingUserId = (req.user.is_admin === true && user_id) ? user_id : req.user.id;
 
 
     // Determine if this is a multi-day booking
@@ -493,7 +527,7 @@ router.post('/', [
           const { data: booking, error: bookingError } = await supabase
             .from('service_bookings')
             .insert({
-              user_id: req.user.id,
+              user_id: bookingUserId,
               service_id: serviceVariant.services.id,
               service_variant_id: service_id,
               booking_date: dateInfo.date,
@@ -650,7 +684,7 @@ router.post('/', [
     } else {
       // Single day booking - create normally
       const bookingData = {
-        user_id: req.user.id,
+        user_id: bookingUserId,
         service_id: serviceVariant.services.id,
         service_variant_id: service_id,
         booking_date: datesToProcess[0].date,
