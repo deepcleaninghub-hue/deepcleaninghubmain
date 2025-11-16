@@ -280,7 +280,6 @@ router.get('/admin/me', protect, async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone || '',
-        address: user.address || '',
         role: user.role,
         is_active: user.is_active,
         last_login: user.last_login,
@@ -320,15 +319,6 @@ router.put('/admin/me', [
       const phoneStr = String(value).trim();
       if (phoneStr.length > 0 && phoneStr.length < 10) {
         throw new Error('Phone number must be at least 10 characters');
-      }
-    }
-    return true;
-  }),
-  body('address').optional().custom((value) => {
-    if (value !== undefined && value !== null && value !== '') {
-      const addressStr = String(value).trim();
-      if (addressStr.length > 0 && addressStr.length < 5) {
-        throw new Error('Address must be at least 5 characters');
       }
     }
     return true;
@@ -374,10 +364,6 @@ router.put('/admin/me', [
       const trimmedPhone = String(req.body.phone).trim();
       updateData.phone = trimmedPhone !== '' ? trimmedPhone : null;
     }
-    if (req.body.address !== undefined && req.body.address !== null) {
-      const trimmedAddress = String(req.body.address).trim();
-      updateData.address = trimmedAddress !== '' ? trimmedAddress : null;
-    }
 
     // Ensure at least one field is being updated (besides updated_at)
     const fieldsToUpdate = Object.keys(updateData).filter(key => key !== 'updated_at');
@@ -412,7 +398,7 @@ router.put('/admin/me', [
       .from('admin_users')
       .update(updateData)
       .eq('id', req.user.id)
-      .select('id, name, email, phone, address, role, is_active, last_login, created_at, updated_at')
+      .select('id, name, email, phone, role, is_active, last_login, created_at, updated_at')
       .single();
 
     if (error) {
@@ -437,7 +423,6 @@ router.put('/admin/me', [
         name: updatedUser.name,
         email: updatedUser.email,
         phone: updatedUser.phone || '',
-        address: updatedUser.address || '',
         role: updatedUser.role,
         is_active: updatedUser.is_active,
         last_login: updatedUser.last_login,

@@ -22,7 +22,6 @@ export function EditProfileScreen({ navigation }: any) {
     name: admin?.name || '',
     email: admin?.email || '',
     phone: admin?.phone || '',
-    address: admin?.address || '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -34,14 +33,12 @@ export function EditProfileScreen({ navigation }: any) {
         name: admin.name || '',
         email: admin.email || '',
         phone: admin.phone || '',
-        address: admin.address || '',
       });
     }
   }, [admin]);
 
   const emailRef = useRef<any>(null);
   const phoneRef = useRef<any>(null);
-  const addressRef = useRef<any>(null);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -92,7 +89,6 @@ export function EditProfileScreen({ navigation }: any) {
       if (formData.name !== (admin?.name || '')) changedFields.name = formData.name;
       if (formData.email !== (admin?.email || '')) changedFields.email = formData.email;
       if (formData.phone !== (admin?.phone || '')) changedFields.phone = formData.phone;
-      if (formData.address !== (admin?.address || '')) changedFields.address = formData.address;
 
       if (Object.keys(changedFields).length === 0) {
         Alert.alert('No Changes', 'No changes were made to your profile.');
@@ -217,9 +213,8 @@ export function EditProfileScreen({ navigation }: any) {
               error={!!errors.phone}
               mode="outlined"
               keyboardType="phone-pad"
-              returnKeyType="next"
-              blurOnSubmit={false}
-              onSubmitEditing={() => addressRef.current?.focus()}
+              returnKeyType="done"
+              blurOnSubmit={true}
               left={<TextInput.Icon icon="phone" />}
             />
             {errors.phone && (
@@ -227,20 +222,6 @@ export function EditProfileScreen({ navigation }: any) {
                 {errors.phone}
               </Text>
             )}
-
-            <TextInput
-              ref={addressRef}
-              label="Address"
-              value={formData.address}
-              onChangeText={(text) => handleInputChange('address', text)}
-              style={styles.input}
-              mode="outlined"
-              multiline
-              numberOfLines={3}
-              returnKeyType="done"
-              blurOnSubmit={true}
-              left={<TextInput.Icon icon="map-marker" />}
-            />
           </Card.Content>
         </Card>
 

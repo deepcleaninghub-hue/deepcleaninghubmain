@@ -297,16 +297,6 @@ export function ProfileScreen({ navigation }: any) {
                 </Text>
               </View>
               
-              {admin.address && (
-                <View style={styles.infoRow}>
-                  <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                    Address
-                  </Text>
-                  <Text variant="bodySmall" style={[styles.infoValue, { color: theme.colors.onSurface, flex: 1, textAlign: 'right' }]}>
-                    {admin.address}
-                  </Text>
-                </View>
-              )}
               
               <View style={styles.infoRow}>
                 <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
