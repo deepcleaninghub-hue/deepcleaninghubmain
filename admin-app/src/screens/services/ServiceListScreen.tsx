@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import { Text, useTheme, TextInput, Button, Divider, Portal, Modal, Card, IconButton } from 'react-native-paper';
+import { Text, useTheme, TextInput, Button, Divider, Portal, Modal, Card, IconButton, FAB } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { AdminService } from '@/types';
@@ -90,13 +90,19 @@ export function ServiceListScreen({ navigation }: any) {
   };
 
   const handleServiceCardPress = (category: typeof mainServiceCategories[0]) => {
-    setSelectedCategory(category.category);
+    navigation.navigate('ServiceCategory', {
+      categoryId: category.id,
+      categoryTitle: category.category,
+    });
   };
 
   const handleServicePress = async (service: AdminService) => {
-    setSelectedService(service);
-    setVariantModalVisible(true);
-    await fetchServiceVariants(service.id);
+    // Navigate to ServiceVariants screen
+    navigation.navigate('ServiceVariants', { serviceId: service.id });
+  };
+
+  const handleEditService = (service: AdminService) => {
+    navigation.navigate('ServiceEdit', { serviceId: service.id });
   };
 
   const fetchServiceVariants = async (serviceId: string) => {
@@ -282,9 +288,18 @@ export function ServiceListScreen({ navigation }: any) {
                     )}
                   </View>
                   <View style={styles.serviceContent}>
-                    <Text variant="titleMedium" style={[styles.serviceTitle, { color: theme.colors.onSurface }]}>
-                      {service.title}
-                    </Text>
+                    <View style={styles.serviceHeader}>
+                      <Text variant="titleMedium" style={[styles.serviceTitle, { color: theme.colors.onSurface, flex: 1 }]}>
+                        {service.title}
+                      </Text>
+                      <IconButton
+                        icon="pencil"
+                        size={20}
+                        iconColor={theme.colors.primary}
+                        onPress={() => handleEditService(service)}
+                        style={styles.editButton}
+                      />
+                    </View>
                     {service.description && (
                       <Text 
                         variant="bodySmall" 
@@ -360,6 +375,14 @@ export function ServiceListScreen({ navigation }: any) {
           </ScrollView>
         </View>
       </ScrollView>
+
+      {/* FAB for creating new service */}
+      <FAB
+        icon="plus"
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        onPress={() => navigation.navigate('ServiceCreate')}
+        label="Add Service"
+      />
 
       {/* Service Variant Modal */}
       <Portal>
@@ -734,5 +757,19 @@ const styles = StyleSheet.create({
   },
   variantDuration: {
     fontSize: 12,
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+  },
+  serviceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  editButton: {
+    margin: 0,
   },
 });

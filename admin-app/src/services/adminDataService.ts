@@ -27,6 +27,87 @@ class AdminDataService {
     }
   }
 
+  async getService(id: string): Promise<AdminApiResponse<AdminService>> {
+    try {
+      const res = await httpClient.get<AdminApiResponse<AdminService>>(`/services/${id}`);
+      return res.data;
+    } catch (error) {
+      console.error('Error fetching service:', error);
+      return { success: false, error: 'Failed to fetch service' };
+    }
+  }
+
+  async createService(service: Partial<AdminService>): Promise<AdminApiResponse<AdminService>> {
+    try {
+      const res = await httpClient.post<AdminApiResponse<AdminService>>('/services', service);
+      return res.data;
+    } catch (error) {
+      console.error('Error creating service:', error);
+      return { success: false, error: 'Failed to create service' };
+    }
+  }
+
+  async updateService(id: string, updates: Partial<AdminService>): Promise<AdminApiResponse<AdminService>> {
+    try {
+      const res = await httpClient.put<AdminApiResponse<AdminService>>(`/services/${id}`, updates);
+      return res.data;
+    } catch (error) {
+      console.error('Error updating service:', error);
+      return { success: false, error: 'Failed to update service' };
+    }
+  }
+
+  async deleteService(id: string): Promise<AdminApiResponse> {
+    try {
+      const res = await httpClient.delete<AdminApiResponse>(`/services/${id}`);
+      return res.data;
+    } catch (error) {
+      console.error('Error deleting service:', error);
+      return { success: false, error: 'Failed to delete service' };
+    }
+  }
+
+  // Service Variant Management
+  async getServiceVariants(serviceId: string): Promise<AdminApiResponse<any[]>> {
+    try {
+      const res = await httpClient.get<AdminApiResponse<any[]>>(`/service-variants?service_id=${serviceId}`);
+      return res.data;
+    } catch (error) {
+      console.error('Error fetching service variants:', error);
+      return { success: false, error: 'Failed to fetch service variants' };
+    }
+  }
+
+  async createServiceVariant(variant: any): Promise<AdminApiResponse<any>> {
+    try {
+      const res = await httpClient.post<AdminApiResponse<any>>('/service-variants', variant);
+      return res.data;
+    } catch (error) {
+      console.error('Error creating service variant:', error);
+      return { success: false, error: 'Failed to create service variant' };
+    }
+  }
+
+  async updateServiceVariant(id: string, updates: any): Promise<AdminApiResponse<any>> {
+    try {
+      const res = await httpClient.put<AdminApiResponse<any>>(`/service-variants/${id}`, updates);
+      return res.data;
+    } catch (error) {
+      console.error('Error updating service variant:', error);
+      return { success: false, error: 'Failed to update service variant' };
+    }
+  }
+
+  async deleteServiceVariant(id: string): Promise<AdminApiResponse> {
+    try {
+      const res = await httpClient.delete<AdminApiResponse>(`/service-variants/${id}`);
+      return res.data;
+    } catch (error) {
+      console.error('Error deleting service variant:', error);
+      return { success: false, error: 'Failed to delete service variant' };
+    }
+  }
+
   async getBooking(id: string): Promise<AdminApiResponse<AdminBooking>> {
     try {
       const res = await httpClient.get<AdminApiResponse<AdminBooking>>(`/admin/bookings/${id}`);

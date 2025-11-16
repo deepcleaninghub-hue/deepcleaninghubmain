@@ -2,9 +2,11 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 
+import { DashboardNavigator } from './DashboardNavigator';
 import { BookingNavigator } from './BookingNavigator';
+import { CustomerNavigator } from './CustomerNavigator';
 import { ServiceNavigator } from './ServiceNavigator';
-import { ProfileScreen } from '@/screens/profile/ProfileScreen';
+import { ProfileNavigator } from './ProfileNavigator';
 import { Icon } from '@/components/common/Icon';
 
 import { AdminMainTabParamList } from '@/types';
@@ -33,12 +35,32 @@ export function MainNavigator() {
       }}
     >
       <Tab.Screen
+        name="Dashboard"
+        component={DashboardNavigator}
+        options={{
+          tabBarLabel: 'Dashboard',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Bookings"
         component={BookingNavigator}
         options={{
           tabBarLabel: 'Bookings',
           tabBarIcon: ({ color, size }) => (
             <Icon name="event" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Customers"
+        component={CustomerNavigator}
+        options={{
+          tabBarLabel: 'Customers',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="people" size={size} color={color} />
           ),
         }}
       />
@@ -54,7 +76,7 @@ export function MainNavigator() {
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileNavigator}
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, size }) => (

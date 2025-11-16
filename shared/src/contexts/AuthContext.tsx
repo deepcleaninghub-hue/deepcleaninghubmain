@@ -41,28 +41,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadStoredUser();
   }, []);
 
-  // Set up HTTP client logout callback
+  // Set up HTTP client callbacks
   useEffect(() => {
     httpClient.setLogoutCallback(() => {
       setUser(null);
       secureLog('info', 'User logged out due to session expiration');
     });
-  }, []);
+    
+    // Set up token refresh callback
+    httpClient.setRefreshTokenCallback(async () => {
+      return await refreshToken();
+    });
+  }, [refreshToken]);
 
-  // Token refresh mechanism
+  // Token refresh mechanism - refresh token periodically
   useEffect(() => {
     if (!user) return;
 
     const refreshInterval = setInterval(async () => {
       const success = await refreshToken();
       if (!success) {
-        secureLog('warn', 'Token refresh failed, signing out');
-        await signOut();
+        secureLog('warn', 'Token refresh failed, but not logging out automatically');
+        // Don't automatically logout - let user continue using the app
       }
     }, config.TOKEN_REFRESH_INTERVAL);
 
     return () => clearInterval(refreshInterval);
-  }, [user]);
+  }, [user, refreshToken]);
 
   // Session timeout handling (disabled if SESSION_TIMEOUT is 0)
   useEffect(() => {

@@ -10,13 +10,14 @@ const BASE_URL = API_BASE_URL;
 class HttpClient {
   private client: AxiosInstance;
   private logoutCallback: (() => void) | null = null;
+  private refreshTokenCallback: (() => Promise<boolean>) | null = null;
 
   constructor() {
     // Increase timeout for production environments (30 seconds)
     // Development can use shorter timeout (10 seconds)
     const isProduction = BASE_URL.includes('deepcleaninghub.com') ||
       BASE_URL.includes('54.252.116.156') ||
-      BASE_URL.includes('13.211.76.43'); // Keep old IP for backward compatibility
+      BASE_URL.startsWith('https://'); // HTTPS URLs are typically production
     const timeout = isProduction ? 30000 : 10000;
 
     this.client = axios.create({
@@ -34,6 +35,11 @@ class HttpClient {
   // Method to set logout callback
   setLogoutCallback(callback: () => void) {
     this.logoutCallback = callback;
+  }
+
+  // Method to set token refresh callback
+  setRefreshTokenCallback(callback: () => Promise<boolean>) {
+    this.refreshTokenCallback = callback;
   }
 
   // Method to trigger logout
@@ -95,19 +101,45 @@ class HttpClient {
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
 
-          // Check if it's a JWT signature error
+          // Check if it's a JWT signature error (invalid token structure)
           const errorData = error.response?.data as any;
-          if (errorData?.error && errorData.error.includes('Token verification failed')) {
+          const isJWTError = errorData?.error && (
+            errorData.error.includes('Token verification failed') ||
+            errorData.error.includes('jwt malformed') ||
+            errorData.error.includes('invalid token')
+          );
+
+          if (isJWTError) {
+            // Invalid token structure - cannot refresh, must logout
             console.log('JWT signature error detected, triggering admin logout...');
             await this.triggerLogout();
-          } else {
-            // Regular 401 - just clear tokens
+            return Promise.reject(error);
+          }
+
+          // Try to refresh token for expired tokens
+          if (this.refreshTokenCallback) {
             try {
-              await AsyncStorage.multiRemove(['admin_token', 'admin_refresh_token', 'admin_user']);
-              console.log('Authentication failed, please login again');
+              console.log('Token expired, attempting to refresh...');
+              const refreshSuccess = await this.refreshTokenCallback();
+
+              if (refreshSuccess) {
+                // Retry the original request with new token
+                const newToken = await AsyncStorage.getItem('admin_token');
+                if (newToken && originalRequest.headers) {
+                  originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                  return this.client(originalRequest);
+                }
+              } else {
+                console.log('Token refresh failed, but not logging out automatically');
+                // Don't logout automatically - let user continue using the app
+                // They will be prompted to login when they try to use a protected feature
+              }
             } catch (refreshError) {
-              console.error('Token cleanup failed:', refreshError);
+              console.error('Token refresh error:', refreshError);
+              // Don't logout automatically on refresh error
             }
+          } else {
+            console.log('No refresh token callback set, skipping token refresh');
           }
         }
 

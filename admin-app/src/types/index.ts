@@ -178,7 +178,9 @@ export type AdminAuthStackParamList = {
 };
 
 export type AdminMainTabParamList = {
+  Dashboard: undefined;
   Bookings: undefined;
+  Customers: undefined;
   Services: undefined;
   Profile: undefined;
 };
@@ -190,6 +192,10 @@ export type AdminBookingStackParamList = {
   BookingCreate: undefined;
 };
 
+export type AdminDashboardStackParamList = {
+  DashboardMain: undefined;
+};
+
 export type AdminServiceStackParamList = {
   ServiceList: undefined;
   ServiceDetails: { serviceId: string };
@@ -197,6 +203,17 @@ export type AdminServiceStackParamList = {
   ServiceCreate: undefined;
   ServiceVariants: { serviceId: string };
   ServiceCategories: undefined;
+  ServiceCategory: { categoryId: string; categoryTitle: string };
+};
+
+export type AdminCustomerStackParamList = {
+  CustomerList: undefined;
+  CustomerDetails: { customerId: string };
+};
+
+export type AdminProfileStackParamList = {
+  ProfileMain: undefined;
+  EditProfile: undefined;
 };
 
 // API Response types

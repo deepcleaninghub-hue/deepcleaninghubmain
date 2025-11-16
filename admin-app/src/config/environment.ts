@@ -14,8 +14,10 @@ const getApiBaseUrl = (): string => {
   const environment = getEnvironment();
 
   if (environment === 'production') {
+    // Use HTTPS for production - prefer domain if available, fallback to IP with HTTPS
     return process.env.EXPO_PUBLIC_API_BASE_URL || 'https://app.deepcleaninghub.com/api';
   } else {
+    // Development can use HTTP for local development
     return process.env.EXPO_PUBLIC_API_BASE_URL || 'http://192.168.29.112:5001/api';
   }
 };

@@ -32,8 +32,8 @@ const configs = {
   production: {
     NODE_ENV: 'production',
     EXPO_PUBLIC_ENVIRONMENT: 'production',
-    EXPO_PUBLIC_API_BASE_URL: 'http://54.252.116.156:5001/api',
-    API_BASE_URL: 'http://54.252.116.156:5001/api'
+    EXPO_PUBLIC_API_BASE_URL: 'https://app.deepcleaninghub.com/api',
+    API_BASE_URL: 'https://app.deepcleaninghub.com/api'
   }
 };
 

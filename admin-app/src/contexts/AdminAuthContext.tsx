@@ -22,11 +22,30 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
     checkAuthState();
   }, []);
 
-  // Set up HTTP client logout callback
+  // Set up HTTP client callbacks
   useEffect(() => {
     httpClient.setLogoutCallback(() => {
       setAdmin(null);
       console.log('Admin logged out due to session expiration');
+    });
+  }, []);
+
+  // Set up token refresh callback (separate useEffect to avoid dependency issues)
+  useEffect(() => {
+    httpClient.setRefreshTokenCallback(async () => {
+      try {
+        const result = await adminAuthService.refreshToken();
+        if (result.success && result.data) {
+          setAdmin(result.data.admin);
+          await AsyncStorage.setItem('admin_token', result.data.token);
+          console.log('Token refreshed successfully');
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Token refresh failed:', error);
+        return false;
+      }
     });
   }, []);
 
@@ -101,11 +120,17 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
       const result = await adminAuthService.updateProfile(updates);
       if (result.success && result.data) {
         setAdmin(result.data);
+        console.log('✅ Profile updated successfully');
         return true;
+      } else {
+        console.error('❌ Profile update failed:', result.error);
+        setLastError(result.error || 'Failed to update profile');
+        return false;
       }
-      return false;
-    } catch (error) {
-      console.error('Profile update failed:', error);
+    } catch (error: any) {
+      console.error('❌ Profile update exception:', error);
+      const errorMsg = error?.response?.data?.error || error?.message || 'Failed to update profile';
+      setLastError(errorMsg);
       return false;
     }
   };
@@ -116,12 +141,14 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
       if (result.success && result.data) {
         setAdmin(result.data.admin);
         await AsyncStorage.setItem('admin_token', result.data.token);
+        console.log('Token refreshed successfully');
         return true;
       }
+      console.log('Token refresh returned false, but not logging out');
       return false;
     } catch (error) {
       console.error('Token refresh failed:', error);
-      await signOut();
+      // Don't automatically logout - let user continue using the app
       return false;
     }
   };

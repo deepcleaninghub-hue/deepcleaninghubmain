@@ -65,7 +65,7 @@ export function ProfileScreen({ navigation }: any) {
   };
 
   const handleEditProfile = () => {
-    Alert.alert('Edit Profile', 'Profile editing functionality coming soon!');
+    navigation.navigate('EditProfile');
   };
 
   const handleChangePassword = () => {
@@ -314,8 +314,8 @@ export function ProfileScreen({ navigation }: any) {
                 </Text>
                 <Text variant="bodySmall" style={[styles.infoValue, { color: theme.colors.onSurfaceVariant }]}>
                   {new Date(admin.createdAt).toLocaleDateString()}
-                </Text>
-              </View>
+        </Text>
+      </View>
             </Card.Content>
           </Card>
         </View>
@@ -511,34 +511,40 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-between',
   },
   gridItem: {
-    flex: 1,
-    minWidth: '45%',
+    width: '48%',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 12,
     borderRadius: 12,
-    marginBottom: 8,
+    marginBottom: 12,
+    minHeight: 100,
   },
   gridLabel: {
     marginTop: 8,
     textAlign: 'center',
     fontWeight: '500',
+    fontSize: 13,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    alignItems: 'flex-start',
+    marginBottom: 16,
+    paddingVertical: 4,
   },
   infoLabel: {
     flex: 1,
+    fontWeight: '500',
   },
   infoValue: {
-    fontWeight: '500',
+    flex: 1,
+    fontWeight: '400',
     textAlign: 'right',
+    flexWrap: 'wrap',
   },
   logoutSection: {
     marginBottom: 32,
@@ -549,9 +555,11 @@ const styles = StyleSheet.create({
   },
   logoutContent: {
     paddingVertical: 8,
+    alignItems: 'center',
   },
   logoutButton: {
     borderRadius: 8,
+    minWidth: 200,
   },
   buttonContent: {
     paddingVertical: 4,

@@ -128,13 +128,44 @@ export const adminAuthService = {
 
   async updateProfile(updates: Partial<AdminUser>): Promise<AdminApiResponse<AdminUser>> {
     try {
-      const response = await httpClient.put('/admin/auth/profile', updates);
+      const response = await httpClient.put('/auth/admin/me', updates);
+      if (response.data.success) {
+        const user = response.data.data;
+        return {
+          success: true,
+          data: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone || '',
+            address: user.address || '',
+            createdAt: user.created_at || new Date().toISOString(),
+            updatedAt: user.updated_at || new Date().toISOString(),
+            role: user.role,
+            permissions: [
+              { id: 'p1', name: 'Manage Services', resource: 'services', action: 'read' },
+              { id: 'p2', name: 'Manage Bookings', resource: 'bookings', action: 'read' },
+              { id: 'p3', name: 'Manage Customers', resource: 'customers', action: 'read' },
+              { id: 'p4', name: 'Dashboard', resource: 'dashboard', action: 'read' },
+            ],
+            lastActive: user.last_login || new Date().toISOString(),
+            isOnline: true,
+          } as AdminUser,
+          message: response.data.message,
+        };
+      }
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Update profile error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+      });
       return {
         success: false,
-        error: 'Failed to update profile.',
+        error: error.response?.data?.error || error.message || 'Failed to update profile.',
       };
     }
   },

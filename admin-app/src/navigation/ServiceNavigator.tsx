@@ -7,6 +7,7 @@ import { ServiceEditScreen } from '@/screens/services/ServiceEditScreen';
 import { ServiceCreateScreen } from '@/screens/services/ServiceCreateScreen';
 import { ServiceVariantsScreen } from '@/screens/services/ServiceVariantsScreen';
 import { ServiceCategoriesScreen } from '@/screens/services/ServiceCategoriesScreen';
+import { ServiceCategoryScreen } from '@/screens/services/ServiceCategoryScreen';
 import { AdminServiceStackParamList } from '@/types';
 
 const Stack = createStackNavigator<AdminServiceStackParamList>();
@@ -54,6 +55,11 @@ export function ServiceNavigator() {
         name="ServiceCategories" 
         component={ServiceCategoriesScreen}
         options={{ title: 'Categories' }}
+      />
+      <Stack.Screen 
+        name="ServiceCategory" 
+        component={ServiceCategoryScreen}
+        options={{ title: 'Category Services' }}
       />
     </Stack.Navigator>
   );

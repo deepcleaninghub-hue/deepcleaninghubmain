@@ -296,6 +296,165 @@ router.get('/admin/me', protect, async (req, res) => {
   }
 });
 
+// @desc    Update admin user profile
+// @route   PUT /api/auth/admin/me
+// @access  Private/Admin
+router.put('/admin/me', [
+  protect,
+  body('name').optional().custom((value) => {
+    if (value !== undefined && value !== null && value.trim() !== '' && value.trim().length < 2) {
+      throw new Error('Name must be at least 2 characters');
+    }
+    return true;
+  }),
+  body('email').optional().custom((value) => {
+    if (value !== undefined && value !== null && value.trim() !== '') {
+      if (!/\S+@\S+\.\S+/.test(value)) {
+        throw new Error('Please provide a valid email');
+      }
+    }
+    return true;
+  }),
+  body('phone').optional().custom((value) => {
+    if (value !== undefined && value !== null && value !== '') {
+      const phoneStr = String(value).trim();
+      if (phoneStr.length > 0 && phoneStr.length < 10) {
+        throw new Error('Phone number must be at least 10 characters');
+      }
+    }
+    return true;
+  }),
+  body('address').optional().custom((value) => {
+    if (value !== undefined && value !== null && value !== '') {
+      const addressStr = String(value).trim();
+      if (addressStr.length > 0 && addressStr.length < 5) {
+        throw new Error('Address must be at least 5 characters');
+      }
+    }
+    return true;
+  })
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      error: errors.array()[0].msg
+    });
+  }
+
+  try {
+    if (!req.user || !req.user.id) {
+      console.error('Update profile error: User not authenticated', { user: req.user });
+      return res.status(401).json({
+        success: false,
+        error: 'User not authenticated'
+      });
+    }
+
+    console.log('Updating admin profile:', { userId: req.user.id, body: req.body });
+
+    const updateData = {
+      updated_at: new Date().toISOString()
+    };
+
+    // Only include fields that are provided and not empty
+    if (req.body.name !== undefined && req.body.name !== null) {
+      const trimmedName = String(req.body.name).trim();
+      if (trimmedName !== '') {
+        updateData.name = trimmedName;
+      }
+    }
+    if (req.body.email !== undefined && req.body.email !== null) {
+      const trimmedEmail = String(req.body.email).trim();
+      if (trimmedEmail !== '') {
+        updateData.email = trimmedEmail;
+      }
+    }
+    if (req.body.phone !== undefined && req.body.phone !== null) {
+      const trimmedPhone = String(req.body.phone).trim();
+      updateData.phone = trimmedPhone !== '' ? trimmedPhone : null;
+    }
+    if (req.body.address !== undefined && req.body.address !== null) {
+      const trimmedAddress = String(req.body.address).trim();
+      updateData.address = trimmedAddress !== '' ? trimmedAddress : null;
+    }
+
+    // Ensure at least one field is being updated (besides updated_at)
+    const fieldsToUpdate = Object.keys(updateData).filter(key => key !== 'updated_at');
+    if (fieldsToUpdate.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No valid fields to update'
+      });
+    }
+
+    console.log('Update data:', updateData);
+
+    // Check if email is being changed and if it already exists
+    if (updateData.email && updateData.email !== req.user.email) {
+      const { data: existingUser, error: emailError } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('email', updateData.email)
+        .neq('id', req.user.id)
+        .single();
+
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          error: 'Email already exists'
+        });
+      }
+    }
+
+    // Update admin profile
+    const { data: updatedUser, error } = await supabase
+      .from('admin_users')
+      .update(updateData)
+      .eq('id', req.user.id)
+      .select('id, name, email, phone, address, role, is_active, last_login, created_at, updated_at')
+      .single();
+
+    if (error) {
+      console.error('Error updating admin profile:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to update profile'
+      });
+    }
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        error: 'Admin user not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone || '',
+        address: updatedUser.address || '',
+        role: updatedUser.role,
+        is_active: updatedUser.is_active,
+        last_login: updatedUser.last_login,
+        created_at: updatedUser.created_at,
+        updated_at: updatedUser.updated_at
+      },
+      message: 'Profile updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating admin profile:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Server error'
+    });
+  }
+});
+
 // @desc    Logout (client-side token removal)
 // @route   POST /api/auth/logout
 // @access  Private
