@@ -29,6 +29,13 @@ type ServiceVariant = {
   title: string;
   description?: string;
   price?: number;
+  unitPrice?: number;
+  unitMeasure?: string;
+  pricingType?: 'fixed' | 'per_unit' | 'hourly';
+  minMeasurement?: number;
+  maxMeasurement?: number;
+  measurementStep?: number;
+  measurementPlaceholder?: string;
   duration?: number;
   is_active?: boolean;
   display_order?: number;
@@ -66,6 +73,12 @@ export function BookingCreateScreen({ navigation }: any) {
   const [serviceVariants, setServiceVariants] = useState<ServiceVariant[]>([]);
   const [loadingVariants, setLoadingVariants] = useState(false);
   
+  // Variant configuration state
+  const [variantQuantity, setVariantQuantity] = useState(1);
+  const [variantMeasurement, setVariantMeasurement] = useState('');
+  const [distance, setDistance] = useState('');
+  const [numberOfBoxes, setNumberOfBoxes] = useState('');
+  
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [priority, setPriority] = useState('medium');
@@ -75,6 +88,74 @@ export function BookingCreateScreen({ navigation }: any) {
   const [isMultiDay, setIsMultiDay] = useState(false);
   const [selectedDates, setSelectedDates] = useState<BookingDate[]>([]);
   const [serviceTime, setServiceTime] = useState(new Date());
+
+  // Check if this is a house moving service
+  const isHouseMovingService = selectedServiceType?.title?.toLowerCase().includes('moving') || 
+                               selectedServiceType?.title?.toLowerCase().includes('house') ||
+                               selectedServiceCategory === 'moving';
+
+  // Reset variant configuration when variant changes
+  useEffect(() => {
+    if (selectedServiceVariant) {
+      setVariantQuantity(1);
+      setVariantMeasurement('');
+      setDistance('');
+      setNumberOfBoxes('');
+    }
+  }, [selectedServiceVariant]);
+
+  // Calculate house moving cost
+  const calculateHouseMovingCost = (area: number, distanceValue: number, rate: number, boxes: number = 0) => {
+    const RATE_PER_KM = 0.5; // 0.5 euro per km
+    const BOX_PRICE = 2.50; // €2.50 per box
+    const VAT_RATE = 0.19; // 19% VAT
+    
+    const areaCost = rate * area;
+    const distanceCost = distanceValue * RATE_PER_KM;
+    const boxesCost = boxes * BOX_PRICE;
+    const subtotal = areaCost + distanceCost + boxesCost;
+    const vat = subtotal * VAT_RATE;
+    const total = subtotal + vat;
+    
+    return {
+      areaCost,
+      distanceCost,
+      boxesCost,
+      subtotal,
+      vat,
+      total,
+      ratePerKm: RATE_PER_KM,
+      boxPrice: BOX_PRICE,
+      vatRate: VAT_RATE
+    };
+  };
+
+  // Calculate total price based on pricing type
+  const calculateTotalPrice = (): number => {
+    if (!selectedServiceVariant) return 0;
+
+    if (isHouseMovingService) {
+      const area = selectedServiceVariant.pricingType === 'per_unit' 
+        ? parseFloat(variantMeasurement || '0')
+        : variantQuantity;
+      const distanceValue = parseFloat(distance) || 0;
+      const boxesValue = parseFloat(numberOfBoxes) || 0;
+      const rate = selectedServiceVariant.pricingType === 'per_unit' 
+        ? (selectedServiceVariant.unitPrice || selectedServiceVariant.price || 0)
+        : (selectedServiceVariant.price || 0);
+      
+      const movingCost = calculateHouseMovingCost(area, distanceValue, rate, boxesValue);
+      return movingCost.total;
+    }
+
+    if (selectedServiceVariant.pricingType === 'per_unit') {
+      const measurement = parseFloat(variantMeasurement || '0');
+      return measurement * (selectedServiceVariant.unitPrice || selectedServiceVariant.price || 0);
+    }
+    
+    // Fixed pricing - multiply by quantity
+    return (selectedServiceVariant.price || 0) * variantQuantity;
+  };
 
   // Load customers on mount
   useEffect(() => {
@@ -456,6 +537,195 @@ export function BookingCreateScreen({ navigation }: any) {
                 </Menu>
               </View>
             )}
+
+            {/* Service Variant Details and Configuration */}
+            {selectedServiceVariant && (
+              <Card style={[styles.card, { backgroundColor: theme.colors.surface, marginTop: 16 }]}>
+                <Card.Content>
+                  <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+                    {selectedServiceVariant.title}
+                  </Text>
+                  {selectedServiceVariant.description && (
+                    <Text variant="bodyMedium" style={[styles.variantDescription, { color: theme.colors.onSurfaceVariant }]}>
+                      {selectedServiceVariant.description}
+                    </Text>
+                  )}
+                  <Divider style={styles.divider} />
+
+                  {/* Quantity Input for Fixed Pricing */}
+                  {selectedServiceVariant.pricingType === 'fixed' && !isHouseMovingService && (
+                    <View style={styles.quantityInputContainer}>
+                      <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
+                        Quantity:
+                      </Text>
+                      <View style={styles.quantityControls}>
+                        <Button
+                          mode="outlined"
+                          onPress={() => setVariantQuantity(Math.max(1, variantQuantity - 1))}
+                          style={styles.quantityButton}
+                          compact
+                        >
+                          -
+                        </Button>
+                        <Text variant="titleMedium" style={[styles.quantityText, { color: theme.colors.onSurface }]}>
+                          {variantQuantity}
+                        </Text>
+                        <Button
+                          mode="outlined"
+                          onPress={() => setVariantQuantity(variantQuantity + 1)}
+                          style={styles.quantityButton}
+                          compact
+                        >
+                          +
+                        </Button>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Measurement Input for Per-Unit Pricing */}
+                  {selectedServiceVariant.pricingType === 'per_unit' && (
+                    <View style={styles.measurementInputContainer}>
+                      <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
+                        {selectedServiceVariant.unitMeasure || 'Measurement'}:
+                      </Text>
+                      <TextInput
+                        mode="outlined"
+                        value={variantMeasurement}
+                        onChangeText={setVariantMeasurement}
+                        placeholder={selectedServiceVariant.measurementPlaceholder || `Enter ${selectedServiceVariant.unitMeasure || 'measurement'}`}
+                        keyboardType="numeric"
+                        style={styles.input}
+                        error={
+                          variantMeasurement !== '' ? (
+                            parseFloat(variantMeasurement) <= 0 ||
+                            (selectedServiceVariant.minMeasurement !== undefined && parseFloat(variantMeasurement) < selectedServiceVariant.minMeasurement) ||
+                            (selectedServiceVariant.maxMeasurement !== undefined && parseFloat(variantMeasurement) > selectedServiceVariant.maxMeasurement)
+                          ) : false
+                        }
+                      />
+                      <View style={styles.measurementInfoContainer}>
+                        {selectedServiceVariant.unitMeasure && (
+                          <Text variant="bodySmall" style={[styles.unitMeasureText, { color: theme.colors.onSurfaceVariant }]}>
+                            Unit: {selectedServiceVariant.unitMeasure}
+                          </Text>
+                        )}
+                        {selectedServiceVariant.minMeasurement && (
+                          <Text variant="bodySmall" style={[styles.minMeasurementText, { color: theme.colors.primary }]}>
+                            Minimum: {selectedServiceVariant.minMeasurement} {selectedServiceVariant.unitMeasure || 'units'}
+                          </Text>
+                        )}
+                        {selectedServiceVariant.maxMeasurement && (
+                          <Text variant="bodySmall" style={[styles.maxMeasurementText, { color: theme.colors.onSurfaceVariant }]}>
+                            Maximum: {selectedServiceVariant.maxMeasurement} {selectedServiceVariant.unitMeasure || 'units'}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Distance and Boxes Input for House Moving Services */}
+                  {isHouseMovingService && selectedServiceVariant && (
+                    <View style={styles.movingInputContainer}>
+                      <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
+                        Distance (km) *:
+                      </Text>
+                      <TextInput
+                        mode="outlined"
+                        value={distance}
+                        onChangeText={setDistance}
+                        placeholder="Enter distance in kilometers"
+                        keyboardType="numeric"
+                        style={styles.input}
+                        error={distance !== '' && parseFloat(distance) <= 0}
+                      />
+                      
+                      <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface, marginTop: 16 }]}>
+                        Number of Boxes (Optional):
+                      </Text>
+                      <TextInput
+                        mode="outlined"
+                        value={numberOfBoxes}
+                        onChangeText={setNumberOfBoxes}
+                        placeholder="Enter number of boxes"
+                        keyboardType="numeric"
+                        style={styles.input}
+                        error={numberOfBoxes !== '' && parseFloat(numberOfBoxes) < 0}
+                      />
+                    </View>
+                  )}
+
+                  {/* Price Calculation Display */}
+                  <View style={styles.priceCalculationContainer}>
+                    {/* Calculation details for per-unit pricing */}
+                    {selectedServiceVariant.pricingType === 'per_unit' && variantMeasurement && parseFloat(variantMeasurement) > 0 && (
+                      <View style={styles.calculationDetails}>
+                        <Text variant="bodyMedium" style={[styles.calculationText, { color: theme.colors.onSurfaceVariant }]}>
+                          {variantMeasurement} {selectedServiceVariant.unitMeasure || 'units'} × €{selectedServiceVariant.unitPrice || selectedServiceVariant.price}/{selectedServiceVariant.unitMeasure || 'unit'} = €{calculateTotalPrice().toFixed(2)}
+                        </Text>
+                      </View>
+                    )}
+
+                    {/* Calculation details for fixed pricing with quantity > 1 */}
+                    {selectedServiceVariant.pricingType === 'fixed' && variantQuantity > 1 && !isHouseMovingService && (
+                      <View style={styles.calculationDetails}>
+                        <Text variant="bodyMedium" style={[styles.calculationText, { color: theme.colors.onSurfaceVariant }]}>
+                          Quantity: {variantQuantity} × €{selectedServiceVariant.price} = €{calculateTotalPrice().toFixed(2)}
+                        </Text>
+                      </View>
+                    )}
+
+                    {/* Cost breakdown for house moving services */}
+                    {isHouseMovingService && distance && parseFloat(distance) > 0 && (
+                      <View style={styles.movingCalculationContainer}>
+                        {(() => {
+                          const area = selectedServiceVariant.pricingType === 'per_unit' 
+                            ? parseFloat(variantMeasurement || '0')
+                            : variantQuantity;
+                          const distanceValue = parseFloat(distance);
+                          const boxesValue = parseFloat(numberOfBoxes) || 0;
+                          const rate = selectedServiceVariant.pricingType === 'per_unit' 
+                            ? (selectedServiceVariant.unitPrice || selectedServiceVariant.price || 0)
+                            : (selectedServiceVariant.price || 0);
+                          const movingCost = calculateHouseMovingCost(area, distanceValue, rate, boxesValue);
+                          
+                          return (
+                            <View style={styles.calculationDetails}>
+                              <Text variant="titleSmall" style={[styles.calculationTitle, { color: theme.colors.onSurface }]}>
+                                Cost Breakdown:
+                              </Text>
+                              <Text variant="bodyMedium" style={[styles.calculationLine, { color: theme.colors.onSurfaceVariant }]}>
+                                Area: {area} sqm × €{rate.toFixed(2)}/sqm = €{movingCost.areaCost.toFixed(2)}
+                              </Text>
+                              <Text variant="bodyMedium" style={[styles.calculationLine, { color: theme.colors.onSurfaceVariant }]}>
+                                Distance: {distanceValue}km × €0.5/km = €{movingCost.distanceCost.toFixed(2)}
+                              </Text>
+                              {boxesValue > 0 && (
+                                <Text variant="bodyMedium" style={[styles.calculationLine, { color: theme.colors.onSurfaceVariant }]}>
+                                  Boxes: {boxesValue} × €{movingCost.boxPrice.toFixed(2)} = €{movingCost.boxesCost.toFixed(2)}
+                                </Text>
+                              )}
+                              <Text variant="bodyMedium" style={[styles.calculationLine, { color: theme.colors.onSurfaceVariant }]}>
+                                Subtotal: €{movingCost.areaCost.toFixed(2)} + €{movingCost.distanceCost.toFixed(2)}{boxesValue > 0 ? ` + €${movingCost.boxesCost.toFixed(2)}` : ''} = €{movingCost.subtotal.toFixed(2)}
+                              </Text>
+                              <Text variant="bodyMedium" style={[styles.calculationLine, { color: theme.colors.onSurfaceVariant }]}>
+                                VAT (19%): €{movingCost.vat.toFixed(2)}
+                              </Text>
+                            </View>
+                          );
+                        })()}
+                      </View>
+                    )}
+
+                    {/* Total Price Display */}
+                    <View style={styles.totalPriceContainer}>
+                      <Text variant="titleMedium" style={[styles.totalPriceLabel, { color: theme.colors.primary }]}>
+                        Total Price: €{calculateTotalPrice().toFixed(2)}
+                      </Text>
+                    </View>
+                  </View>
+                </Card.Content>
+              </Card>
+            )}
             
             {/* Multi-day booking toggle */}
             <View style={styles.multiDayToggle}>
@@ -630,5 +900,86 @@ const styles = StyleSheet.create({
   customerMenuItemTitle: {
     fontSize: 13,
     fontWeight: '500',
+  },
+  variantDescription: {
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  quantityInputContainer: {
+    marginBottom: 16,
+  },
+  quantityControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+    gap: 16,
+  },
+  quantityButton: {
+    minWidth: 50,
+  },
+  quantityText: {
+    minWidth: 40,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  measurementInputContainer: {
+    marginBottom: 16,
+  },
+  measurementInfoContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+    gap: 8,
+  },
+  unitMeasureText: {
+    fontSize: 12,
+  },
+  minMeasurementText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  maxMeasurementText: {
+    fontSize: 12,
+  },
+  movingInputContainer: {
+    marginBottom: 16,
+  },
+  priceCalculationContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+  },
+  inputLabel: {
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  calculationDetails: {
+    marginBottom: 12,
+  },
+  calculationText: {
+    fontSize: 14,
+  },
+  calculationTitle: {
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  calculationLine: {
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  movingCalculationContainer: {
+    marginTop: 8,
+  },
+  totalPriceContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  totalPriceLabel: {
+    fontWeight: '700',
+    fontSize: 18,
   },
 });
