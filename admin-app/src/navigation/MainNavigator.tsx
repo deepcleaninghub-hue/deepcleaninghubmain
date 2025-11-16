@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DashboardNavigator } from './DashboardNavigator';
 import { BookingNavigator } from './BookingNavigator';
@@ -14,6 +15,8 @@ import { AdminMainTabParamList } from '@/types';
 const Tab = createBottomTabNavigator<AdminMainTabParamList>();
 
 export function MainNavigator() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={{
@@ -24,9 +27,9 @@ export function MainNavigator() {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#E0E0E0',
-          paddingBottom: 4,
+          paddingBottom: Math.max(insets.bottom, 4),
           paddingTop: 4,
-          height: 60,
+          height: 60 + Math.max(insets.bottom - 4, 0),
         },
         tabBarLabelStyle: {
           fontSize: 12,
