@@ -332,48 +332,6 @@ export function ServiceListScreen({ navigation }: any) {
           </View>
         )}
 
-        {/* Service Cards Section (Horizontal Scroll) */}
-        <View style={styles.serviceCategoriesSection}>
-          <Divider style={{ marginVertical: 16 }} />
-          <Text variant="titleMedium" style={[styles.categoriesTitle, { color: theme.colors.onSurface }]}>
-            Browse More Services
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoriesScrollContent}
-            style={styles.categoriesScroll}
-          >
-            {mainServiceCategories.map((category) => (
-              <TouchableOpacity
-                key={category.id}
-                style={[
-                  styles.serviceCategoryCard,
-                  { backgroundColor: theme.colors.surface }
-                ]}
-                activeOpacity={0.8}
-                onPress={() => handleServiceCardPress(category)}
-              >
-                <View style={styles.categoryImageContainer}>
-                  <Image 
-                    source={category.image} 
-                    style={styles.categoryImage}
-                  />
-                  <View style={styles.categoryImageOverlay} />
-                </View>
-                <View style={styles.categoryContent}>
-                  <Text 
-                    variant="bodyMedium" 
-                    style={[styles.categoryTitle, { color: theme.colors.onSurface }]}
-                    numberOfLines={1}
-                  >
-                    {category.title}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
       </ScrollView>
 
       {/* FAB for creating new service */}
@@ -622,67 +580,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     letterSpacing: 0.5,
-  },
-  serviceCategoriesSection: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  categoriesTitle: {
-    fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  categoriesScroll: {
-    marginHorizontal: -8,
-    marginBottom: 16,
-  },
-  categoriesScrollContent: {
-    paddingHorizontal: 8,
-    paddingBottom: 16,
-  },
-  serviceCategoryCard: {
-    width: 140,
-    height: 130,
-    borderRadius: 12,
-    marginHorizontal: 6,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    overflow: 'hidden',
-    backgroundColor: '#ffffff',
-  },
-  categoryImageContainer: {
-    position: 'relative',
-    height: '60%',
-  },
-  categoryImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  categoryImageOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  categoryContent: {
-    flex: 1,
-    padding: 14,
-    justifyContent: 'center',
-  },
-  categoryTitle: {
-    fontWeight: '700',
-    fontSize: 14,
-    textAlign: 'center',
-    color: '#1a1a1a',
   },
   loadingContainer: {
     flex: 1,
