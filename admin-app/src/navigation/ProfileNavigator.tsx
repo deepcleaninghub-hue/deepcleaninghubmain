@@ -22,8 +22,7 @@ export function ProfileNavigator() {
         component={EditProfileScreen}
         options={{ 
           presentation: 'modal',
-          headerShown: true,
-          title: 'Edit Profile'
+          headerShown: false,
         }}
       />
     </Stack.Navigator>
