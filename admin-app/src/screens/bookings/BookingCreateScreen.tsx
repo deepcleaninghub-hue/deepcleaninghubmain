@@ -12,6 +12,7 @@ import { BookingDate } from '../../../../shared/src/types';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { adminDataService } from '@/services/adminDataService';
 import { AdminService, AdminBooking } from '@/types';
+import { buildBookingData } from './bookingDataBuilder';
 
 // Hardcoded service categories
 const SERVICE_CATEGORIES = [
@@ -74,15 +75,16 @@ export function BookingCreateScreen({ navigation }: any) {
   const [loadingVariants, setLoadingVariants] = useState(false);
   
   // Variant configuration state
-  const [variantQuantity, setVariantQuantity] = useState(1);
+  const [variantQuantity, setVariantQuantity] = useState('1');
   const [variantMeasurement, setVariantMeasurement] = useState('');
   const [distance, setDistance] = useState('');
   const [numberOfBoxes, setNumberOfBoxes] = useState('');
   
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [priority, setPriority] = useState('medium');
+  const [serviceAddress, setServiceAddress] = useState('');
   const [notes, setNotes] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
   
   // Multi-day booking state
   const [isMultiDay, setIsMultiDay] = useState(false);
@@ -94,10 +96,45 @@ export function BookingCreateScreen({ navigation }: any) {
                                selectedServiceType?.title?.toLowerCase().includes('house') ||
                                selectedServiceCategory === 'moving';
 
+  // Check if this is a weekly cleaning service (mandatory multi-day booking)
+  const isWeeklyCleaningService = selectedServiceType?.id === 'weekly-cleaning' ||
+                                  selectedServiceType?.title?.toLowerCase().includes('weekly cleaning') ||
+                                  selectedServiceVariant?.title?.toLowerCase().includes('weekly cleaning') ||
+                                  selectedServiceVariant?.id === 'weekly-cleaning';
+
+  // Determine pricing type with fallback logic
+  const getPricingType = (variant: ServiceVariant | null): 'fixed' | 'per_unit' | 'hourly' => {
+    if (!variant) return 'fixed';
+    
+    // If pricingType is explicitly set, use it
+    if (variant.pricingType) {
+      return variant.pricingType;
+    }
+    
+    // Fallback: If variant has unitPrice or unitMeasure, it's per_unit
+    if (variant.unitPrice || variant.unitMeasure) {
+      return 'per_unit';
+    }
+    
+    // Default to fixed pricing
+    return 'fixed';
+  };
+
+  const effectivePricingType = getPricingType(selectedServiceVariant);
+
+  // Automatically set multi-day to true for weekly cleaning, false for others
+  useEffect(() => {
+    if (isWeeklyCleaningService) {
+      setIsMultiDay(true);
+    } else {
+      setIsMultiDay(false);
+    }
+  }, [isWeeklyCleaningService]);
+
   // Reset variant configuration when variant changes
   useEffect(() => {
     if (selectedServiceVariant) {
-      setVariantQuantity(1);
+      setVariantQuantity('1');
       setVariantMeasurement('');
       setDistance('');
       setNumberOfBoxes('');
@@ -135,12 +172,12 @@ export function BookingCreateScreen({ navigation }: any) {
     if (!selectedServiceVariant) return 0;
 
     if (isHouseMovingService) {
-      const area = selectedServiceVariant.pricingType === 'per_unit' 
+      const area = effectivePricingType === 'per_unit' 
         ? parseFloat(variantMeasurement || '0')
-        : variantQuantity;
+        : parseFloat(variantQuantity || '1');
       const distanceValue = parseFloat(distance) || 0;
       const boxesValue = parseFloat(numberOfBoxes) || 0;
-      const rate = selectedServiceVariant.pricingType === 'per_unit' 
+      const rate = effectivePricingType === 'per_unit' 
         ? (selectedServiceVariant.unitPrice || selectedServiceVariant.price || 0)
         : (selectedServiceVariant.price || 0);
       
@@ -148,13 +185,73 @@ export function BookingCreateScreen({ navigation }: any) {
       return movingCost.total;
     }
 
-    if (selectedServiceVariant.pricingType === 'per_unit') {
+    if (effectivePricingType === 'per_unit') {
       const measurement = parseFloat(variantMeasurement || '0');
       return measurement * (selectedServiceVariant.unitPrice || selectedServiceVariant.price || 0);
     }
     
     // Fixed pricing - multiply by quantity
-    return (selectedServiceVariant.price || 0) * variantQuantity;
+    return (selectedServiceVariant.price || 0) * parseFloat(variantQuantity || '1');
+  };
+
+  // Handle numeric input with validation
+  const handleMeasurementChange = (text: string) => {
+    // Allow empty string, numbers, and a single decimal point
+    const numericRegex = /^[0-9]*\.?[0-9]*$/;
+    
+    // Remove any non-numeric characters except decimal point
+    let cleanedText = text.replace(/[^0-9.]/g, '');
+    
+    // Ensure only one decimal point
+    const parts = cleanedText.split('.');
+    if (parts.length > 2) {
+      cleanedText = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    // Validate against regex
+    if (cleanedText === '' || numericRegex.test(cleanedText)) {
+      setVariantMeasurement(cleanedText);
+    }
+  };
+
+  const handleDistanceChange = (text: string) => {
+    const numericRegex = /^[0-9]*\.?[0-9]*$/;
+    let cleanedText = text.replace(/[^0-9.]/g, '');
+    const parts = cleanedText.split('.');
+    if (parts.length > 2) {
+      cleanedText = parts[0] + '.' + parts.slice(1).join('');
+    }
+    if (cleanedText === '' || numericRegex.test(cleanedText)) {
+      setDistance(cleanedText);
+    }
+  };
+
+  const handleBoxesChange = (text: string) => {
+    // For boxes, only allow whole numbers
+    const numericRegex = /^[0-9]*$/;
+    const cleanedText = text.replace(/[^0-9]/g, '');
+    if (cleanedText === '' || numericRegex.test(cleanedText)) {
+      setNumberOfBoxes(cleanedText);
+    }
+  };
+
+  const handleQuantityChange = (text: string) => {
+    // Allow empty string, numbers, and a single decimal point
+    const numericRegex = /^[0-9]*\.?[0-9]*$/;
+    
+    // Remove any non-numeric characters except decimal point
+    let cleanedText = text.replace(/[^0-9.]/g, '');
+    
+    // Ensure only one decimal point
+    const parts = cleanedText.split('.');
+    if (parts.length > 2) {
+      cleanedText = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    // Validate against regex
+    if (cleanedText === '' || numericRegex.test(cleanedText)) {
+      setVariantQuantity(cleanedText);
+    }
   };
 
   // Load customers on mount
@@ -310,23 +407,70 @@ export function BookingCreateScreen({ navigation }: any) {
       return;
     }
     
-    if (isMultiDay && selectedDates.length === 0) {
-      Alert.alert('Error', 'Please select at least one service date');
-      return;
+    if (isWeeklyCleaningService) {
+      if (selectedDates.length === 0) {
+        Alert.alert('Error', 'Please select at least one service date for weekly cleaning');
+        return;
+      }
+    } else {
+      if (!date || !time) {
+        Alert.alert('Error', 'Please select service date and time');
+        return;
+      }
     }
-    
-    if (!isMultiDay && (!date || !time)) {
-      Alert.alert('Error', 'Please select service date and time');
+
+    if (!serviceAddress || serviceAddress.trim() === '') {
+      Alert.alert('Error', 'Please enter service address');
       return;
     }
 
+    setIsCreating(true);
+
     try {
-      // In a real app, you would call the API here
-      // Use selectedServiceVariant.id as service_variant_id
-      Alert.alert('Success', 'Booking created successfully');
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to create booking');
+      // Build booking data matching shared app format
+      const bookingData = buildBookingData({
+        customer: {
+          id: selectedCustomer.id,
+          name: selectedCustomer.name,
+          email: selectedCustomer.email,
+          ...(selectedCustomer.phone && { phone: selectedCustomer.phone }),
+        },
+        service: {
+          id: selectedServiceType.id,
+          title: selectedServiceType.title,
+          category: selectedServiceCategory,
+        },
+        variant: selectedServiceVariant,
+        quantity: variantQuantity,
+        measurement: variantMeasurement,
+        distance: distance,
+        numberOfBoxes: numberOfBoxes,
+        date: date,
+        time: time,
+        selectedDates: selectedDates,
+        serviceTime: serviceTime,
+        serviceAddress: serviceAddress.trim(),
+        ...(notes.trim() && { notes: notes.trim() }),
+      });
+
+      // Create booking via API
+      const response = await adminDataService.createBooking(bookingData);
+
+      if (response.success) {
+        Alert.alert('Success', 'Booking created successfully', [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(),
+          },
+        ]);
+      } else {
+        Alert.alert('Error', response.error || 'Failed to create booking');
+      }
+    } catch (error: any) {
+      console.error('Error creating booking:', error);
+      Alert.alert('Error', error.message || 'Failed to create booking');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -364,7 +508,7 @@ export function BookingCreateScreen({ navigation }: any) {
                 }}
                 anchor={
                   <Button
-                    mode="outlined"
+              mode="outlined"
                     onPress={() => setCustomerMenuVisible(true)}
                     style={styles.dropdownButton}
                     contentStyle={styles.dropdownButtonContent}
@@ -444,7 +588,7 @@ export function BookingCreateScreen({ navigation }: any) {
                 ))}
               </Menu>
             </View>
-
+            
             {/* Service Type Dropdown */}
             {selectedServiceCategory && (
               <View style={styles.dropdownContainer}>
@@ -553,37 +697,30 @@ export function BookingCreateScreen({ navigation }: any) {
                   <Divider style={styles.divider} />
 
                   {/* Quantity Input for Fixed Pricing */}
-                  {selectedServiceVariant.pricingType === 'fixed' && !isHouseMovingService && (
+                  {effectivePricingType === 'fixed' && !isHouseMovingService && (
                     <View style={styles.quantityInputContainer}>
                       <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
                         Quantity:
                       </Text>
-                      <View style={styles.quantityControls}>
-                        <Button
-                          mode="outlined"
-                          onPress={() => setVariantQuantity(Math.max(1, variantQuantity - 1))}
-                          style={styles.quantityButton}
-                          compact
-                        >
-                          -
-                        </Button>
-                        <Text variant="titleMedium" style={[styles.quantityText, { color: theme.colors.onSurface }]}>
-                          {variantQuantity}
-                        </Text>
-                        <Button
-                          mode="outlined"
-                          onPress={() => setVariantQuantity(variantQuantity + 1)}
-                          style={styles.quantityButton}
-                          compact
-                        >
-                          +
-                        </Button>
-                      </View>
+                      <TextInput
+                        mode="outlined"
+                        value={variantQuantity}
+                        onChangeText={handleQuantityChange}
+                        placeholder="Enter quantity"
+                        keyboardType="decimal-pad"
+                        style={styles.input}
+                        error={
+                          variantQuantity !== '' ? (
+                            isNaN(parseFloat(variantQuantity)) ||
+                            parseFloat(variantQuantity) <= 0
+                          ) : false
+                        }
+                      />
                     </View>
                   )}
 
                   {/* Measurement Input for Per-Unit Pricing */}
-                  {selectedServiceVariant.pricingType === 'per_unit' && (
+                  {effectivePricingType === 'per_unit' && (
                     <View style={styles.measurementInputContainer}>
                       <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface }]}>
                         {selectedServiceVariant.unitMeasure || 'Measurement'}:
@@ -591,12 +728,13 @@ export function BookingCreateScreen({ navigation }: any) {
                       <TextInput
                         mode="outlined"
                         value={variantMeasurement}
-                        onChangeText={setVariantMeasurement}
+                        onChangeText={handleMeasurementChange}
                         placeholder={selectedServiceVariant.measurementPlaceholder || `Enter ${selectedServiceVariant.unitMeasure || 'measurement'}`}
-                        keyboardType="numeric"
+                        keyboardType="decimal-pad"
                         style={styles.input}
                         error={
                           variantMeasurement !== '' ? (
+                            isNaN(parseFloat(variantMeasurement)) ||
                             parseFloat(variantMeasurement) <= 0 ||
                             (selectedServiceVariant.minMeasurement !== undefined && parseFloat(variantMeasurement) < selectedServiceVariant.minMeasurement) ||
                             (selectedServiceVariant.maxMeasurement !== undefined && parseFloat(variantMeasurement) > selectedServiceVariant.maxMeasurement)
@@ -632,11 +770,11 @@ export function BookingCreateScreen({ navigation }: any) {
                       <TextInput
                         mode="outlined"
                         value={distance}
-                        onChangeText={setDistance}
+                        onChangeText={handleDistanceChange}
                         placeholder="Enter distance in kilometers"
-                        keyboardType="numeric"
+                        keyboardType="decimal-pad"
                         style={styles.input}
-                        error={distance !== '' && parseFloat(distance) <= 0}
+                        error={distance !== '' && (isNaN(parseFloat(distance)) || parseFloat(distance) <= 0)}
                       />
                       
                       <Text variant="bodyMedium" style={[styles.inputLabel, { color: theme.colors.onSurface, marginTop: 16 }]}>
@@ -645,11 +783,11 @@ export function BookingCreateScreen({ navigation }: any) {
                       <TextInput
                         mode="outlined"
                         value={numberOfBoxes}
-                        onChangeText={setNumberOfBoxes}
+                        onChangeText={handleBoxesChange}
                         placeholder="Enter number of boxes"
-                        keyboardType="numeric"
+                        keyboardType="number-pad"
                         style={styles.input}
-                        error={numberOfBoxes !== '' && parseFloat(numberOfBoxes) < 0}
+                        error={numberOfBoxes !== '' && (isNaN(parseInt(numberOfBoxes)) || parseInt(numberOfBoxes) < 0)}
                       />
                     </View>
                   )}
@@ -657,7 +795,7 @@ export function BookingCreateScreen({ navigation }: any) {
                   {/* Price Calculation Display */}
                   <View style={styles.priceCalculationContainer}>
                     {/* Calculation details for per-unit pricing */}
-                    {selectedServiceVariant.pricingType === 'per_unit' && variantMeasurement && parseFloat(variantMeasurement) > 0 && (
+                    {effectivePricingType === 'per_unit' && variantMeasurement && parseFloat(variantMeasurement) > 0 && (
                       <View style={styles.calculationDetails}>
                         <Text variant="bodyMedium" style={[styles.calculationText, { color: theme.colors.onSurfaceVariant }]}>
                           {variantMeasurement} {selectedServiceVariant.unitMeasure || 'units'} × €{selectedServiceVariant.unitPrice || selectedServiceVariant.price}/{selectedServiceVariant.unitMeasure || 'unit'} = €{calculateTotalPrice().toFixed(2)}
@@ -666,7 +804,7 @@ export function BookingCreateScreen({ navigation }: any) {
                     )}
 
                     {/* Calculation details for fixed pricing with quantity > 1 */}
-                    {selectedServiceVariant.pricingType === 'fixed' && variantQuantity > 1 && !isHouseMovingService && (
+                    {effectivePricingType === 'fixed' && parseFloat(variantQuantity || '1') > 1 && !isHouseMovingService && (
                       <View style={styles.calculationDetails}>
                         <Text variant="bodyMedium" style={[styles.calculationText, { color: theme.colors.onSurfaceVariant }]}>
                           Quantity: {variantQuantity} × €{selectedServiceVariant.price} = €{calculateTotalPrice().toFixed(2)}
@@ -678,12 +816,12 @@ export function BookingCreateScreen({ navigation }: any) {
                     {isHouseMovingService && distance && parseFloat(distance) > 0 && (
                       <View style={styles.movingCalculationContainer}>
                         {(() => {
-                          const area = selectedServiceVariant.pricingType === 'per_unit' 
+                          const area = effectivePricingType === 'per_unit' 
                             ? parseFloat(variantMeasurement || '0')
-                            : variantQuantity;
+                            : parseFloat(variantQuantity || '1');
                           const distanceValue = parseFloat(distance);
                           const boxesValue = parseFloat(numberOfBoxes) || 0;
-                          const rate = selectedServiceVariant.pricingType === 'per_unit' 
+                          const rate = effectivePricingType === 'per_unit' 
                             ? (selectedServiceVariant.unitPrice || selectedServiceVariant.price || 0)
                             : (selectedServiceVariant.price || 0);
                           const movingCost = calculateHouseMovingCost(area, distanceValue, rate, boxesValue);
@@ -726,28 +864,25 @@ export function BookingCreateScreen({ navigation }: any) {
                 </Card.Content>
               </Card>
             )}
-            
-            {/* Multi-day booking toggle */}
-            <View style={styles.multiDayToggle}>
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                Multiple Days
-              </Text>
-              <Switch
-                value={isMultiDay}
-                onValueChange={setIsMultiDay}
-                color={theme.colors.primary}
-              />
-            </View>
-            
-            {isMultiDay ? (
+
+            {/* Date Selection - Only show multi-day selector for weekly cleaning, single date/time for others */}
+            {isWeeklyCleaningService ? (
+              <>
+                {/* Multi-day booking info for weekly cleaning (always enabled) */}
+                <View style={styles.multiDayInfoContainer}>
+                  <Text variant="bodyMedium" style={[styles.multiDayInfoText, { color: theme.colors.primary }]}>
+                    Weekly Cleaning Service - Multiple Days Required
+                  </Text>
+                </View>
               <MultiDateSelector
                 selectedDates={selectedDates}
                 onDatesChange={setSelectedDates}
                 serviceTime={serviceTime}
                 onTimeChange={setServiceTime}
                 maxDays={7}
-                t={(key: string) => key}
+                  t={(key: string) => key}
               />
+              </>
             ) : (
               <>
                 <TextInput
@@ -769,14 +904,16 @@ export function BookingCreateScreen({ navigation }: any) {
                 />
               </>
             )}
-            
+
             <TextInput
-              label="Priority"
-              value={priority}
-              onChangeText={setPriority}
+              label="Service Address *"
+              value={serviceAddress}
+              onChangeText={setServiceAddress}
               style={styles.input}
               mode="outlined"
-              placeholder="low, medium, high, urgent"
+              placeholder="Enter service address (e.g., 123 Main St, Berlin, 10115, Germany)"
+              multiline
+              numberOfLines={2}
             />
             
             <TextInput
@@ -803,8 +940,10 @@ export function BookingCreateScreen({ navigation }: any) {
             mode="contained"
             onPress={handleCreateBooking}
             style={styles.actionButton}
+            loading={isCreating}
+            disabled={isCreating}
           >
-            Create Booking
+            {isCreating ? 'Creating...' : 'Create Booking'}
           </Button>
         </View>
       </ScrollView>
@@ -846,12 +985,17 @@ const styles = StyleSheet.create({
   input: {
     marginBottom: 16,
   },
-  multiDayToggle: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  multiDayInfoContainer: {
     marginBottom: 16,
-    paddingVertical: 8,
+    padding: 12,
+    backgroundColor: '#E3F2FD',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#2196F3',
+  },
+  multiDayInfoText: {
+    fontWeight: '500',
+    textAlign: 'center',
   },
   actionButtons: {
     flexDirection: 'row',
@@ -907,21 +1051,6 @@ const styles = StyleSheet.create({
   },
   quantityInputContainer: {
     marginBottom: 16,
-  },
-  quantityControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-    gap: 16,
-  },
-  quantityButton: {
-    minWidth: 50,
-  },
-  quantityText: {
-    minWidth: 40,
-    textAlign: 'center',
-    fontWeight: '600',
   },
   measurementInputContainer: {
     marginBottom: 16,

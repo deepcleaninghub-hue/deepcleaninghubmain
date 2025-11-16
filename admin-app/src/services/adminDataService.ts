@@ -157,6 +157,20 @@ class AdminDataService {
     }
   }
 
+  // Create service booking
+  async createBooking(bookingData: any): Promise<AdminApiResponse<any>> {
+    try {
+      const res = await httpClient.post<AdminApiResponse<any>>('/service-bookings', bookingData);
+      return res.data;
+    } catch (error: any) {
+      console.error('Error creating booking:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || error.message || 'Failed to create booking',
+      };
+    }
+  }
+
   // Fallbacks removed
 }
 
