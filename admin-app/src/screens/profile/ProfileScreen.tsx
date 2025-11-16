@@ -220,14 +220,6 @@ export function ProfileScreen({ navigation }: any) {
                 <Text variant="bodyMedium" style={[styles.profileEmail, { color: theme.colors.onSurfaceVariant }]}>
                   {admin.email}
                 </Text>
-                {admin.phone && (
-                  <View style={styles.phoneContainer}>
-                    <Ionicons name="call-outline" size={16} color={theme.colors.primary} />
-                    <Text variant="bodySmall" style={[styles.phone, { color: theme.colors.onSurfaceVariant }]}>
-                      {admin.phone}
-                    </Text>
-                  </View>
-                )}
                 <View style={[styles.roleBadge, { backgroundColor: getRoleColor(admin.role) + '20' }]}>
                   <Text variant="bodySmall" style={[styles.roleText, { color: getRoleColor(admin.role) }]}>
                     {getRoleDisplayName(admin.role)}
@@ -464,14 +456,6 @@ const styles = StyleSheet.create({
   },
   profileEmail: {
     marginBottom: 4,
-  },
-  phoneContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  phone: {
-    marginLeft: 6,
   },
   roleBadge: {
     alignSelf: 'flex-start',

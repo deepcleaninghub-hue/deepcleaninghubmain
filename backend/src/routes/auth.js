@@ -279,7 +279,6 @@ router.get('/admin/me', protect, async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: user.phone || '',
         role: user.role,
         is_active: user.is_active,
         last_login: user.last_login,
@@ -314,15 +313,6 @@ router.put('/admin/me', [
     }
     return true;
   }),
-  body('phone').optional().custom((value) => {
-    if (value !== undefined && value !== null && value !== '') {
-      const phoneStr = String(value).trim();
-      if (phoneStr.length > 0 && phoneStr.length < 10) {
-        throw new Error('Phone number must be at least 10 characters');
-      }
-    }
-    return true;
-  })
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -360,10 +350,6 @@ router.put('/admin/me', [
         updateData.email = trimmedEmail;
       }
     }
-    if (req.body.phone !== undefined && req.body.phone !== null) {
-      const trimmedPhone = String(req.body.phone).trim();
-      updateData.phone = trimmedPhone !== '' ? trimmedPhone : null;
-    }
 
     // Ensure at least one field is being updated (besides updated_at)
     const fieldsToUpdate = Object.keys(updateData).filter(key => key !== 'updated_at');
@@ -398,7 +384,7 @@ router.put('/admin/me', [
       .from('admin_users')
       .update(updateData)
       .eq('id', req.user.id)
-      .select('id, name, email, phone, role, is_active, last_login, created_at, updated_at')
+      .select('id, name, email, role, is_active, last_login, created_at, updated_at')
       .single();
 
     if (error) {
@@ -422,7 +408,6 @@ router.put('/admin/me', [
         id: updatedUser.id,
         name: updatedUser.name,
         email: updatedUser.email,
-        phone: updatedUser.phone || '',
         role: updatedUser.role,
         is_active: updatedUser.is_active,
         last_login: updatedUser.last_login,

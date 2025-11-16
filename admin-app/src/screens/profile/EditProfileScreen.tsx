@@ -21,7 +21,6 @@ export function EditProfileScreen({ navigation }: any) {
   const [formData, setFormData] = useState({
     name: admin?.name || '',
     email: admin?.email || '',
-    phone: admin?.phone || '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -32,13 +31,11 @@ export function EditProfileScreen({ navigation }: any) {
       setFormData({
         name: admin.name || '',
         email: admin.email || '',
-        phone: admin.phone || '',
       });
     }
   }, [admin]);
 
   const emailRef = useRef<any>(null);
-  const phoneRef = useRef<any>(null);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -68,9 +65,6 @@ export function EditProfileScreen({ navigation }: any) {
       newErrors.email = 'Please enter a valid email';
     }
 
-    if (formData.phone && formData.phone.length > 0 && formData.phone.length < 10) {
-      newErrors.phone = 'Phone number must be at least 10 digits';
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -88,7 +82,6 @@ export function EditProfileScreen({ navigation }: any) {
       const changedFields: any = {};
       if (formData.name !== (admin?.name || '')) changedFields.name = formData.name;
       if (formData.email !== (admin?.email || '')) changedFields.email = formData.email;
-      if (formData.phone !== (admin?.phone || '')) changedFields.phone = formData.phone;
 
       if (Object.keys(changedFields).length === 0) {
         Alert.alert('No Changes', 'No changes were made to your profile.');
@@ -193,33 +186,13 @@ export function EditProfileScreen({ navigation }: any) {
               mode="outlined"
               keyboardType="email-address"
               autoCapitalize="none"
-              returnKeyType="next"
-              blurOnSubmit={false}
-              onSubmitEditing={() => phoneRef.current?.focus()}
+              returnKeyType="done"
+              blurOnSubmit={true}
               left={<TextInput.Icon icon="email" />}
             />
             {errors.email && (
               <Text style={[styles.errorText, { color: theme.colors.error }]}>
                 {errors.email}
-              </Text>
-            )}
-
-            <TextInput
-              ref={phoneRef}
-              label="Phone"
-              value={formData.phone}
-              onChangeText={(text) => handleInputChange('phone', text)}
-              style={styles.input}
-              error={!!errors.phone}
-              mode="outlined"
-              keyboardType="phone-pad"
-              returnKeyType="done"
-              blurOnSubmit={true}
-              left={<TextInput.Icon icon="phone" />}
-            />
-            {errors.phone && (
-              <Text style={[styles.errorText, { color: theme.colors.error }]}>
-                {errors.phone}
               </Text>
             )}
           </Card.Content>
