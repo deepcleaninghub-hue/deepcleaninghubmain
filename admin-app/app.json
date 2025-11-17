@@ -16,7 +16,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.deepclean.admin"
+      "bundleIdentifier": "com.deepclean.admin",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {

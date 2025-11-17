@@ -18,11 +18,118 @@ class AdminDataService {
     }
   }
 
-  async getServices(): Promise<AdminApiResponse<AdminService[]>> {
+  async getServices(category?: string): Promise<AdminApiResponse<AdminService[]>> {
     try {
-      const res = await httpClient.get<AdminApiResponse<AdminService[]>>('/services/admin');
-      return res.data;
-    } catch (error) {
+      // Use the same endpoint as shared app - this includes service_variants
+      // Build URL with query params (axios style)
+      let url = '/services';
+      if (category) {
+        url = `/services?category=${encodeURIComponent(category)}`;
+      }
+
+      console.log(`[TEST] Calling GET ${url}`);
+      const res = await httpClient.get<{ success: boolean; data: any[]; count?: number }>(url);
+
+      console.log(`[TEST] Response status:`, res.status);
+      console.log(`[TEST] Response headers:`, res.headers);
+      console.log(`[TEST] Full axios response keys:`, Object.keys(res));
+      console.log(`[TEST] res.data type:`, typeof res.data);
+      console.log(`[TEST] res.data is array:`, Array.isArray(res.data));
+      console.log(`[TEST] res.data keys:`, res.data ? Object.keys(res.data) : 'null');
+      console.log(`[TEST] Response data structure:`, {
+        hasData: !!res.data,
+        hasSuccess: res.data?.success,
+        hasDataArray: !!res.data?.data,
+        dataLength: res.data?.data?.length,
+        hasCount: !!(res.data as any)?.count,
+        count: (res.data as any)?.count,
+        fullResponse: JSON.stringify(res.data, null, 2)
+      });
+
+      // httpClient.get returns axios response: { data: { success, data: [...] } }
+      const responseData = res.data;
+
+      // Handle case where response might be directly the data array or have different structure
+      if (Array.isArray(responseData)) {
+        console.log(`[TEST] ⚠️ Response is directly an array, wrapping in expected format`);
+        return {
+          success: true, data: responseData.map((service: any): AdminService => {
+            const result: AdminService = {
+              id: service.id,
+              title: service.title,
+              description: service.description,
+              category: service.category,
+              isActive: service.is_active ?? true,
+              pricingType: (service.pricing_type || 'fixed') as 'fixed' | 'hourly' | 'custom',
+              totalBookings: 0,
+              totalRevenue: 0,
+              averageRating: 0,
+              popularityScore: 0,
+              seasonalTrends: [],
+              staffRequirements: [],
+              equipmentNeeded: [],
+              suppliesNeeded: [],
+              estimatedDuration: 0,
+              difficultyLevel: 'medium' as const,
+            };
+            if (service.price) {
+              result.price = parseFloat(service.price);
+            }
+            return result;
+          })
+        };
+      }
+
+      if (responseData && responseData.success && responseData.data) {
+        console.log(`[TEST] ✅ Fetched ${responseData.data.length} services from /services endpoint${category ? ` for category: ${category}` : ''}`);
+        console.log(`[TEST] Raw services:`, responseData.data.map((s: any) => ({ id: s.id, title: s.title, category: s.category })));
+
+        // The /services endpoint returns services with service_variants included
+        // Transform to match AdminService format (using snake_case from database)
+        const transformedServices = responseData.data.map((service: any): AdminService => {
+          const result: AdminService = {
+            id: service.id,
+            title: service.title,
+            description: service.description,
+            category: service.category,
+            isActive: service.is_active ?? true,
+            pricingType: (service.pricing_type || 'fixed') as 'fixed' | 'hourly' | 'custom',
+            // AdminService extended fields with defaults
+            totalBookings: 0,
+            totalRevenue: 0,
+            averageRating: 0,
+            popularityScore: 0,
+            seasonalTrends: [],
+            staffRequirements: [],
+            equipmentNeeded: [],
+            suppliesNeeded: [],
+            estimatedDuration: 0,
+            difficultyLevel: 'medium' as const,
+          };
+          if (service.price) {
+            result.price = parseFloat(service.price);
+          }
+          return result;
+        });
+
+        // Log categories for debugging
+        const categories = [...new Set(transformedServices.map((s: any) => s.category))];
+        console.log(`[TEST] Available service categories:`, categories);
+        if (transformedServices.length > 0 && transformedServices[0]) {
+          console.log(`[TEST] Sample service:`, transformedServices[0].title, 'Category:', transformedServices[0].category);
+        }
+
+        return { success: true, data: transformedServices };
+      }
+
+      console.warn(`[TEST] ⚠️ No services data received from /services endpoint. Response:`, JSON.stringify(responseData, null, 2));
+      return { success: true, data: [] };
+    } catch (error: any) {
+      console.error(`[TEST] ❌ Error fetching services:`, error);
+      console.error(`[TEST] Error response:`, error.response?.data);
+      console.error(`[TEST] Error status:`, error.response?.status);
+      console.error(`[TEST] Error message:`, error.message);
+      console.error(`[TEST] Full error:`, JSON.stringify(error, null, 2).substring(0, 1000));
       return { success: true, data: [] };
     }
   }
@@ -68,12 +175,56 @@ class AdminDataService {
   }
 
   // Service Variant Management
+  // Use the same endpoint as shared app
   async getServiceVariants(serviceId: string): Promise<AdminApiResponse<any[]>> {
     try {
-      const res = await httpClient.get<AdminApiResponse<any[]>>(`/service-variants?service_id=${serviceId}`);
-      return res.data;
-    } catch (error) {
-      console.error('Error fetching service variants:', error);
+      // Use the same endpoint as shared app: /service-variants?service_id=...
+      const url = `/service-variants?service_id=${serviceId}`;
+      console.log(`[TEST] Calling GET ${url}`);
+
+      const res = await httpClient.get<AdminApiResponse<any[]>>(url);
+
+      console.log(`[TEST] Variants response status:`, res.status);
+      console.log(`[TEST] Variants response data:`, {
+        hasData: !!res.data,
+        hasSuccess: res.data?.success,
+        hasDataArray: !!res.data?.data,
+        dataLength: res.data?.data?.length,
+        fullResponse: JSON.stringify(res.data, null, 2).substring(0, 500)
+      });
+
+      if (res.data && res.data.success && res.data.data) {
+        console.log(`[TEST] ✅ Fetched ${res.data.data.length} variants for service ${serviceId}`);
+        console.log(`[TEST] Variant titles:`, res.data.data.map((v: any) => v.title));
+
+        // Transform variants to match expected format (same as shared app)
+        const transformedVariants = res.data.data.map((variant: any) => ({
+          id: variant.id,
+          service_id: variant.service_id,
+          title: variant.title,
+          description: variant.description,
+          price: variant.price ? parseFloat(variant.price) : undefined,
+          unitPrice: variant.unit_price ? parseFloat(variant.unit_price) : undefined,
+          unitMeasure: variant.unit_measure,
+          pricingType: variant.pricing_type,
+          minMeasurement: variant.min_measurement,
+          maxMeasurement: variant.max_measurement,
+          measurementStep: variant.measurement_step,
+          measurementPlaceholder: variant.measurement_placeholder,
+          duration: variant.duration,
+          is_active: variant.is_active,
+          display_order: variant.display_order,
+        }));
+
+        return { success: true, data: transformedVariants };
+      }
+
+      console.warn(`[TEST] ⚠️ No variants found for service ${serviceId}`);
+      return { success: true, data: [] };
+    } catch (error: any) {
+      console.error(`[TEST] ❌ Error fetching service variants:`, error);
+      console.error(`[TEST] Error response:`, error.response?.data);
+      console.error(`[TEST] Error status:`, error.response?.status);
       return { success: false, error: 'Failed to fetch service variants' };
     }
   }
@@ -174,6 +325,27 @@ class AdminDataService {
         success: false,
         error: error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to create booking',
       };
+    }
+  }
+
+  // Mobile Users (Customers) Management
+  async getMobileUsers(): Promise<AdminApiResponse<any[]>> {
+    try {
+      const res = await httpClient.get<AdminApiResponse<any[]>>('/admin/mobile-users');
+      return res.data;
+    } catch (error) {
+      console.error('Error fetching mobile users:', error);
+      return { success: false, error: 'Failed to fetch mobile users' };
+    }
+  }
+
+  async getMobileUser(id: string): Promise<AdminApiResponse<any>> {
+    try {
+      const res = await httpClient.get<AdminApiResponse<any>>(`/admin/mobile-users/${id}`);
+      return res.data;
+    } catch (error) {
+      console.error('Error fetching mobile user:', error);
+      return { success: false, error: 'Failed to fetch mobile user' };
     }
   }
 

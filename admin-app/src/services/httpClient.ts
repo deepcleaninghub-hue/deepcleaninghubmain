@@ -11,6 +11,7 @@ class HttpClient {
   private client: AxiosInstance;
   private logoutCallback: (() => void) | null = null;
   private refreshTokenCallback: (() => Promise<boolean>) | null = null;
+  private isRefreshing = false;
 
   constructor() {
     // Increase timeout for production environments (30 seconds)
@@ -74,7 +75,7 @@ class HttpClient {
   private setupInterceptors() {
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
-      async (config: InternalAxiosRequestConfig) => {
+      async (config: InternalAxiosRequestConfig & { _isRefreshRequest?: boolean }) => {
         try {
           const token = await AsyncStorage.getItem('admin_token');
           if (token) {
@@ -96,9 +97,12 @@ class HttpClient {
         return response;
       },
       async (error: AxiosError) => {
-        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean; _isRefreshRequest?: boolean };
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // Don't retry if this is already a refresh token request or if we're already refreshing
+        const isRefreshRequest = originalRequest.url?.includes('/auth/refresh') || originalRequest._isRefreshRequest;
+
+        if (error.response?.status === 401 && !originalRequest._retry && !isRefreshRequest && !this.isRefreshing) {
           originalRequest._retry = true;
 
           // Check if it's a JWT signature error (invalid token structure)
@@ -119,6 +123,7 @@ class HttpClient {
           // Try to refresh token for expired tokens
           if (this.refreshTokenCallback) {
             try {
+              this.isRefreshing = true;
               console.log('Token expired, attempting to refresh...');
               const refreshSuccess = await this.refreshTokenCallback();
 
@@ -127,6 +132,8 @@ class HttpClient {
                 const newToken = await AsyncStorage.getItem('admin_token');
                 if (newToken && originalRequest.headers) {
                   originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                  // Reset retry flag for the retry attempt
+                  originalRequest._retry = false;
                   return this.client(originalRequest);
                 }
               } else {
@@ -137,10 +144,16 @@ class HttpClient {
             } catch (refreshError) {
               console.error('Token refresh error:', refreshError);
               // Don't logout automatically on refresh error
+            } finally {
+              this.isRefreshing = false;
             }
           } else {
             console.log('No refresh token callback set, skipping token refresh');
           }
+        } else if (isRefreshRequest && error.response?.status === 401) {
+          // If refresh token request itself fails with 401, logout
+          console.log('Refresh token request failed with 401, triggering logout...');
+          await this.triggerLogout();
         }
 
         return Promise.reject(error);

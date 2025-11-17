@@ -1,131 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
-import { Text, useTheme, Button, Card, Portal, Modal, IconButton } from 'react-native-paper';
+/**
+ * Service Category Screen - Refactored
+ * Displays services for a category with ability to add services and variants
+ */
+
+import React, { useState } from 'react';
+import { View, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { Text, Button, Card, useTheme, FAB, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useAdminData } from '@/contexts/AdminDataContext';
+import { useServices } from './hooks/useServices';
+import { ServiceCard } from './components/ServiceCard';
+import { ServiceCreateModal } from './components/ServiceCreateModal';
+import { ServiceVariantCreateModal } from './components/ServiceVariantCreateModal';
 import { AdminService } from '@/types';
-import { httpClient } from '@/services/httpClient';
-
-type ServiceVariant = {
-  id: string;
-  service_id: string;
-  title: string;
-  description?: string;
-  price: number;
-  duration?: number;
-  is_active?: boolean;
-  display_order?: number;
-};
 
 export function ServiceCategoryScreen({ route, navigation }: any) {
   const theme = useTheme();
   const { categoryId, categoryTitle } = route.params;
-  const { services: allServices } = useAdminData();
-  const [categoryServices, setCategoryServices] = useState<AdminService[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [imageLoading, setImageLoading] = useState<{[key: string]: boolean}>({});
-  const [imageError, setImageError] = useState<{[key: string]: boolean}>({});
+  const { services, loading, refreshServices } = useServices(categoryTitle);
+  const [serviceCreateModalVisible, setServiceCreateModalVisible] = useState(false);
+  const [variantCreateModalVisible, setVariantCreateModalVisible] = useState(false);
   const [selectedService, setSelectedService] = useState<AdminService | null>(null);
-  const [variants, setVariants] = useState<ServiceVariant[]>([]);
-  const [variantsLoading, setVariantsLoading] = useState(false);
-  const [variantModalVisible, setVariantModalVisible] = useState(false);
 
-  // Service categorization mapping
-  const serviceCategoryMapping: {[key: string]: string[]} = {
-    'Cleaning': ['Normal Cleaning', 'Deep Cleaning'],
-    'Furniture Assembly': [
-      'Bed Assembly', 'Bookshelf Assembly', 'Kitchen Assembly', 
-      'Table Assembly', 'Wardrobe Assembly', 'Filing Cabinet Assembly'
-    ],
-    'Furniture Disassembly': [
-      'Bed Disassembly', 'Bookshelf Disassembly', 'Kitchen Disassembly', 
-      'Table Disassembly', 'Wardrobe Disassembly'
-    ],
-    'House Painting': [
-      'Exterior Painting', 'Interior Painting', 'Ceiling Painting'
-    ],
-    'Office Setup': [
-      'Office Chair Assembly', 'Office Desk Assembly', 
-      'Office Equipment Assembly', 'Meeting Table Assembly'
-    ],
-    'Moving': [
-      'House Moving', 'Office Moving'
-    ],
+  const handleServicePress = (service: AdminService) => {
+    navigation.navigate('ServiceVariants', { serviceId: service.id });
   };
 
-  useEffect(() => {
-    filterServicesByCategory();
-  }, [categoryTitle, allServices]);
-
-  const filterServicesByCategory = () => {
-    try {
-      setLoading(true);
-      
-      // Get expected services for this category
-      const expectedServices = serviceCategoryMapping[categoryTitle] || [];
-      
-      const filteredServices = allServices.filter(service => {
-        // First try exact category match
-        if (service.category === categoryTitle) {
-          return true;
-        }
-        
-        // Then try service title matching
-        const titleMatch = expectedServices.some(expectedService => 
-          service.title.toLowerCase().includes(expectedService.toLowerCase()) ||
-          expectedService.toLowerCase().includes(service.title.toLowerCase())
-        );
-        
-        return titleMatch;
-      });
-      
-      setCategoryServices(filteredServices);
-    } catch (error) {
-      console.error('Error filtering services by category:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleEditService = (service: AdminService) => {
+    navigation.navigate('ServiceEdit', { serviceId: service.id });
   };
 
-  const handleServicePress = async (service: AdminService) => {
+  const handleAddService = () => {
+    setServiceCreateModalVisible(true);
+  };
+
+  const handleAddVariant = (service: AdminService) => {
     setSelectedService(service);
-    setVariantModalVisible(true);
-    await fetchServiceVariants(service.id);
+    setVariantCreateModalVisible(true);
   };
 
-  const fetchServiceVariants = async (serviceId: string) => {
-    try {
-      setVariantsLoading(true);
-      const response = await httpClient.get(`/service-variants?service_id=${serviceId}`);
-      if (response.data.success && response.data.data) {
-        setVariants(response.data.data);
-      } else {
-        setVariants([]);
-      }
-    } catch (error) {
-      console.error('Error fetching service variants:', error);
-      setVariants([]);
-    } finally {
-      setVariantsLoading(false);
-    }
+  const handleServiceCreated = () => {
+    refreshServices();
   };
 
-  const handleModalDismiss = () => {
-    setVariantModalVisible(false);
-    setSelectedService(null);
-    setVariants([]);
+  const handleVariantCreated = () => {
+    refreshServices();
   };
 
   const getServiceImage = (service: AdminService) => {
-    // Check if service has image property (from API response)
     const serviceImage = (service as any).image || (service as any).image_url;
     if (serviceImage) {
       return { uri: serviceImage };
@@ -159,7 +81,7 @@ export function ServiceCategoryScreen({ route, navigation }: any) {
         <View style={{ width: 80 }} />
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -171,7 +93,7 @@ export function ServiceCategoryScreen({ route, navigation }: any) {
               Loading services...
             </Text>
           </View>
-        ) : categoryServices.length === 0 ? (
+        ) : services.length === 0 ? (
           <Card style={[styles.emptyCard, { backgroundColor: theme.colors.surface }]}>
             <Card.Content style={styles.emptyContent}>
               <Ionicons name="folder-outline" size={64} color={theme.colors.onSurfaceVariant} />
@@ -181,138 +103,69 @@ export function ServiceCategoryScreen({ route, navigation }: any) {
               <Text variant="bodyMedium" style={[styles.emptySubtitle, { color: theme.colors.onSurfaceVariant }]}>
                 No services available for this category.
               </Text>
+              <Button
+                mode="contained"
+                onPress={handleAddService}
+                style={styles.addButton}
+              >
+                Add First Service
+              </Button>
             </Card.Content>
           </Card>
         ) : (
           <View style={styles.servicesGrid}>
-            {categoryServices.map((service) => (
-              <Card
-                key={service.id}
-                style={[styles.serviceCard, { backgroundColor: theme.colors.surface }]}
-                onPress={() => handleServicePress(service)}
-              >
-                <View style={styles.imageContainer}>
-                  {imageLoading[service.id] && (
-                    <View style={styles.imageLoader}>
-                      <ActivityIndicator size="small" color={theme.colors.primary} />
-                    </View>
-                  )}
-                  <Image 
-                    source={getServiceImage(service)}
-                    style={styles.serviceImage}
-                    onLoadStart={() => setImageLoading(prev => ({ ...prev, [service.id]: true }))}
-                    onLoadEnd={() => setImageLoading(prev => ({ ...prev, [service.id]: false }))}
-                    onError={() => {
-                      setImageLoading(prev => ({ ...prev, [service.id]: false }));
-                      setImageError(prev => ({ ...prev, [service.id]: true }));
-                    }}
-                  />
-                  {imageError[service.id] && (
-                    <View style={styles.imageErrorContainer}>
-                      <Ionicons name="image-outline" size={32} color={theme.colors.onSurfaceVariant} />
-                    </View>
-                  )}
-                </View>
-                <Card.Content>
-                  <View style={styles.serviceHeader}>
-                    <Text variant="titleMedium" style={[styles.serviceTitle, { color: theme.colors.onSurface, flex: 1 }]}>
-                      {service.title}
-                    </Text>
-                    <IconButton
-                      icon="pencil"
-                      size={20}
-                      iconColor={theme.colors.primary}
-                      onPress={() => navigation.navigate('ServiceEdit', { serviceId: service.id })}
-                      style={styles.editButton}
-                    />
-                  </View>
-                  {service.description && (
-                    <Text variant="bodySmall" style={[styles.serviceDescription, { color: theme.colors.onSurfaceVariant }]}>
-                      {service.description}
-                    </Text>
-                  )}
-                  {service.price && (
-                    <Text variant="titleSmall" style={[styles.servicePrice, { color: theme.colors.primary }]}>
-                      {service.pricingType === 'hourly' ? `€${service.price}/hour` : `€${service.price}`}
-                    </Text>
-                  )}
-                  <Button
-                    mode="contained"
-                    style={[styles.viewButton, { backgroundColor: theme.colors.primary }]}
-                    contentStyle={styles.viewButtonContent}
-                    labelStyle={[styles.viewButtonLabel, { color: theme.colors.onPrimary }]}
-                    onPress={() => navigation.navigate('ServiceVariants', { serviceId: service.id })}
-                  >
-                    View Variants
-                  </Button>
-                </Card.Content>
-              </Card>
+            {services.map((service) => (
+              <View key={service.id} style={styles.serviceCardWrapper}>
+                <ServiceCard
+                  service={service}
+                  onPress={handleServicePress}
+                  onEdit={handleEditService}
+                  getImageSource={getServiceImage}
+                />
+                <IconButton
+                  icon="plus-circle"
+                  size={24}
+                  iconColor={theme.colors.primary}
+                  onPress={() => handleAddVariant(service)}
+                  style={styles.addVariantButton}
+                />
+                <Text variant="bodySmall" style={[styles.addVariantLabel, { color: theme.colors.primary }]}>
+                  Add Variant
+                </Text>
+              </View>
             ))}
           </View>
         )}
       </ScrollView>
 
-      {/* Service Variant Modal */}
-      <Portal>
-        <Modal
-          visible={variantModalVisible}
-          onDismiss={handleModalDismiss}
-          contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
-        >
-          {selectedService && (
-            <Card style={[styles.modalCard, { backgroundColor: theme.colors.surface }]}>
-              <Card.Title
-                title={selectedService.title}
-                right={(props) => (
-                  <IconButton
-                    {...props}
-                    icon="close"
-                    onPress={handleModalDismiss}
-                  />
-                )}
-              />
-              <Card.Content>
-                {variantsLoading ? (
-                  <ActivityIndicator size="large" color={theme.colors.primary} />
-                ) : variants.length === 0 ? (
-                  <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
-                    No variants available for this service.
-                  </Text>
-                ) : (
-                  <ScrollView style={styles.variantsScrollView} showsVerticalScrollIndicator={false}>
-                    <View style={styles.variantsList}>
-                      {variants.map((variant) => (
-                        <Card key={variant.id} style={[styles.variantCard, { backgroundColor: theme.colors.background }]}>
-                          <Card.Content>
-                            <Text variant="titleSmall" style={[styles.variantTitle, { color: theme.colors.onSurface }]}>
-                              {variant.title}
-                            </Text>
-                            {variant.description && (
-                              <Text variant="bodySmall" style={[styles.variantDescription, { color: theme.colors.onSurfaceVariant }]}>
-                                {variant.description}
-                              </Text>
-                            )}
-                            <View style={styles.variantDetails}>
-                              <Text variant="bodyMedium" style={[styles.variantPrice, { color: theme.colors.primary }]}>
-                                €{variant.price}
-                              </Text>
-                              {variant.duration && (
-                                <Text variant="bodySmall" style={[styles.variantDuration, { color: theme.colors.onSurfaceVariant }]}>
-                                  {variant.duration} min
-                                </Text>
-                              )}
-                            </View>
-                          </Card.Content>
-                        </Card>
-                      ))}
-                    </View>
-                  </ScrollView>
-                )}
-              </Card.Content>
-            </Card>
-          )}
-        </Modal>
-      </Portal>
+      <FAB
+        icon="plus"
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        onPress={handleAddService}
+        label="Add Service"
+      />
+
+      {/* Service Create Modal */}
+      <ServiceCreateModal
+        visible={serviceCreateModalVisible}
+        category={categoryTitle}
+        onDismiss={() => setServiceCreateModalVisible(false)}
+        onSuccess={handleServiceCreated}
+      />
+
+      {/* Service Variant Create Modal */}
+      {selectedService && (
+        <ServiceVariantCreateModal
+          visible={variantCreateModalVisible}
+          serviceId={selectedService.id}
+          serviceTitle={selectedService.title}
+          onDismiss={() => {
+            setVariantCreateModalVisible(false);
+            setSelectedService(null);
+          }}
+          onSuccess={handleVariantCreated}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -365,119 +218,34 @@ const styles = StyleSheet.create({
   },
   emptySubtitle: {
     textAlign: 'center',
+    marginBottom: 16,
+  },
+  addButton: {
+    marginTop: 8,
   },
   servicesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  serviceCard: {
+  serviceCardWrapper: {
     width: '48%',
     marginBottom: 16,
-    borderRadius: 12,
-    elevation: 2,
-    overflow: 'hidden',
-  },
-  imageContainer: {
-    width: '100%',
-    height: 150,
-    position: 'relative',
-    backgroundColor: '#f0f0f0',
-  },
-  imageLoader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    zIndex: 1,
   },
-  serviceImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  imageErrorContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-  },
-  serviceTitle: {
-    fontWeight: 'bold',
+  addVariantButton: {
     marginTop: 8,
     marginBottom: 4,
   },
-  serviceDescription: {
-    marginBottom: 8,
-  },
-  servicePrice: {
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  viewButton: {
-    borderRadius: 8,
-  },
-  viewButtonContent: {
-    paddingVertical: 4,
-  },
-  viewButtonLabel: {
-    fontSize: 12,
-  },
-  modalContainer: {
-    margin: 20,
-    borderRadius: 16,
-    maxHeight: '80%',
-  },
-  modalCard: {
-    borderRadius: 16,
-  },
-  variantsScrollView: {
-    maxHeight: 400,
-  },
-  variantsList: {
-    gap: 12,
-  },
-  variantCard: {
-    marginBottom: 8,
-    borderRadius: 8,
-  },
-  variantTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  variantDescription: {
-    marginBottom: 8,
-  },
-  variantDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  variantPrice: {
-    fontWeight: 'bold',
-  },
-  variantDuration: {
-    fontStyle: 'italic',
-  },
-  emptyText: {
+  addVariantLabel: {
+    fontSize: 10,
     textAlign: 'center',
-    padding: 20,
   },
-  serviceHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  editButton: {
-    margin: 0,
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
   },
 });
 

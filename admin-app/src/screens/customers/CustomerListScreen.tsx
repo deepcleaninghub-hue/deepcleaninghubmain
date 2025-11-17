@@ -6,7 +6,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
-import { Text, Card, TextInput, Button, useTheme, Chip, FAB, ActivityIndicator } from 'react-native-paper';
+import { Text, Card, TextInput, useTheme, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -33,76 +33,118 @@ export function CustomerListScreen() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
   useEffect(() => {
     loadCustomers();
   }, []);
 
   useEffect(() => {
-    filterCustomers();
-  }, [searchQuery, statusFilter, customers]);
+    // Only filter if customers have been loaded (not empty or if we have customers)
+    if (customers.length > 0 || searchQuery) {
+      filterCustomers();
+    }
+  }, [searchQuery, customers]);
+
+  const filterCustomersFromList = (customerList: Customer[], query: string): Customer[] => {
+    let filtered = [...customerList];
+
+    // Search filter
+    if (query.trim()) {
+      const searchQueryLower = query.toLowerCase();
+      filtered = filtered.filter(customer =>
+        customer.name.toLowerCase().includes(searchQueryLower) ||
+        customer.email.toLowerCase().includes(searchQueryLower) ||
+        customer.phone?.toLowerCase().includes(searchQueryLower)
+      );
+    }
+
+    return filtered;
+  };
 
   const loadCustomers = async () => {
     try {
       setLoading(true);
       
-      // Load bookings to extract customer data
+      // Load mobile users from the mobile_users table
+      const usersResponse = await adminDataService.getMobileUsers();
+      const users = usersResponse.data || [];
+      
+      // Load bookings to calculate stats for each user
       const bookingsResponse = await adminDataService.getBookings();
       const bookings = bookingsResponse.data || [];
       
-      // Group bookings by customer
-      const customerMap = new Map<string, {
+      // Group bookings by user_id
+      const bookingStatsMap = new Map<string, {
         bookings: AdminBooking[];
         totalSpent: number;
         lastBookingDate?: string;
       }>();
 
       bookings.forEach((booking: AdminBooking) => {
-        const customerId = booking.user_id || booking.customer_email || 'unknown';
+        const userId = booking.user_id;
+        if (!userId) return;
         
-        if (!customerMap.has(customerId)) {
-          customerMap.set(customerId, {
+        if (!bookingStatsMap.has(userId)) {
+          bookingStatsMap.set(userId, {
             bookings: [],
             totalSpent: 0,
           });
         }
         
-        const customerData = customerMap.get(customerId)!;
-        customerData.bookings.push(booking);
-        customerData.totalSpent += booking.total_amount || 0;
+        const stats = bookingStatsMap.get(userId)!;
+        stats.bookings.push(booking);
+        stats.totalSpent += booking.total_amount || 0;
         
         const bookingDate = new Date(booking.booking_date || booking.created_at || '');
-        if (!customerData.lastBookingDate || bookingDate > new Date(customerData.lastBookingDate)) {
-          customerData.lastBookingDate = booking.booking_date || booking.created_at;
+        const bookingDateStr = booking.booking_date || booking.created_at;
+        if (bookingDateStr && (!stats.lastBookingDate || bookingDate > new Date(stats.lastBookingDate))) {
+          stats.lastBookingDate = bookingDateStr;
         }
       });
 
-      // Convert to customer list
-      const customerList: Customer[] = Array.from(customerMap.entries()).map(([id, data]) => {
-        const firstBooking = data.bookings[0];
-        const user = firstBooking.mobile_users;
-        const name = user 
-          ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || firstBooking.customer_name || 'Customer'
-          : firstBooking.customer_name || 'Customer';
-        
-        return {
-          id,
-          name,
-          email: user?.email || firstBooking.customer_email || '',
-          phone: user?.phone || firstBooking.customer_phone || '',
-          totalBookings: data.bookings.length,
-          totalSpent: data.totalSpent,
-          lastBookingDate: data.lastBookingDate,
-          accountStatus: 'active' as const,
-          createdAt: firstBooking.created_at || '',
+      // Convert mobile users to customer list with booking stats
+      const customerList: Customer[] = users.map((user: any) => {
+        const stats = bookingStatsMap.get(user.id) || {
+          bookings: [],
+          totalSpent: 0,
         };
+        
+        const name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Customer';
+        
+        const customer: Customer = {
+          id: user.id,
+          name,
+          email: user.email || '',
+          totalBookings: stats.bookings.length,
+          totalSpent: stats.totalSpent,
+          accountStatus: (user.is_active ? 'active' : 'inactive') as 'active' | 'inactive',
+          createdAt: user.created_at || new Date().toISOString(),
+        };
+        
+        if (user.phone) {
+          customer.phone = user.phone;
+        }
+        
+        if (stats.lastBookingDate) {
+          customer.lastBookingDate = stats.lastBookingDate;
+        }
+        
+        return customer;
       });
 
-      // Sort by total bookings (descending)
-      customerList.sort((a, b) => b.totalBookings - a.totalBookings);
+      // Sort by total bookings (descending), then by name
+      customerList.sort((a, b) => {
+        if (b.totalBookings !== a.totalBookings) {
+          return b.totalBookings - a.totalBookings;
+        }
+        return a.name.localeCompare(b.name);
+      });
       
       setCustomers(customerList);
+      
+      // Immediately filter customers after loading
+      const filtered = filterCustomersFromList(customerList, searchQuery);
+      setFilteredCustomers(filtered);
     } catch (error) {
       console.error('Error loading customers:', error);
     } finally {
@@ -111,23 +153,7 @@ export function CustomerListScreen() {
   };
 
   const filterCustomers = () => {
-    let filtered = [...customers];
-
-    // Search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(customer =>
-        customer.name.toLowerCase().includes(query) ||
-        customer.email.toLowerCase().includes(query) ||
-        customer.phone?.toLowerCase().includes(query)
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(customer => customer.accountStatus === statusFilter);
-    }
-
+    const filtered = filterCustomersFromList(customers, searchQuery);
     setFilteredCustomers(filtered);
   };
 
@@ -173,33 +199,6 @@ export function CustomerListScreen() {
           left={<TextInput.Icon icon="magnify" />}
           right={searchQuery ? <TextInput.Icon icon="close" onPress={() => setSearchQuery('')} /> : undefined}
         />
-        
-        <View style={styles.filterContainer}>
-          <Button
-            mode={statusFilter === 'all' ? 'contained' : 'outlined'}
-            onPress={() => setStatusFilter('all')}
-            style={styles.filterButton}
-            compact
-          >
-            All
-          </Button>
-          <Button
-            mode={statusFilter === 'active' ? 'contained' : 'outlined'}
-            onPress={() => setStatusFilter('active')}
-            style={styles.filterButton}
-            compact
-          >
-            Active
-          </Button>
-          <Button
-            mode={statusFilter === 'inactive' ? 'contained' : 'outlined'}
-            onPress={() => setStatusFilter('inactive')}
-            style={styles.filterButton}
-            compact
-          >
-            Inactive
-          </Button>
-        </View>
       </View>
 
       <ScrollView
@@ -232,24 +231,9 @@ export function CustomerListScreen() {
               <Card.Content>
                 <View style={styles.customerHeader}>
                   <View style={styles.customerInfo}>
-                    <View style={styles.customerNameRow}>
-                      <Text variant="titleMedium" style={[styles.customerName, { color: theme.colors.onSurface }]}>
-                        {customer.name}
-                      </Text>
-                      <Chip
-                        mode="outlined"
-                        textStyle={{ fontSize: 10 }}
-                        style={[
-                          styles.statusChip,
-                          { 
-                            borderColor: customer.accountStatus === 'active' ? '#4CAF50' : theme.colors.error,
-                            backgroundColor: customer.accountStatus === 'active' ? '#4CAF50' + '20' : theme.colors.errorContainer
-                          }
-                        ]}
-                      >
-                        {customer.accountStatus}
-                      </Chip>
-                    </View>
+                    <Text variant="titleMedium" style={[styles.customerName, { color: theme.colors.onSurface }]}>
+                      {customer.name}
+                    </Text>
                     <Text variant="bodySmall" style={[styles.customerEmail, { color: theme.colors.onSurfaceVariant }]}>
                       {customer.email}
                     </Text>
@@ -319,13 +303,6 @@ const styles = StyleSheet.create({
   searchInput: {
     marginBottom: 12,
   },
-  filterContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  filterButton: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
   },
@@ -345,18 +322,9 @@ const styles = StyleSheet.create({
   customerInfo: {
     flex: 1,
   },
-  customerNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-    gap: 8,
-  },
   customerName: {
     fontWeight: '600',
-    flex: 1,
-  },
-  statusChip: {
-    height: 24,
+    marginBottom: 4,
   },
   customerEmail: {
     marginBottom: 2,

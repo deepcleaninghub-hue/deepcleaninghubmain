@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DashboardNavigator } from './DashboardNavigator';
 import { BookingNavigator } from './BookingNavigator';
 import { CustomerNavigator } from './CustomerNavigator';
-import { ServiceNavigator } from './ServiceNavigator';
+// import { ServiceNavigator } from './ServiceNavigator';
 import { ProfileNavigator } from './ProfileNavigator';
 import { Icon } from '@/components/common/Icon';
 
@@ -67,7 +67,8 @@ export function MainNavigator() {
           ),
         }}
       />
-      <Tab.Screen
+      {/* Services section commented out - will be implemented in next prototype */}
+      {/* <Tab.Screen
         name="Services"
         component={ServiceNavigator}
         options={{
@@ -76,7 +77,7 @@ export function MainNavigator() {
             <Icon name="build" size={size} color={color} />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="Profile"
         component={ProfileNavigator}

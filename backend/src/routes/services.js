@@ -4,37 +4,6 @@ const { protect, admin } = require('../middleware/auth');
 
 const router = express.Router();
 
-// @desc    Get all services for admin
-// @route   GET /api/services/admin
-// @access  Private/Admin
-router.get('/admin', [protect, admin], async (req, res) => {
-  try {
-    const { data: services, error } = await supabase
-      .from('services')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching admin services:', error);
-      return res.status(500).json({
-        success: false,
-        error: 'Failed to fetch services'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: services || []
-    });
-  } catch (error) {
-    console.error('Error fetching admin services:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Server error'
-    });
-  }
-});
-
 // @desc    Get all services with their variants
 // @route   GET /api/services
 // @access  Public

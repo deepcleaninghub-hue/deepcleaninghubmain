@@ -97,9 +97,20 @@ export function DashboardScreen() {
         b.status?.toLowerCase() === 'completed'
       );
 
-      const todayRevenue = todayBookings.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0);
-      const weekRevenue = weekBookings.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0);
-      const monthRevenue = monthBookings.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0);
+      // Calculate revenue only from completed bookings
+      const todayCompletedBookings = todayBookings.filter((b: any) => 
+        b.status?.toLowerCase() === 'completed'
+      );
+      const weekCompletedBookings = weekBookings.filter((b: any) => 
+        b.status?.toLowerCase() === 'completed'
+      );
+      const monthCompletedBookings = monthBookings.filter((b: any) => 
+        b.status?.toLowerCase() === 'completed'
+      );
+
+      const todayRevenue = todayCompletedBookings.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0);
+      const weekRevenue = weekCompletedBookings.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0);
+      const monthRevenue = monthCompletedBookings.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0);
 
       // Load services
       const servicesResponse = await adminDataService.getServices();
@@ -223,7 +234,12 @@ export function DashboardScreen() {
                   <Text variant="headlineSmall" style={[styles.statNumber, { color: theme.colors.primary }]}>
                     {stats.totalBookings.thisWeek}
                   </Text>
-                  <Text variant="bodySmall" style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+                  <Text 
+                    variant="bodySmall" 
+                    style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit={false}
+                  >
                     This Week
                   </Text>
                 </View>
@@ -288,7 +304,12 @@ export function DashboardScreen() {
                   <Text variant="headlineSmall" style={[styles.statNumber, { color: '#4CAF50' }]}>
                     €{stats.totalRevenue.thisWeek.toFixed(0)}
                   </Text>
-                  <Text variant="bodySmall" style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+                  <Text 
+                    variant="bodySmall" 
+                    style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit={false}
+                  >
                     This Week
                   </Text>
                 </View>
@@ -339,7 +360,7 @@ export function DashboardScreen() {
           </Text>
           <View style={styles.quickActionsGrid}>
             <TouchableOpacity
-              style={[styles.quickActionCard, { backgroundColor: theme.colors.primaryContainer }]}
+              style={[styles.quickActionCard, styles.quickActionCardHalf, { backgroundColor: theme.colors.primaryContainer }]}
               onPress={() => navigation.navigate('Bookings', { screen: 'BookingCreate' })}
             >
               <Ionicons name="add-circle" size={32} color={theme.colors.primary} />
@@ -349,7 +370,7 @@ export function DashboardScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.quickActionCard, { backgroundColor: theme.colors.secondaryContainer }]}
+              style={[styles.quickActionCard, styles.quickActionCardHalf, { backgroundColor: theme.colors.secondaryContainer }]}
               onPress={() => navigation.navigate('Bookings', { screen: 'BookingList' })}
             >
               <Ionicons name="list" size={32} color={theme.colors.secondary} />
@@ -359,7 +380,7 @@ export function DashboardScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.quickActionCard, { backgroundColor: theme.colors.tertiaryContainer }]}
+              style={[styles.quickActionCard, styles.quickActionCardFull, { backgroundColor: theme.colors.tertiaryContainer }]}
               onPress={() => navigation.navigate('Customers', { screen: 'CustomerList' })}
             >
               <Ionicons name="people" size={32} color={theme.colors.tertiary} />
@@ -368,7 +389,8 @@ export function DashboardScreen() {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* Services section commented out - will be implemented in next prototype */}
+            {/* <TouchableOpacity
               style={[styles.quickActionCard, { backgroundColor: theme.colors.primaryContainer }]}
               onPress={() => navigation.navigate('Services', { screen: 'ServiceCreate' })}
             >
@@ -376,7 +398,7 @@ export function DashboardScreen() {
               <Text variant="bodyMedium" style={[styles.quickActionLabel, { color: theme.colors.onPrimaryContainer }]}>
                 Create Service
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
 
@@ -488,6 +510,8 @@ const styles = StyleSheet.create({
   },
   statValue: {
     alignItems: 'center',
+    minWidth: 90,
+    flex: 1,
   },
   statNumber: {
     fontWeight: 'bold',
@@ -495,6 +519,8 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
+    textAlign: 'center',
+    width: '100%',
   },
   statusRow: {
     flexDirection: 'row',
@@ -531,7 +557,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   quickActionCard: {
-    width: '47%',
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
@@ -543,6 +568,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
     fontWeight: '500',
+  },
+  quickActionCardHalf: {
+    width: '47%',
+  },
+  quickActionCardFull: {
+    width: '100%',
   },
   recentActivityContainer: {
     marginBottom: 24,

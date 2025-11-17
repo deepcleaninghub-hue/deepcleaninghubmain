@@ -400,4 +400,88 @@ router.post('/export', [
   }
 });
 
+// @desc    Get mobile users (customers) list
+// @route   GET /api/admin/mobile-users
+// @access  Private/Admin
+router.get('/mobile-users', [protect, admin], async (req, res) => {
+  try {
+    const { data: users, error } = await supabase
+      .from('mobile_users')
+      .select('id, email, first_name, last_name, phone, address, is_active, email_verified, created_at, last_login')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return res.status(500).json({
+        success: false,
+        error: 'Error fetching mobile users'
+      });
+    }
+
+    res.json({
+      success: true,
+      count: users.length,
+      data: users
+    });
+  } catch (error) {
+    console.error('Get mobile users error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error'
+    });
+  }
+});
+
+// @desc    Get mobile user details with booking stats
+// @route   GET /api/admin/mobile-users/:id
+// @access  Private/Admin
+router.get('/mobile-users/:id', [protect, admin], async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get user data
+    const { data: user, error: userError } = await supabase
+      .from('mobile_users')
+      .select('id, email, first_name, last_name, phone, address, is_active, email_verified, created_at, last_login')
+      .eq('id', id)
+      .single();
+
+    if (userError || !user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    // Get user's bookings for stats
+    const { data: bookings, error: bookingsError } = await supabase
+      .from('service_bookings')
+      .select('id, total_amount, booking_date, created_at, status, service_address')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false });
+
+    const totalBookings = bookings?.length || 0;
+    const totalSpent = bookings?.reduce((sum, b) => sum + (parseFloat(b.total_amount) || 0), 0) || 0;
+    const lastBooking = bookings && bookings.length > 0 
+      ? bookings.sort((a, b) => new Date(b.booking_date || b.created_at) - new Date(a.booking_date || a.created_at))[0]
+      : null;
+
+    res.json({
+      success: true,
+      data: {
+        ...user,
+        totalBookings,
+        totalSpent,
+        lastBookingDate: lastBooking?.booking_date || lastBooking?.created_at,
+        bookings: bookings || []
+      }
+    });
+  } catch (error) {
+    console.error('Get mobile user error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error'
+    });
+  }
+});
+
 module.exports = router;
