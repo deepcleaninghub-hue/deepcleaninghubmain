@@ -27,31 +27,13 @@ class AdminDataService {
         url = `/services?category=${encodeURIComponent(category)}`;
       }
 
-      console.log(`[TEST] Calling GET ${url}`);
       const res = await httpClient.get<{ success: boolean; data: any[]; count?: number }>(url);
-
-      console.log(`[TEST] Response status:`, res.status);
-      console.log(`[TEST] Response headers:`, res.headers);
-      console.log(`[TEST] Full axios response keys:`, Object.keys(res));
-      console.log(`[TEST] res.data type:`, typeof res.data);
-      console.log(`[TEST] res.data is array:`, Array.isArray(res.data));
-      console.log(`[TEST] res.data keys:`, res.data ? Object.keys(res.data) : 'null');
-      console.log(`[TEST] Response data structure:`, {
-        hasData: !!res.data,
-        hasSuccess: res.data?.success,
-        hasDataArray: !!res.data?.data,
-        dataLength: res.data?.data?.length,
-        hasCount: !!(res.data as any)?.count,
-        count: (res.data as any)?.count,
-        fullResponse: JSON.stringify(res.data, null, 2)
-      });
 
       // httpClient.get returns axios response: { data: { success, data: [...] } }
       const responseData = res.data;
 
       // Handle case where response might be directly the data array or have different structure
       if (Array.isArray(responseData)) {
-        console.log(`[TEST] ⚠️ Response is directly an array, wrapping in expected format`);
         return {
           success: true, data: responseData.map((service: any): AdminService => {
             const result: AdminService = {
@@ -81,9 +63,6 @@ class AdminDataService {
       }
 
       if (responseData && responseData.success && responseData.data) {
-        console.log(`[TEST] ✅ Fetched ${responseData.data.length} services from /services endpoint${category ? ` for category: ${category}` : ''}`);
-        console.log(`[TEST] Raw services:`, responseData.data.map((s: any) => ({ id: s.id, title: s.title, category: s.category })));
-
         // The /services endpoint returns services with service_variants included
         // Transform to match AdminService format (using snake_case from database)
         const transformedServices = responseData.data.map((service: any): AdminService => {
@@ -112,24 +91,12 @@ class AdminDataService {
           return result;
         });
 
-        // Log categories for debugging
-        const categories = [...new Set(transformedServices.map((s: any) => s.category))];
-        console.log(`[TEST] Available service categories:`, categories);
-        if (transformedServices.length > 0 && transformedServices[0]) {
-          console.log(`[TEST] Sample service:`, transformedServices[0].title, 'Category:', transformedServices[0].category);
-        }
-
         return { success: true, data: transformedServices };
       }
 
-      console.warn(`[TEST] ⚠️ No services data received from /services endpoint. Response:`, JSON.stringify(responseData, null, 2));
       return { success: true, data: [] };
     } catch (error: any) {
-      console.error(`[TEST] ❌ Error fetching services:`, error);
-      console.error(`[TEST] Error response:`, error.response?.data);
-      console.error(`[TEST] Error status:`, error.response?.status);
-      console.error(`[TEST] Error message:`, error.message);
-      console.error(`[TEST] Full error:`, JSON.stringify(error, null, 2).substring(0, 1000));
+      console.error('Error fetching services:', error);
       return { success: true, data: [] };
     }
   }
@@ -180,22 +147,10 @@ class AdminDataService {
     try {
       // Use the same endpoint as shared app: /service-variants?service_id=...
       const url = `/service-variants?service_id=${serviceId}`;
-      console.log(`[TEST] Calling GET ${url}`);
 
       const res = await httpClient.get<AdminApiResponse<any[]>>(url);
 
-      console.log(`[TEST] Variants response status:`, res.status);
-      console.log(`[TEST] Variants response data:`, {
-        hasData: !!res.data,
-        hasSuccess: res.data?.success,
-        hasDataArray: !!res.data?.data,
-        dataLength: res.data?.data?.length,
-        fullResponse: JSON.stringify(res.data, null, 2).substring(0, 500)
-      });
-
       if (res.data && res.data.success && res.data.data) {
-        console.log(`[TEST] ✅ Fetched ${res.data.data.length} variants for service ${serviceId}`);
-        console.log(`[TEST] Variant titles:`, res.data.data.map((v: any) => v.title));
 
         // Transform variants to match expected format (same as shared app)
         const transformedVariants = res.data.data.map((variant: any) => ({
@@ -219,12 +174,9 @@ class AdminDataService {
         return { success: true, data: transformedVariants };
       }
 
-      console.warn(`[TEST] ⚠️ No variants found for service ${serviceId}`);
       return { success: true, data: [] };
     } catch (error: any) {
-      console.error(`[TEST] ❌ Error fetching service variants:`, error);
-      console.error(`[TEST] Error response:`, error.response?.data);
-      console.error(`[TEST] Error status:`, error.response?.status);
+      console.error('Error fetching service variants:', error);
       return { success: false, error: 'Failed to fetch service variants' };
     }
   }
@@ -288,6 +240,19 @@ class AdminDataService {
     }
   }
 
+  async deleteBooking(id: string): Promise<AdminApiResponse> {
+    try {
+      const res = await httpClient.delete<AdminApiResponse>(`/admin/bookings/${id}`);
+      return res.data;
+    } catch (error: any) {
+      console.error('Error deleting booking:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || error.message || 'Failed to delete booking',
+      };
+    }
+  }
+
   async getRevenueData(period: 'weekly' | 'monthly'): Promise<AdminApiResponse<Array<{ date: string; amount: number; bookings: number }>>> {
     try {
       const res = await httpClient.get<AdminApiResponse<Array<{ date: string; amount: number; bookings: number }>>>(`/admin/analytics/revenue?period=${period}`);
@@ -311,10 +276,8 @@ class AdminDataService {
   // Create service booking (using same endpoint as shared app)
   async createBooking(bookingData: any): Promise<AdminApiResponse<any>> {
     try {
-      console.log('Sending booking data to API:', JSON.stringify(bookingData, null, 2));
       // Use the same endpoint as shared app (/service-bookings) which accepts the full booking data format
       const res = await httpClient.post<AdminApiResponse<any>>('/service-bookings', bookingData);
-      console.log('Booking creation response:', res.data);
       return res.data;
     } catch (error: any) {
       console.error('Error creating booking:', error);

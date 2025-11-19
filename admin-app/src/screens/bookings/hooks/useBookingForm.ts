@@ -30,9 +30,6 @@ export function useBookingForm() {
     const [selectedServiceCategory, setSelectedServiceCategory] = useState<string>('');
     const [selectedServiceType, setSelectedServiceType] = useState<AdminService | null>(null);
     const [selectedServiceVariant, setSelectedServiceVariant] = useState<ServiceVariant | null>(null);
-    const [filteredServices, setFilteredServices] = useState<AdminService[]>([]);
-    const [serviceVariants, setServiceVariants] = useState<ServiceVariant[]>([]);
-    const [loadingVariants, setLoadingVariants] = useState(false);
 
     // Variant configuration
     const [variantQuantity, setVariantQuantity] = useState('1');
@@ -82,66 +79,8 @@ export function useBookingForm() {
         }
     }, [selectedServiceVariant]);
 
-    // Fetch services when category changes
-    useEffect(() => {
-        const fetchServices = async () => {
-            if (selectedServiceCategory) {
-                try {
-                    const category = selectedServiceCategory; // This should be the category name, not ID
-                    const response = await adminDataService.getServices(category);
-                    if (response.success && response.data) {
-                        setFilteredServices(response.data);
-                    } else {
-                        setFilteredServices([]);
-                    }
-                    setSelectedServiceType(null);
-                    setSelectedServiceVariant(null);
-                    setServiceVariants([]);
-                } catch (error) {
-                    console.error('Error fetching services by category:', error);
-                    setFilteredServices([]);
-                    setSelectedServiceType(null);
-                    setSelectedServiceVariant(null);
-                    setServiceVariants([]);
-                }
-            } else {
-                setFilteredServices([]);
-                setSelectedServiceType(null);
-                setSelectedServiceVariant(null);
-                setServiceVariants([]);
-            }
-        };
-
-        fetchServices();
-    }, [selectedServiceCategory]);
-
-    // Fetch variants when service type changes
-    useEffect(() => {
-        if (selectedServiceType) {
-            fetchServiceVariants(selectedServiceType.id);
-            setSelectedServiceVariant(null);
-        } else {
-            setServiceVariants([]);
-            setSelectedServiceVariant(null);
-        }
-    }, [selectedServiceType]);
-
-    const fetchServiceVariants = async (serviceId: string) => {
-        try {
-            setLoadingVariants(true);
-            const response = await adminDataService.getServiceVariants(serviceId);
-            if (response.success && response.data) {
-                setServiceVariants(response.data);
-            } else {
-                setServiceVariants([]);
-            }
-        } catch (error) {
-            console.error('Error fetching service variants:', error);
-            setServiceVariants([]);
-        } finally {
-            setLoadingVariants(false);
-        }
-    };
+    // Note: Services and variants are now loaded by the selector components themselves using cache
+    // This hook no longer needs to fetch them
 
     const handleDateChange = (pickedDate: Date) => {
         const dateResult = validateDate(pickedDate);
@@ -193,10 +132,6 @@ export function useBookingForm() {
         setSelectedServiceType,
         selectedServiceVariant,
         setSelectedServiceVariant,
-        filteredServices,
-        setFilteredServices,
-        serviceVariants,
-        loadingVariants,
 
         // Variant configuration
         variantQuantity,

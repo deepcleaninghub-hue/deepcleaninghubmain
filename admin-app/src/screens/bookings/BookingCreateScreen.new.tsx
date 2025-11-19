@@ -19,10 +19,10 @@ import { buildBookingData } from './utils/bookingDataBuilder';
 import { useServiceCategories } from './hooks/useServiceCategories';
 import { useCustomers } from './hooks/useCustomers';
 import { useBookingForm } from './hooks/useBookingForm';
-import { CustomerSelector } from './components/CustomerSelector.v4';
-import { ServiceCategorySelector } from './components/ServiceCategorySelector.v4';
-import { ServiceTypeSelector } from './components/ServiceTypeSelector.v4';
-import { ServiceVariantSelector } from './components/ServiceVariantSelector.v4';
+import { CustomerSelector } from './components/CustomerSelector.new';
+import { ServiceCategorySelector } from './components/ServiceCategorySelector.new';
+import { ServiceTypeSelector } from './components/ServiceTypeSelector.new';
+import { ServiceVariantSelector } from './components/ServiceVariantSelector.new';
 import { ServiceVariant } from '@/services/dataCache';
 import { VariantConfiguration } from './components/VariantConfiguration';
 import { DateTimeSelector } from './components/DateTimeSelector';
@@ -96,21 +96,6 @@ export function BookingCreateScreen({ navigation }: any) {
   // Get category name for display
   const selectedCategory = categories.find((cat) => cat.id === selectedServiceCategory);
   const categoryName = selectedCategory?.category;
-
-  // Auto-fill service address when customer is selected
-  // Only fills if address field is empty to avoid overwriting user input
-  React.useEffect(() => {
-    if (selectedCustomer?.address) {
-      // Only auto-fill if the address field is empty
-      // This prevents overwriting user-entered addresses
-      setServiceAddress((currentAddress) => {
-        if (!currentAddress || currentAddress.trim() === '') {
-          return selectedCustomer.address || '';
-        }
-        return currentAddress;
-      });
-    }
-  }, [selectedCustomer?.id, selectedCustomer?.address]);
 
   // Reset selections when category changes (services/variants are now loaded by components)
   React.useEffect(() => {
@@ -224,6 +209,8 @@ export function BookingCreateScreen({ navigation }: any) {
         ...(notes.trim() && { notes: notes.trim() }),
       });
 
+      console.log('Booking Data:', JSON.stringify(bookingData, null, 2));
+
       // Create booking
       const response = await adminDataService.createBooking(bookingData);
 
@@ -313,14 +300,12 @@ export function BookingCreateScreen({ navigation }: any) {
         {/* Header */}
         <Surface style={[styles.header, { backgroundColor: theme.colors.surface }]} elevation={2}>
           <View style={styles.headerContent}>
-          <IconButton
-            icon="arrow-left"
-            size={24}
-            onPress={handleBackNavigation}
-            iconColor={theme.colors.onSurface}
-            testID="back-button"
-            accessibilityLabel="Go back"
-          />
+            <IconButton
+              icon="arrow-left"
+              size={24}
+              onPress={handleBackNavigation}
+              iconColor={theme.colors.onSurface}
+            />
             <View style={styles.headerTextContainer}>
               <Text variant="headlineSmall" style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
                 Create Booking

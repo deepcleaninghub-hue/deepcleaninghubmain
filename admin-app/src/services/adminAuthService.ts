@@ -10,13 +10,10 @@ interface SignInResponse {
 export const adminAuthService = {
   async signIn(email: string, password: string): Promise<AdminApiResponse<SignInResponse>> {
     try {
-      console.log('🔐 Attempting to sign in...');
       const response = await httpClient.post('/auth/login', {
         email,
         password,
       });
-
-      console.log('✅ Sign in response received:', response.data);
 
       if (response.data.success) {
         const { user, token } = response.data.data;

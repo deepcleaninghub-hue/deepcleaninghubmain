@@ -425,11 +425,11 @@ router.delete('/:id', [protect, admin], async (req, res) => {
       });
     }
 
-    // Only allow deletion of cancelled bookings
-    if (booking.status !== 'cancelled') {
+    // Only allow deletion of cancelled or completed bookings
+    if (booking.status !== 'cancelled' && booking.status !== 'completed') {
       return res.status(400).json({
         success: false,
-        error: 'Can only delete cancelled bookings'
+        error: 'Can only delete cancelled or completed bookings'
       });
     }
 

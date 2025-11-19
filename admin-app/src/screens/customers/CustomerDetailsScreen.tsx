@@ -155,6 +155,20 @@ export function CustomerDetailsScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={styles.header}>
+        <Button
+          mode="text"
+          onPress={() => navigation.goBack()}
+          icon="arrow-left"
+          textColor={theme.colors.primary}
+        >
+          Back
+        </Button>
+        <Text variant="headlineSmall" style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
+          Customer Details
+        </Text>
+        <View style={{ width: 80 }} />
+      </View>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Customer Information */}
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
@@ -344,6 +358,20 @@ export function CustomerDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
   loadingContainer: {
     flex: 1,

@@ -1,8 +1,10 @@
 /**
- * Service Variant Selector Component
+ * Service Variant Selector Component - DEPRECATED
+ * Use ServiceVariantSelector.new.tsx instead
+ * @deprecated
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Button, Menu, useTheme } from 'react-native-paper';
 
@@ -40,6 +42,33 @@ export function ServiceVariantSelector({
   const theme = useTheme();
   const [menuVisible, setMenuVisible] = useState(false);
 
+  const handleOpenMenu = useCallback(() => {
+    // Don't open if already visible or loading
+    if (menuVisible || loading) {
+      return;
+    }
+    // Use setTimeout to ensure state update happens after render
+    setTimeout(() => {
+      setMenuVisible(true);
+    }, 0);
+  }, [menuVisible, loading]);
+
+  const handleCloseMenu = useCallback(() => {
+    setMenuVisible(false);
+  }, []);
+
+  const handleSelectVariant = useCallback((variant: ServiceVariant) => {
+    onSelectVariant(variant);
+    setMenuVisible(false);
+  }, [onSelectVariant]);
+
+  // Ensure menu closes when loading changes or variants become empty
+  useEffect(() => {
+    if ((loading || variants.length === 0) && menuVisible) {
+      setMenuVisible(false);
+    }
+  }, [loading, variants.length, menuVisible]);
+
   return (
     <View style={styles.container}>
       <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurface }]}>
@@ -47,11 +76,15 @@ export function ServiceVariantSelector({
       </Text>
       <Menu
         visible={menuVisible}
-        onDismiss={() => setMenuVisible(false)}
+        onDismiss={handleCloseMenu}
         anchor={
           <Button
             mode="outlined"
-            onPress={() => setMenuVisible(true)}
+            onPress={() => {
+              if (!loading && variants.length > 0) {
+                handleOpenMenu();
+              }
+            }}
             style={styles.button}
             contentStyle={styles.buttonContent}
             disabled={loading || variants.length === 0}
@@ -69,7 +102,7 @@ export function ServiceVariantSelector({
       >
         {variants.length === 0 ? (
           <Menu.Item
-            onPress={() => setMenuVisible(false)}
+            onPress={handleCloseMenu}
             title={loading ? 'Loading...' : 'No variants available'}
             disabled
           />
@@ -77,10 +110,7 @@ export function ServiceVariantSelector({
           variants.map((variant) => (
             <Menu.Item
               key={variant.id}
-              onPress={() => {
-                onSelectVariant(variant);
-                setMenuVisible(false);
-              }}
+              onPress={() => handleSelectVariant(variant)}
               title={variant.title}
             />
           ))

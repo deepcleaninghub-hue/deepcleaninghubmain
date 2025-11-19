@@ -22,7 +22,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = DeepCleanAdmin/Info.plist; sourceTree = "<group>"; };
 		3DDE41ABCF6144C7467B7F08 /* libPods-DeepCleanAdmin.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DeepCleanAdmin.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		43CA846CE9AEA5E531A9ED85 /* Pods-DeepCleanAdmin.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DeepCleanAdmin.release.xcconfig"; path = "Target Support Files/Pods-DeepCleanAdmin/Pods-DeepCleanAdmin.release.xcconfig"; sourceTree = "<group>"; };
-		689E46FF184C40946DCBF54B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = DeepCleanAdmin/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		689E46FF184C40946DCBF54B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = DeepCleanAdmin/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = DeepCleanAdmin/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		E9582F824F9FBE87E7759DCD /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-DeepCleanAdmin/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
@@ -50,7 +50,6 @@
 				FBE2E0D26868F959134E058F /* Pods-DeepCleanAdmin.debug.xcconfig */,
 				43CA846CE9AEA5E531A9ED85 /* Pods-DeepCleanAdmin.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -341,6 +340,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DeepCleanAdmin/DeepCleanAdmin.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D2H3R3L4Z9;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -377,6 +377,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DeepCleanAdmin/DeepCleanAdmin.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D2H3R3L4Z9;
 				INFOPLIST_FILE = DeepCleanAdmin/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (

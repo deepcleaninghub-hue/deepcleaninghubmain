@@ -341,5 +341,11 @@ const styles = StyleSheet.create({
   button: {
     minWidth: 100,
   },
+  segmentedButtons: {
+    width: '100%',
+  },
+  segmentedButton: {
+    flex: 1,
+  },
 });
 

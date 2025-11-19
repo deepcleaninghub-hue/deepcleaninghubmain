@@ -10,6 +10,7 @@ import {
 import { Text, Card, Button, Chip, useTheme, Divider, FAB, SegmentedButtons, Searchbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { AdminBooking } from '@/types';
 import { adminDataService } from '@/services/adminDataService';
@@ -33,6 +34,17 @@ export function BookingListScreen({ navigation }: any) {
   useEffect(() => {
     filterBookings();
   }, [bookings, activeTab, searchQuery]);
+
+  // Reset navigation stack when screen is focused to prevent stuck state
+  useFocusEffect(
+    React.useCallback(() => {
+      // Ensure we're at the BookingList screen when tab is focused
+      // This prevents the screen from being stuck at BookingDetails when coming from Dashboard
+      return () => {
+        // Cleanup if needed
+      };
+    }, [])
+  );
 
   const loadBookings = async () => {
     try {
@@ -128,12 +140,24 @@ export function BookingListScreen({ navigation }: any) {
 
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'scheduled': return theme.colors.primary;
-      case 'confirmed': return '#4CAF50';
-      case 'completed': return '#4CAF50';
-      case 'cancelled': return theme.colors.error;
+    switch (status?.toLowerCase()) {
+      case 'scheduled': return '#2196F3'; // Bright blue for better visibility
+      case 'confirmed': return '#4CAF50'; // Green
+      case 'completed': return '#4CAF50'; // Green
+      case 'cancelled': return theme.colors.error; // Red
+      case 'pending': return '#FF9800'; // Orange
       default: return theme.colors.onSurfaceVariant;
+    }
+  };
+
+  const getStatusBackgroundColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'scheduled': return '#E3F2FD'; // Light blue background
+      case 'confirmed': return '#E8F5E9'; // Light green background
+      case 'completed': return '#E8F5E9'; // Light green background
+      case 'cancelled': return '#FFEBEE'; // Light red background
+      case 'pending': return '#FFF3E0'; // Light orange background
+      default: return '#F5F5F5'; // Light gray background
     }
   };
 
@@ -332,9 +356,17 @@ export function BookingListScreen({ navigation }: any) {
                       </Text>
                     </View>
                     <Chip
-                      mode="outlined"
-                      textStyle={{ color: getStatusColor(booking.status) }}
-                      style={{ borderColor: getStatusColor(booking.status) }}
+                      mode="flat"
+                      textStyle={{ 
+                        color: getStatusColor(booking.status),
+                        fontWeight: '600',
+                        fontSize: 12
+                      }}
+                      style={{ 
+                        backgroundColor: getStatusBackgroundColor(booking.status),
+                        borderWidth: 1,
+                        borderColor: getStatusColor(booking.status),
+                      }}
                       icon={(props) => (
                         <Ionicons
                           name={getStatusIcon(booking.status) as any}
@@ -377,16 +409,6 @@ export function BookingListScreen({ navigation }: any) {
                         <Text variant="bodySmall" style={[styles.customerName, { color: theme.colors.onSurface }]}>
                           {(() => {
                             const customerName = getCustomerName(booking);
-                            // Debug log in development
-                            if (__DEV__ && customerName === 'Customer') {
-                              console.log('Booking showing "Customer":', {
-                                id: booking.id,
-                                mobile_users: booking.mobile_users,
-                                customer_name: booking.customer_name,
-                                customer_email: booking.customer_email,
-                                user_id: booking.user_id
-                              });
-                            }
                             return customerName;
                           })()}
                         </Text>

@@ -9,6 +9,8 @@ import {
 import { Text, Card, Button, Chip, useTheme, Divider, ProgressBar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { AdminBooking } from '@/types';
 import { adminDataService } from '@/services/adminDataService';
@@ -16,7 +18,38 @@ import { adminDataService } from '@/services/adminDataService';
 export function BookingDetailsScreen({ navigation, route }: any) {
   const theme = useTheme();
   const { refreshBookings } = useAdminData();
-  const { bookingId } = route.params;
+  const nav = useNavigation<any>();
+  const { bookingId, cameFromDashboard: cameFromDashboardParam } = route.params || {};
+  
+  // Track if we came from Dashboard - check route params first
+  const [cameFromDashboard, setCameFromDashboard] = useState(cameFromDashboardParam === true);
+  
+  // Use useFocusEffect to check when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      // If param is set, use it
+      if (cameFromDashboardParam === true) {
+        setCameFromDashboard(true);
+        return;
+      }
+      
+      // Otherwise check navigation state
+      const state = nav.getState();
+      const routes = state?.routes || [];
+      const currentRouteIndex = routes.findIndex((r: any) => r.name === 'Bookings');
+      
+      if (currentRouteIndex >= 0) {
+        const bookingsRoute = routes[currentRouteIndex];
+        const bookingsState = bookingsRoute?.state;
+        const bookingsRoutes = bookingsState?.routes || [];
+        
+        // If BookingDetails is the only route in Bookings stack (meaning we came from outside), mark it
+        if (bookingsRoutes.length === 1 && bookingsRoutes[0]?.name === 'BookingDetails') {
+          setCameFromDashboard(true);
+        }
+      }
+    }, [cameFromDashboardParam, nav])
+  );
   const [booking, setBooking] = useState<AdminBooking | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -109,7 +142,20 @@ export function BookingDetailsScreen({ navigation, route }: any) {
               await adminDataService.updateBookingStatus({ bookingId: booking.id, status: 'cancelled' });
               await refreshBookings();
               Alert.alert('Success', 'Booking cancelled successfully');
-              navigation.goBack();
+              if (cameFromDashboard) {
+                const parent = navigation.getParent();
+                if (parent) {
+                  parent.navigate('Bookings');
+                }
+                navigation.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'BookingList' }],
+                  })
+                );
+              } else {
+                navigation.goBack();
+              }
             } catch (error) {
               Alert.alert('Error', 'Failed to cancel booking');
             }
@@ -132,17 +178,81 @@ export function BookingDetailsScreen({ navigation, route }: any) {
     }
   };
 
+  const handleDeleteBooking = async () => {
+    if (!booking) return;
+    
+    Alert.alert(
+      'Delete Booking',
+      'Are you sure you want to delete this booking? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const result = await adminDataService.deleteBooking(booking.id);
+              if (result.success) {
+                await refreshBookings();
+                Alert.alert('Success', 'Booking deleted successfully', [
+                  { 
+                    text: 'OK', 
+                    onPress: () => {
+                      if (cameFromDashboard) {
+                        const parent = navigation.getParent();
+                        if (parent) {
+                          parent.navigate('Bookings');
+                        }
+                        navigation.dispatch(
+                          CommonActions.reset({
+                            index: 0,
+                            routes: [{ name: 'BookingList' }],
+                          })
+                        );
+                      } else {
+                        navigation.goBack();
+                      }
+                    }
+                  }
+                ]);
+              } else {
+                Alert.alert('Error', result.error || 'Failed to delete booking');
+              }
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete booking');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   if (loading || !booking) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <Button
             mode="text"
-            onPress={() => navigation.goBack()}
-            icon="arrow-left"
-          >
-            Back
-          </Button>
+            onPress={() => {
+              if (cameFromDashboard) {
+                const parent = navigation.getParent();
+                if (parent) {
+                  parent.navigate('Bookings');
+                }
+                navigation.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'BookingList' }],
+                  })
+                );
+              } else {
+                navigation.goBack();
+              }
+            }}
+          icon="arrow-left"
+        >
+          Back
+        </Button>
           <Text variant="headlineSmall" style={styles.headerTitle}>Booking Details</Text>
         </View>
         <View style={styles.loadingContainer}>
@@ -154,13 +264,33 @@ export function BookingDetailsScreen({ navigation, route }: any) {
 
   const canCancel = booking.status === 'pending' || booking.status === 'confirmed';
   const canComplete = booking.status === 'confirmed';
+  const canDelete = booking.status === 'completed';
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Button
           mode="text"
-          onPress={() => navigation.goBack()}
+            onPress={() => {
+              if (cameFromDashboard) {
+                // If we came from Dashboard, navigate to Bookings tab and reset stack
+                // First navigate to parent (Tab Navigator) to switch to Bookings tab
+                const parent = navigation.getParent();
+                if (parent) {
+                  // Navigate to Bookings tab
+                  parent.navigate('Bookings');
+                }
+                // Then reset the Bookings stack to BookingList
+                navigation.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'BookingList' }],
+                  })
+                );
+              } else {
+                navigation.goBack();
+              }
+            }}
           icon="arrow-left"
         >
           Back
@@ -170,6 +300,7 @@ export function BookingDetailsScreen({ navigation, route }: any) {
       
       <ScrollView 
         style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -357,17 +488,6 @@ export function BookingDetailsScreen({ navigation, route }: any) {
                     </Text>
                     <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
                       {booking.service_variants.pricing_type}
-                    </Text>
-                  </View>
-                )}
-
-                {booking.service_variants.description && (
-                  <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>
-                      Description
-                    </Text>
-                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurface }]}>
-                      {booking.service_variants.description}
                     </Text>
                   </View>
                 )}
@@ -566,6 +686,18 @@ export function BookingDetailsScreen({ navigation, route }: any) {
               Confirm Booking
             </Button>
           )}
+
+          {canDelete && (
+            <Button
+              mode="outlined"
+              onPress={handleDeleteBooking}
+              style={[styles.actionButton, styles.deleteButton]}
+              textColor={theme.colors.error}
+              icon="delete"
+            >
+              Delete Booking
+            </Button>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -589,7 +721,10 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  scrollContent: {
     padding: 16,
+    paddingBottom: 32,
   },
   loadingContainer: {
     flex: 1,
@@ -598,7 +733,7 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   card: {
-    marginBottom: 16,
+    marginBottom: 12,
     borderRadius: 12,
     elevation: 2,
   },
@@ -636,16 +771,16 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   divider: {
-    marginVertical: 12,
+    marginVertical: 8,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   infoLabel: {
     flex: 1,
@@ -714,6 +849,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   cancelButton: {
+    borderColor: '#f44336',
+  },
+  deleteButton: {
     borderColor: '#f44336',
   },
 });

@@ -1,8 +1,10 @@
 /**
- * Service Category Selector Component
+ * Service Category Selector Component - DEPRECATED
+ * Use ServiceCategorySelector.new.tsx instead
+ * @deprecated
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Button, Menu, useTheme } from 'react-native-paper';
 import { ServiceCategory } from '../hooks/useServiceCategories';
@@ -26,6 +28,33 @@ export function ServiceCategorySelector({
   const selectedCategory = categories.find((cat) => cat.id === selectedCategoryId);
   const displayText = selectedCategory ? selectedCategory.title : 'Select Service Category';
 
+  const handleOpenMenu = useCallback(() => {
+    // Don't open if already visible
+    if (menuVisible) {
+      return;
+    }
+    // Use setTimeout to ensure state update happens after render
+    setTimeout(() => {
+      setMenuVisible(true);
+    }, 0);
+  }, [menuVisible]);
+
+  const handleCloseMenu = useCallback(() => {
+    setMenuVisible(false);
+  }, []);
+
+  const handleSelectCategory = useCallback((categoryId: string) => {
+    onSelectCategory(categoryId);
+    setMenuVisible(false);
+  }, [onSelectCategory]);
+
+  // Ensure menu closes when loading changes
+  useEffect(() => {
+    if (loading && menuVisible) {
+      setMenuVisible(false);
+    }
+  }, [loading, menuVisible]);
+
   return (
     <View style={styles.container}>
       <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurface }]}>
@@ -38,11 +67,11 @@ export function ServiceCategorySelector({
       ) : (
         <Menu
           visible={menuVisible}
-          onDismiss={() => setMenuVisible(false)}
+          onDismiss={handleCloseMenu}
           anchor={
             <Button
               mode="outlined"
-              onPress={() => setMenuVisible(!menuVisible)}
+              onPress={handleOpenMenu}
               style={styles.button}
               contentStyle={styles.buttonContent}
             >
@@ -56,10 +85,7 @@ export function ServiceCategorySelector({
             categories.map((category) => (
               <Menu.Item
                 key={category.id}
-                onPress={() => {
-                  onSelectCategory(category.id);
-                  setMenuVisible(false);
-                }}
+                onPress={() => handleSelectCategory(category.id)}
                 title={category.title}
               />
             ))

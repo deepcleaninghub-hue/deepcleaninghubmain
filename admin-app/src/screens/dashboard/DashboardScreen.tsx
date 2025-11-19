@@ -10,6 +10,7 @@ import { Text, Card, Button, useTheme, FAB, ActivityIndicator } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import { httpClient } from '@/services/httpClient';
 import { adminDataService } from '@/services/adminDataService';
 
@@ -116,9 +117,9 @@ export function DashboardScreen() {
       const servicesResponse = await adminDataService.getServices();
       const activeServices = (servicesResponse.data || []).filter((s: any) => s.isActive !== false).length;
 
-      // Load customers (from bookings)
-      const uniqueCustomers = new Set(bookings.map((b: any) => b.user_id || b.customer_email).filter(Boolean));
-      const totalCustomers = uniqueCustomers.size;
+      // Load customers from mobile users table
+      const mobileUsersResponse = await adminDataService.getMobileUsers();
+      const totalCustomers = mobileUsersResponse.data?.length || 0;
 
       // Get recent bookings
       const recent = bookings
@@ -173,12 +174,23 @@ export function DashboardScreen() {
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'completed': return '#4CAF50';
-      case 'pending':
-      case 'scheduled':
-      case 'confirmed': return theme.colors.primary;
-      case 'cancelled': return theme.colors.error;
+      case 'scheduled': return '#2196F3'; // Bright blue for better visibility
+      case 'confirmed': return '#4CAF50'; // Green
+      case 'completed': return '#4CAF50'; // Green
+      case 'cancelled': return theme.colors.error; // Red
+      case 'pending': return '#FF9800'; // Orange
       default: return theme.colors.onSurfaceVariant;
+    }
+  };
+
+  const getStatusBackgroundColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'scheduled': return '#E3F2FD'; // Light blue background
+      case 'confirmed': return '#E8F5E9'; // Light green background
+      case 'completed': return '#E8F5E9'; // Light green background
+      case 'cancelled': return '#FFEBEE'; // Light red background
+      case 'pending': return '#FFF3E0'; // Light orange background
+      default: return '#F5F5F5'; // Light gray background
     }
   };
 
@@ -421,7 +433,18 @@ export function DashboardScreen() {
               <Card
                 key={booking.id}
                 style={[styles.recentCard, { backgroundColor: theme.colors.surface }]}
-                onPress={() => navigation.navigate('Bookings', { screen: 'BookingDetails', params: { bookingId: booking.id } })}
+                onPress={() => {
+                  // Navigate to BookingDetails and indicate we came from Dashboard
+                  navigation.dispatch(
+                    CommonActions.navigate({
+                      name: 'Bookings',
+                      params: {
+                        screen: 'BookingDetails',
+                        params: { bookingId: booking.id, cameFromDashboard: true },
+                      },
+                    })
+                  );
+                }}
               >
                 <Card.Content>
                   <View style={styles.recentCardHeader}>
@@ -433,9 +456,12 @@ export function DashboardScreen() {
                         {formatDate(booking.booking_date)}
                       </Text>
                     </View>
-                    <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) + '20' }]}>
-                      <Text variant="bodySmall" style={[styles.statusText, { color: getStatusColor(booking.status) }]}>
-                        {booking.status}
+                    <View style={[styles.statusBadge, { 
+                      backgroundColor: getStatusBackgroundColor(booking.status),
+                      borderColor: getStatusColor(booking.status)
+                    }]}>
+                      <Text variant="bodySmall" style={[styles.statusText, { color: getStatusColor(booking.status), fontWeight: '600' }]}>
+                        {booking.status.replace('_', ' ').toUpperCase()}
                       </Text>
                     </View>
                   </View>
@@ -600,14 +626,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: 12,
+    borderWidth: 1,
   },
   statusText: {
     fontSize: 11,
     fontWeight: '600',
-    textTransform: 'capitalize',
+    textTransform: 'uppercase',
   },
   recentAddress: {
     marginBottom: 8,

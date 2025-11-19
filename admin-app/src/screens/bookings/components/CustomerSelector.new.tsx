@@ -1,33 +1,67 @@
 /**
- * Customer Selector Component V2 - Improved Quality
- * Better error handling, performance, and robustness
+ * Customer Selector Component - New Improved Version
+ * Features:
+ * - Uses data cache to avoid repeated DB calls
+ * - Robust menu state management
+ * - Better error handling
+ * - Improved performance
  */
 
-import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Button, Menu, Searchbar, useTheme } from 'react-native-paper';
-import { Customer } from '../hooks/useCustomers';
+import { Text, Button, Menu, Searchbar, useTheme, ActivityIndicator } from 'react-native-paper';
+import { dataCache, Customer } from '@/services/dataCache';
 
 interface CustomerSelectorProps {
-  customers: Customer[];
   selectedCustomer: Customer | null;
   onSelectCustomer: (customer: Customer) => void;
-  loading?: boolean;
 }
 
 export function CustomerSelector({
-  customers,
   selectedCustomer,
   onSelectCustomer,
-  loading = false,
 }: CustomerSelectorProps) {
   const theme = useTheme();
   const [menuVisible, setMenuVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const isOpeningRef = useRef(false);
-  const previousCustomersRef = useRef<Customer[]>(customers);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const menuClosingRef = useRef(false);
 
-  // Memoize display text to avoid unnecessary recalculations
+  // Load customers from cache on mount
+  useEffect(() => {
+    let mounted = true;
+    
+    const loadCustomers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const cachedCustomers = await dataCache.getCustomers();
+        if (mounted) {
+          setCustomers(cachedCustomers);
+        }
+      } catch (err: any) {
+        console.error('Error loading customers:', err);
+        if (mounted) {
+          setError(err.message || 'Failed to load customers');
+          setCustomers([]);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadCustomers();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Memoize display text
   const displayText = useMemo(() => {
     if (selectedCustomer) {
       const parts = [selectedCustomer.name];
@@ -39,81 +73,40 @@ export function CustomerSelector({
     return loading ? 'Loading customers...' : 'Select Customer';
   }, [selectedCustomer, loading]);
 
-  // Handle menu opening with debouncing to prevent rapid clicks
+  // Handle menu opening
   const handleOpenMenu = useCallback(() => {
-    // Prevent opening if loading
-    if (loading) {
+    // Prevent opening if loading or no customers
+    if (loading || customers.length === 0) {
       return;
     }
     
-    // If menu is already visible, don't try to open again
-    if (menuVisible) {
-      return;
-    }
-    
-    // Prevent rapid successive calls, but reset if menu was closed
-    if (isOpeningRef.current) {
-      // If flag is set but menu is closed, reset it (edge case handling)
-      // This handles cases where menu closes but flag wasn't reset properly
-      if (!menuVisible) {
-        isOpeningRef.current = false;
-        // Continue to open menu below
-      } else {
-        // Menu is visible and flag is set, don't open again
-        return;
-      }
-    }
-    
-    isOpeningRef.current = true;
-    // Use setTimeout for better test compatibility
-    setTimeout(() => {
-      setMenuVisible(true);
-      // Reset flag after menu opens (give it time to render)
-      setTimeout(() => {
-        isOpeningRef.current = false;
-      }, 200);
-    }, 0);
-  }, [loading, menuVisible]);
+    // Use functional update to ensure we have latest state
+    setMenuVisible((prevVisible) => {
+      // If already visible, don't change (Menu will handle closing via onDismiss)
+      // If not visible, open it
+      return prevVisible ? prevVisible : true;
+    });
+  }, [loading, customers.length]);
 
   const handleCloseMenu = useCallback(() => {
+    // Immediately close and reset
     setMenuVisible(false);
     setSearchQuery('');
-    // Reset flag immediately when closing
-    isOpeningRef.current = false;
+    menuClosingRef.current = false;
   }, []);
 
   const handleSelectCustomer = useCallback((customer: Customer) => {
     if (!customer) return;
     
     try {
-      // Clear search first
       setSearchQuery('');
-      // Reset flag immediately
-      isOpeningRef.current = false;
-      // Close menu
       setMenuVisible(false);
-      // Then call callback
+      menuClosingRef.current = false;
       onSelectCustomer(customer);
     } catch (error) {
       console.error('Error selecting customer:', error);
-      // Keep menu open on error so user can retry
     }
   }, [onSelectCustomer]);
-
-  // Close menu when loading starts
-  useEffect(() => {
-    if (loading && menuVisible) {
-      isOpeningRef.current = false;
-      setMenuVisible(false);
-      setSearchQuery('');
-    }
-  }, [loading, menuVisible]);
-
-  // Handle customers list changes - keep menu open but update filtered list
-  useEffect(() => {
-    // Update ref but don't close menu - let user see updated list
-    previousCustomersRef.current = customers;
-  }, [customers]);
 
   // Optimized filtering with memoization
   const filteredCustomers = useMemo(() => {
@@ -136,9 +129,6 @@ export function CustomerSelector({
     });
   }, [customers, searchQuery]);
 
-  // Prevent opening if menu is already visible or loading
-  const canOpenMenu = !loading && !menuVisible && customers.length > 0;
-
   return (
     <View style={styles.container} testID="customer-selector">
       <Text 
@@ -150,15 +140,23 @@ export function CustomerSelector({
       </Text>
       <Menu
         visible={menuVisible}
-        onDismiss={handleCloseMenu}
+        onDismiss={() => {
+          // Ensure menu closes immediately
+          setMenuVisible(false);
+          setSearchQuery('');
+          menuClosingRef.current = false;
+        }}
         anchor={
           <Button
             mode="outlined"
-            onPress={handleOpenMenu}
+            onPress={() => {
+              // Use functional update to ensure we have latest state
+              setMenuVisible((prev) => !prev);
+            }}
             style={styles.button}
             contentStyle={styles.buttonContent}
             loading={loading}
-            disabled={loading}
+            disabled={loading || customers.length === 0}
             accessibilityLabel={displayText}
             accessibilityHint="Opens customer selection menu"
             testID="customer-selector-button"
@@ -185,7 +183,23 @@ export function CustomerSelector({
           keyboardShouldPersistTaps="handled"
           testID="customer-list-scroll"
         >
-          {filteredCustomers.length === 0 ? (
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" />
+              <Text style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>
+                Loading customers...
+              </Text>
+            </View>
+          ) : error ? (
+            <View style={styles.emptyContainer} testID="customer-error-state">
+              <Text 
+                style={[styles.emptyText, { color: theme.colors.error }]}
+                accessibilityRole="text"
+              >
+                {error}
+              </Text>
+            </View>
+          ) : filteredCustomers.length === 0 ? (
             <View style={styles.emptyContainer} testID="customer-empty-state">
               <Text 
                 style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}
@@ -253,6 +267,16 @@ const styles = StyleSheet.create({
   },
   listScroll: {
     maxHeight: 300,
+  },
+  loadingContainer: {
+    padding: 16,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  loadingText: {
+    fontSize: 14,
   },
   emptyContainer: {
     padding: 16,

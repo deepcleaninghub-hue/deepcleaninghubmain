@@ -1,7 +1,10 @@
+// Import URL polyfill for React Native compatibility
+import 'react-native-url-polyfill/auto';
+
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { API_BASE_URL } from '../config/environment';
 
 // Use environment configuration for proper API URL
@@ -12,6 +15,7 @@ class HttpClient {
   private logoutCallback: (() => void) | null = null;
   private refreshTokenCallback: (() => Promise<boolean>) | null = null;
   private isRefreshing = false;
+  private timeout: number;
 
   constructor() {
     // Increase timeout for production environments (30 seconds)
@@ -19,17 +23,39 @@ class HttpClient {
     const isProduction = BASE_URL.includes('deepcleaninghub.com') ||
       BASE_URL.includes('54.252.116.156') ||
       BASE_URL.startsWith('https://'); // HTTPS URLs are typically production
-    const timeout = isProduction ? 30000 : 10000;
+    this.timeout = isProduction ? 30000 : 10000;
+
+    // Log base URL for debugging
+    if (__DEV__) {
+      console.log('🌐 HTTP Client initialized:', {
+        baseURL: BASE_URL,
+        timeout: this.timeout,
+        isProduction,
+        platform: Platform.OS,
+      });
+    }
 
     this.client = axios.create({
       baseURL: BASE_URL,
-      timeout: timeout,
+      timeout: this.timeout,
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
+      // Use default adapter (React Native uses XMLHttpRequest automatically)
+      // Don't specify adapter - let axios choose the right one for the platform
     });
 
-    console.log(`🔧 HTTP Client configured: ${BASE_URL}, timeout: ${timeout}ms`);
+    // Log network configuration on iOS for debugging
+    if (__DEV__ && Platform.OS === 'ios') {
+      console.log('📱 iOS Network Configuration:', {
+        baseURL: BASE_URL,
+        timeout: this.timeout,
+        platform: Platform.OS,
+        version: Platform.Version,
+      });
+    }
+
     this.setupInterceptors();
   }
 
@@ -48,7 +74,6 @@ class HttpClient {
     try {
       // Clear all stored tokens
       await AsyncStorage.multiRemove(['admin_token', 'admin_refresh_token', 'admin_user']);
-      console.log('🔐 Admin logged out due to session expiration');
 
       // Show session expired alert
       Alert.alert(
@@ -81,12 +106,24 @@ class HttpClient {
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
           }
+
+          // Log request details in development
+          if (__DEV__) {
+            console.log('📤 Request:', {
+              method: config.method?.toUpperCase(),
+              url: config.url,
+              baseURL: config.baseURL,
+              fullURL: `${config.baseURL}${config.url}`,
+              headers: config.headers,
+            });
+          }
         } catch (error) {
           console.error('Error getting token:', error);
         }
         return config;
       },
       (error: AxiosError) => {
+        console.error('❌ Request interceptor error:', error);
         return Promise.reject(error);
       }
     );
@@ -115,7 +152,6 @@ class HttpClient {
 
           if (isJWTError) {
             // Invalid token structure - cannot refresh, must logout
-            console.log('JWT signature error detected, triggering admin logout...');
             await this.triggerLogout();
             return Promise.reject(error);
           }
@@ -124,7 +160,6 @@ class HttpClient {
           if (this.refreshTokenCallback) {
             try {
               this.isRefreshing = true;
-              console.log('Token expired, attempting to refresh...');
               const refreshSuccess = await this.refreshTokenCallback();
 
               if (refreshSuccess) {
@@ -136,10 +171,6 @@ class HttpClient {
                   originalRequest._retry = false;
                   return this.client(originalRequest);
                 }
-              } else {
-                console.log('Token refresh failed, but not logging out automatically');
-                // Don't logout automatically - let user continue using the app
-                // They will be prompted to login when they try to use a protected feature
               }
             } catch (refreshError) {
               console.error('Token refresh error:', refreshError);
@@ -147,13 +178,52 @@ class HttpClient {
             } finally {
               this.isRefreshing = false;
             }
-          } else {
-            console.log('No refresh token callback set, skipping token refresh');
           }
         } else if (isRefreshRequest && error.response?.status === 401) {
           // If refresh token request itself fails with 401, logout
-          console.log('Refresh token request failed with 401, triggering logout...');
           await this.triggerLogout();
+        }
+
+        // Enhanced error logging for network issues
+        const errorDetails = {
+          url: originalRequest?.url,
+          baseURL: BASE_URL,
+          fullURL: originalRequest ? `${BASE_URL}${originalRequest.url}` : 'unknown',
+          method: originalRequest?.method?.toUpperCase(),
+          platform: Platform.OS,
+          timeout: this.timeout,
+          message: error.message,
+          code: error.code,
+          name: error.name,
+          response: error.response ? {
+            status: error.response.status,
+            statusText: error.response.statusText,
+            data: error.response.data,
+          } : null,
+          request: originalRequest ? {
+            headers: originalRequest.headers,
+            params: originalRequest.params,
+          } : null,
+        };
+
+        if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+          console.error('⏱️ Network timeout:', errorDetails);
+        } else if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error') || error.message?.includes('Network request failed')) {
+          console.error('🚫 Network error (connection failed):', errorDetails);
+          console.error('💡 Troubleshooting tips:');
+          console.error('   1. Check if device is on the same network as server');
+          console.error('   2. Verify server is running at:', BASE_URL);
+          console.error('   3. Check iOS Info.plist NSAppTransportSecurity settings');
+          console.error('   4. Try accessing URL in Safari on iOS device');
+        } else if (error.response) {
+          // Server responded with error status
+          console.error('⚠️ API error (server responded):', errorDetails);
+        } else if (error.request) {
+          // Request was made but no response received
+          console.error('📡 Request sent but no response:', errorDetails);
+        } else {
+          // Request setup failed
+          console.error('❌ Request setup error:', errorDetails);
         }
 
         return Promise.reject(error);

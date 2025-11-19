@@ -1,3 +1,6 @@
+// Import URL polyfill for React Native compatibility (must be first)
+import 'react-native-url-polyfill/auto';
+
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';

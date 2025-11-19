@@ -41,7 +41,7 @@ export function CustomerListScreen() {
   useEffect(() => {
     // Only filter if customers have been loaded (not empty or if we have customers)
     if (customers.length > 0 || searchQuery) {
-      filterCustomers();
+    filterCustomers();
     }
   }, [searchQuery, customers]);
 
@@ -231,9 +231,9 @@ export function CustomerListScreen() {
               <Card.Content>
                 <View style={styles.customerHeader}>
                   <View style={styles.customerInfo}>
-                    <Text variant="titleMedium" style={[styles.customerName, { color: theme.colors.onSurface }]}>
-                      {customer.name}
-                    </Text>
+                      <Text variant="titleMedium" style={[styles.customerName, { color: theme.colors.onSurface }]}>
+                        {customer.name}
+                      </Text>
                     <Text variant="bodySmall" style={[styles.customerEmail, { color: theme.colors.onSurfaceVariant }]}>
                       {customer.email}
                     </Text>
